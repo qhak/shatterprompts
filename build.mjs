@@ -1,0 +1,143 @@
+#!/usr/bin/env node
+/* ==========================================================================
+   SHATTERPROMPTS — static site generator
+   Zero dependencies. Run:  node build.mjs
+   Output:  dist/   (deploy this folder)
+
+   Every route below is a real directory with its own index.html, so clean URLs
+   like /freelancing work on any static host and survive a hard refresh with no
+   rewrite rules.
+   ========================================================================== */
+
+import { mkdir, writeFile, rm, copyFile, readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { SITE, PACKS, HOW_IT_WORKS } from "./content/site.config.mjs";
+import {
+  homePage, packPage, accessPage, packsPage,
+  privacyPage, termsPage, notFoundPage
+} from "./src/templates.mjs";
+import { makeOgImage } from "./src/ogimage.mjs";
+
+const ROOT = dirname(fileURLToPath(import.meta.url));
+const OUT = join(ROOT, "dist");
+
+const corePacks = PACKS.filter((p) => p.tier === "core");
+const secondaryPacks = PACKS.filter((p) => p.tier !== "core");
+
+/* ------------------------------------------------------------------ helpers */
+async function emit(routePath, html) {
+  const dir = routePath === "/" ? OUT : join(OUT, routePath);
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, "index.html"), html, "utf8");
+  return routePath;
+}
+
+/* --------------------------------------------------------------- validation
+   Fails the build rather than shipping a page that promises something the data
+   cannot deliver. */
+function validate() {
+  const errors = [];
+  const seen = new Set();
+
+  for (const p of PACKS) {
+    if (!/^[a-z0-9-]+$/.test(p.slug)) errors.push(`Bad slug: "${p.slug}"`);
+    if (seen.has(p.slug)) errors.push(`Duplicate slug: "${p.slug}"`);
+    seen.add(p.slug);
+
+    if (!p.prompts?.length) errors.push(`${p.slug}: has no prompts — the access page would be empty.`);
+    if (p.inside?.length > 5) errors.push(`${p.slug}: "inside" has ${p.inside.length} bullets (max 5).`);
+    if (!p.seo?.title || !p.seo?.description) errors.push(`${p.slug}: missing SEO title or description.`);
+    if (p.seo?.description?.length > 165) errors.push(`${p.slug}: SEO description is ${p.seo.description.length} chars (max 165).`);
+
+    /* A price may only be shown alongside a working checkout URL. */
+    const hasCheckout = /^https:\/\//.test(p.upgrade?.checkoutUrl || "");
+    if (p.upgrade?.price && !hasCheckout) {
+      errors.push(`${p.slug}: upgrade has a price but no checkout URL — a price must never be shown without a working checkout.`);
+    }
+  }
+
+  if (!/^https?:\/\//.test(SITE.origin)) errors.push(`SITE.origin must be an absolute URL.`);
+
+  if (errors.length) {
+    console.error("\n  Build failed:\n" + errors.map((e) => "   - " + e).join("\n") + "\n");
+    process.exit(1);
+  }
+}
+
+/* ------------------------------------------------------------------- assets */
+const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<rect width="32" height="32" fill="#0C0C0D"/>
+<path d="M9 7h14v4h-9v4h8v4h-8v6H9z" fill="#CE2029"/>
+</svg>`;
+
+/* ---------------------------------------------------------------- the build */
+async function build() {
+  validate();
+
+  await rm(OUT, { recursive: true, force: true });
+  await mkdir(join(OUT, "assets"), { recursive: true });
+
+  const routes = [];
+
+  /* Pages */
+  routes.push(await emit("/", homePage({ site: SITE, corePacks, howItWorks: HOW_IT_WORKS })));
+  routes.push(await emit("/packs", packsPage({ site: SITE, corePacks, secondaryPacks })));
+  routes.push(await emit("/privacy", privacyPage({ site: SITE })));
+  routes.push(await emit("/terms", termsPage({ site: SITE })));
+
+  for (const pack of PACKS) {
+    routes.push(await emit(`/${pack.slug}`, packPage({ site: SITE, pack })));
+    routes.push(await emit(`/${pack.slug}/access`, accessPage({ site: SITE, pack })));
+  }
+
+  /* 404 — Netlify, Cloudflare Pages and GitHub Pages all serve /404.html */
+  await writeFile(join(OUT, "404.html"), notFoundPage({ site: SITE }), "utf8");
+
+  /* Static assets */
+  await copyFile(join(ROOT, "src/styles.css"), join(OUT, "assets/styles.css"));
+  await copyFile(join(ROOT, "src/app.js"), join(OUT, "assets/app.js"));
+  await writeFile(join(OUT, "favicon.svg"), FAVICON, "utf8");
+  await writeFile(join(OUT, "social-preview.png"), makeOgImage());
+
+  /* robots.txt + sitemap.xml — access pages are excluded from both */
+  const origin = SITE.origin.replace(/\/$/, "");
+  await writeFile(join(OUT, "robots.txt"),
+    `User-agent: *\nAllow: /\nDisallow: /*/access\n\nSitemap: ${origin}/sitemap.xml\n`, "utf8");
+
+  const indexable = routes.filter((r) => !r.endsWith("/access"));
+  await writeFile(join(OUT, "sitemap.xml"),
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    indexable.map((r) =>
+      `  <url><loc>${origin}${r === "/" ? "/" : r}</loc><priority>${r === "/" ? "1.0" : "0.8"}</priority></url>`
+    ).join("\n") +
+    `\n</urlset>\n`, "utf8");
+
+  /* Headers: long cache for hashed-free assets is unsafe, so cache assets
+     briefly and let HTML always revalidate. */
+  await writeFile(join(OUT, "_headers"),
+    `/assets/*\n  Cache-Control: public, max-age=3600\n/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n`,
+    "utf8");
+
+  /* Report */
+  const packCount = PACKS.length;
+  const promptTotal = PACKS.reduce((n, p) => n + p.prompts.length, 0);
+  console.log(`\n  SHATTERPROMPTS built -> dist/`);
+  console.log(`  ${routes.length + 1} pages · ${packCount} packs · ${promptTotal} prompts\n`);
+  console.log(`  Routes:`);
+  routes.forEach((r) => console.log(`    ${r}`));
+  console.log(`    /404.html\n`);
+
+  const leadLive = /^https:\/\//.test(SITE.integrations.leadEndpoint || "");
+  if (!leadLive) {
+    console.log(`  NOTE: integrations.leadEndpoint is empty.`);
+    console.log(`        Packs still open on submit, and the site says plainly that`);
+    console.log(`        no email was sent and nothing was stored. See README.md.\n`);
+  }
+}
+
+build().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

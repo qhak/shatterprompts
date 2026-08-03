@@ -1,0 +1,11 @@
+# Build output — Netlify regenerates this from source on every deploy
+dist/
+
+# macOS
+.DS_Store
+
+# Editor / tooling
+node_modules/
+*.log
+.env
+.env.*

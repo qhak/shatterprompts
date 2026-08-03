@@ -1,0 +1,37 @@
+[build]
+  command = "node build.mjs"
+  publish = "dist"
+
+[build.environment]
+  # Pin so a future Netlify default change cannot break the build
+  NODE_VERSION = "20"
+
+# Clean URLs (/freelancing) are real directories with index.html files, so they
+# work on a direct load and a hard refresh without any rewrite rules.
+# Netlify serves dist/404.html automatically for unmatched paths.
+
+[[redirects]]
+  from = "/freelance"
+  to = "/freelancing"
+  status = 301
+
+[[redirects]]
+  from = "/local"
+  to = "/local-business"
+  status = 301
+
+[[redirects]]
+  from = "/products"
+  to = "/digital-products"
+  status = 301
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
