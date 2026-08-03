@@ -342,7 +342,13 @@
         page_url: location.href
       }, attribution());
 
-      deliver(lead).then(function (result) {
+      /* Promise.resolve() first so a *synchronous* throw inside deliver() — a
+         missing fetch or AbortController on an old browser — becomes a
+         rejection and hits .catch(), instead of escaping the handler and
+         leaving the button stuck on its loading spinner forever. */
+      Promise.resolve().then(function () {
+        return deliver(lead);
+      }).then(function (result) {
         write(KEY_EMAIL, email);
         grantAccess(slug, {
           email: email,

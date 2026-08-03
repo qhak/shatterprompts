@@ -203,7 +203,7 @@ export function packPage({ site, pack }) {
       return `
       <article class="prompt">
         <div class="prompt__head">
-          <h3 class="prompt__title">${esc(p.title)}</h3>
+          <h3 class="prompt__title"><span class="n">01</span> ${esc(p.title)}</h3>
           <button class="copy" type="button" data-copy="${id}"
                   data-prompt-title="${esc(p.title)}" data-copy-event="prompt_preview_copy">
             <span data-copy-label>Copy prompt</span>
@@ -238,6 +238,7 @@ export function packPage({ site, pack }) {
 
   const main = `
 <section class="hero wrap">
+  <span class="hero__index" aria-hidden="true">${esc(pack.index)}</span>
   <p class="eyebrow eyebrow--accent hero__eyebrow">Free AI prompt pack</p>
   <h1>${esc(pack.headline)}</h1>
   <div class="hero__support">${support}</div>
@@ -339,7 +340,7 @@ export function accessPage({ site, pack }) {
   const count = pack.prompts.length;
 
   const toc = pack.prompts.map((p, i) => `
-    <a href="#p${i + 1}"><span>${String(i + 1).padStart(2, "0")}</span><span>${esc(p.title)}</span></a>`).join("");
+    <a href="#p${i + 1}"><span class="n">${String(i + 1).padStart(2, "0")}</span><span>${esc(p.title)}</span></a>`).join("");
 
   const prompts = pack.prompts.map((p, i) => {
     const id = `p${i + 1}`;
@@ -347,7 +348,7 @@ export function accessPage({ site, pack }) {
     return `
     <article class="prompt" id="${id}">
       <div class="prompt__head">
-        <h2 class="prompt__title">${String(i + 1).padStart(2, "0")} — ${esc(p.title)}</h2>
+        <h2 class="prompt__title"><span class="n">${String(i + 1).padStart(2, "0")}</span> ${esc(p.title)}</h2>
         <button class="copy" type="button" data-copy="${bodyId}"
                 data-prompt-title="${esc(p.title)}" data-copy-event="prompt_copy">
           <span data-copy-label>Copy</span>
@@ -387,20 +388,27 @@ export function accessPage({ site, pack }) {
   </div>
 
   <div data-access-body hidden>
+    <span class="hero__index" aria-hidden="true">${esc(pack.index)}</span>
     <p class="success__badge">Access granted</p>
     <h1>${esc(pack.name)}</h1>
     <p class="lead mt-s" data-access-status>Your pack is ready below.</p>
-    <p class="small mt-m">${count} prompts. Use them in order — each one feeds the next.</p>
+    <p class="small mt-m">${count} prompts, in the order to use them. Each one feeds the next.</p>
     ${note}
-
-    <nav class="toc" aria-label="Prompts in this pack">${toc}</nav>
   </div>
 </section>
 
 <div data-access-body hidden>
   <hr class="rule">
-  <section class="section wrap">
-    ${prompts}
+  <section class="section wrap-wide">
+    <div class="doc">
+      <aside class="doc__aside">
+        <p class="doc__label">Contents</p>
+        <nav class="toc" aria-label="Prompts in this pack">${toc}</nav>
+      </aside>
+      <div class="doc__main">
+        ${prompts}
+      </div>
+    </div>
   </section>
   ${upgrade}
   <hr class="rule">
