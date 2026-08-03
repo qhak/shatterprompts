@@ -27,7 +27,7 @@ export const SITE = {
     /* POST endpoint that receives the lead JSON. Empty = not connected.
        Expected response: { ok: true, emailed: true|false }
        "emailed" controls whether the success screen says a copy was sent. */
-    leadEndpoint: "",
+    leadEndpoint: "https://shatterprompts.nicholasdrew62.workers.dev/subscribe",
 
     /* Optional analytics. Leave empty to use the built-in event queue only. */
     analytics: {
