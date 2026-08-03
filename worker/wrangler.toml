@@ -1,0 +1,36 @@
+name = "shatterprompts-leads"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# KV namespace holding leads + rate-limit counters.
+# Create it once:   npx wrangler kv namespace create LEADS
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "LEADS"
+id = ""            # <-- paste the namespace id here
+
+[vars]
+# Comma-separated origin allowlist. Only these may POST to the Worker.
+APP_ORIGINS = "https://shatterprompts.com,https://www.shatterprompts.com"
+
+# Set to "1" ONLY after you have sent yourself a test signup and the pack email
+# genuinely arrived. This flag is what makes the site tell people a copy was
+# sent to their inbox — leaving it at "0" keeps the site honest.
+DELIVERY_CONFIRMED = "0"
+
+# Per-pack MailerLite delivery groups: {"pack-slug": "group_id"}
+# The pack automation listens to these groups.
+MAILERLITE_GROUPS = "{}"
+
+# Fallback group used when a pack has no entry above.
+MAILERLITE_GROUP_ID = ""
+
+# Group for people who ticked the optional marketing checkbox. Keep this
+# separate from the delivery groups — that separation is the consent model.
+MAILERLITE_MARKETING_GROUP_ID = ""
+
+# Set to "1" to allow localhost origins while testing.
+ALLOW_LOCAL_DEV = "0"
+
+# SECRET — never put this in vars or in git. Set it with:
+#   npx wrangler secret put MAILERLITE_API_KEY

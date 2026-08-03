@@ -69,13 +69,60 @@ Everything below is **off** right now. The site behaves honestly while it is off
 
 ### 1. Email delivery + lead storage — REQUIRED before running traffic
 
-Set in `content/site.config.mjs`:
+The Worker is written and tested — it lives in `worker/`. What is left is your
+MailerLite account and the deploy.
+
+**Setup, in order:**
+
+```bash
+cd worker
+npx wrangler kv namespace create LEADS     # paste the returned id into wrangler.toml
+npx wrangler secret put MAILERLITE_API_KEY # paste your MailerLite key when prompted
+npx wrangler deploy
+```
+
+Then in MailerLite:
+
+1. Create a **group per pack** (Freelancing, Cold Outreach, Content, Local
+   Business, Digital Products) and one separate **Marketing** group.
+2. Create three custom fields: `pack`, `source`, `campaign`. Unknown field names
+   are silently dropped by MailerLite's API rather than erroring, so if these do
+   not exist you simply lose the attribution inside MailerLite — the Worker's KV
+   copy still has it.
+3. Build an automation per pack: trigger *"subscriber joins group"* → send the
+   email containing that pack's link.
+4. Put the group ids into `wrangler.toml`:
+
+```toml
+MAILERLITE_GROUPS = "{\"freelancing\":\"123\",\"outreach\":\"124\",\"content\":\"125\",\"local-business\":\"126\",\"digital-products\":\"127\"}"
+MAILERLITE_MARKETING_GROUP_ID = "128"
+```
+
+Finally point the site at it in `content/site.config.mjs`:
 
 ```js
 integrations: {
-  leadEndpoint: "https://your-worker.workers.dev/subscribe"
+  leadEndpoint: "https://shatterprompts-leads.<your-subdomain>.workers.dev/subscribe"
 }
 ```
+
+**Then test before flipping the honesty flag.** `DELIVERY_CONFIRMED` starts at
+`"0"`, so the site says the pack opened but no email was sent. Sign yourself up,
+confirm the pack email actually lands in your inbox, and only then set
+`DELIVERY_CONFIRMED = "1"` and redeploy the Worker. That flag is the single
+thing that makes the site tell a visitor *"we have also sent a copy to you"* —
+it is deliberately manual so the site can never claim a delivery that did not
+happen.
+
+Subscribers are created with `status: "active"`. With double opt-in enabled a
+pending subscriber never triggers the automation, so the pack would never send.
+
+**Consent model:** everyone who requests a pack joins that pack's delivery group
+(that is the thing they asked for). Only people who tick the optional box also
+join the Marketing group. Keep those groups separate.
+
+**Rate limits:** 20 signups per IP per day, 3 per email address per day.
+Adjust at the top of `worker/worker.js`.
 
 **Current behaviour with it empty:** the visitor submits, the pack opens
 immediately, and the access page says *"Email delivery is not connected yet, so
@@ -121,12 +168,11 @@ Resend API key in the Worker's environment variables:
 
 | Variable | Where | Purpose |
 |---|---|---|
-| `MAILER_API_KEY` | Worker / function env | Your email provider key |
-| `MAILER_LIST_ID` | Worker / function env | Which list to add to |
-| `ALLOWED_ORIGIN` | Worker / function env | Set to `https://shatterprompts.com` so only your site can post |
-
-> Note on MailerLite specifically: if you use double opt-in, subscribers must be
-> created with `status: "active"` or the delivery email never fires.
+| `MAILERLITE_API_KEY` | `wrangler secret put` | Your MailerLite key. **Secret — never in wrangler.toml or git.** |
+| `MAILERLITE_GROUPS` | `wrangler.toml` vars | JSON map of pack slug to delivery group id |
+| `MAILERLITE_MARKETING_GROUP_ID` | `wrangler.toml` vars | Group for the optional marketing consent |
+| `APP_ORIGINS` | `wrangler.toml` vars | Already set to your domain — only these origins may POST |
+| `DELIVERY_CONFIRMED` | `wrangler.toml` vars | `"0"` until you have verified a real delivery |
 
 ### 2. Analytics — optional
 
@@ -208,6 +254,7 @@ src/templates.mjs         ← page HTML
 src/styles.css            ← design system
 src/app.js                ← attribution, analytics, form, copy, access gate
 src/ogimage.mjs           ← generates the social card
+worker/                   ← Cloudflare Worker: lead capture + MailerLite
 build.mjs                 ← generator + content validation
 serve.mjs                 ← local preview
 dist/                     ← output. deploy this.
