@@ -290,6 +290,48 @@ p + p { margin-top: 1rem; }
   content: ""; width: .5rem; height: 2px; background: var(--accent); margin-top: .6875rem;
 }
 
+
+/* ---------- outcomes ("what you walk away with") ----------
+   Deliberately heavier than .inside — this is the desire block that sits
+   nearest the CTA, so it reads as reward rather than as a task list. */
+.outcomes { display: grid; gap: .875rem; }
+.outcomes li {
+  display: grid; grid-template-columns: auto 1fr; gap: .875rem;
+  font-size: 1rem; line-height: 1.45; align-items: start;
+  font-weight: 540; color: var(--fg);
+}
+.outcomes li::before {
+  content: ""; width: .5rem; height: .5rem; background: var(--accent);
+  margin-top: .5rem; flex: 0 0 auto;
+}
+
+/* ---------- assurance block at the form ----------
+   Only ever states things that are literally true. No counts, no testimonials,
+   no "trusted by" — those would have to be invented. */
+.assurance { display: grid; gap: .625rem; }
+.assurance li {
+  display: grid; grid-template-columns: auto 1fr; gap: .75rem;
+  font-size: .9375rem; line-height: 1.5; color: var(--fg-dim); align-items: start;
+}
+.assurance li::before {
+  content: ""; width: .5rem; height: 2px; background: var(--accent); margin-top: .6875rem;
+}
+
+/* ---------- Reel rescue line ----------
+   Was 13px and dim, i.e. invisible on the device most of the traffic uses. */
+.hero__reel {
+  margin-top: 1.75rem;
+  font-size: .9375rem;
+  color: var(--fg-dim);
+}
+.hero__reel a {
+  color: var(--accent-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-soft);
+  padding-block: .25rem;
+}
+.hero__reel a:hover { border-bottom-color: var(--accent-text); }
+
 /* ---------- sequence ---------- */
 .seq { counter-reset: seq; }
 .seq li {

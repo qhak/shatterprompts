@@ -9,3 +9,6 @@ node_modules/
 *.log
 .env
 .env.*
+
+# Generated bundle for AI review
+SHATTERPROMPTS-ALL-CODE.txt

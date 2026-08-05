@@ -128,59 +128,74 @@ export function homePage({ site, corePacks, howItWorks }) {
       <span class="packrow__arrow" aria-hidden="true">&rarr;</span>
     </a>`).join("");
 
-  const steps = howItWorks.map((s) => `
-    <li class="step">
-      <div class="step__n">${esc(s.n)}</div>
-      <h3>${esc(s.title)}</h3>
-      <p>${esc(s.body)}</p>
-    </li>`).join("");
+  /* The homepage sends most of its traffic to one pack, so the primary CTA goes
+     straight there rather than adding a "choose from five" decision first. */
+  const lead = corePacks[0];
+
+  /* Real proof instead of a "how it works" diagram: show an actual prompt.
+     Nobody needs the mechanics explained before they want the thing. */
+  const showcase = lead.previews.length ? lead.previews[0] : lead.prompts[0];
+  const excerpt = showcase.text.split("\n\n").slice(0, 3).join("\n\n");
 
   const main = `
 <section class="hero wrap">
-  <p class="eyebrow eyebrow--accent hero__eyebrow">AI prompt systems for people building online</p>
-  <h1>Use AI to turn an idea into actual work.</h1>
+  <p class="eyebrow eyebrow--accent hero__eyebrow">Free AI prompt packs</p>
+  <h1>AI prompts for the part where you actually have to do the work.</h1>
   <div class="hero__support">
-    <p class="lead">Practical prompt packs for finding a service, getting clients, creating content,
-    building an offer, and launching online.</p>
+    <p class="lead">Freelancing, cold outreach, content, local business, digital products.
+    One pack per problem, written in the order you need to work through it.</p>
   </div>
   <div class="hero__cta">
-    <a class="btn" href="#packs">Explore free packs</a>
+    <a class="btn" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Get the free ${esc(lead.navLabel)} pack</a>
+    <a class="tlink" href="#packs">See all five packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
   </div>
-  <p class="small hero__note">
-    Already came from a Reel? <a href="#packs" style="color:var(--fg)">Open your pack.</a>
+  <p class="hero__reel">
+    Came from a Reel? <a href="#packs">Go straight to your pack.</a>
   </p>
 </section>
 
 <hr class="rule">
 
 <section class="section wrap" id="packs" aria-labelledby="packs-h">
+  <p class="statement mb-m">These are not random one-line prompts. <em>Every pack is built
+  around a single outcome, in the order you need to do the work.</em></p>
   <h2 class="h2 mb-m" id="packs-h">Five packs. One problem each.</h2>
   <nav class="packlist" aria-label="Free prompt packs">${rows}</nav>
 </section>
 
-<section class="section--tight wrap">
-  <p class="statement">Not random one-line prompts. <em>Each pack is built around a practical outcome.</em></p>
-</section>
-
 <hr class="rule">
 
-<section class="section wrap" aria-labelledby="how-h">
-  <h2 class="h2 mb-m" id="how-h">How it works</h2>
-  <ol class="steps">${steps}</ol>
+<section class="section wrap" aria-labelledby="proof-h">
+  <h2 class="eyebrow mb-m" id="proof-h">What one of them actually looks like</h2>
+  <article class="prompt">
+    <div class="prompt__head">
+      <h3 class="prompt__title"><span class="n">01</span> ${esc(showcase.title)} — ${esc(lead.navLabel)}</h3>
+    </div>
+    <div class="prompt__body">${promptHtml(excerpt)}</div>
+  </article>
+  <p class="small mt-m">
+    That is the opening of one prompt. Each pack has ${lead.prompts.length} of them,
+    and every one specifies the role, your inputs, the method and the rules.
+  </p>
+  <p class="mt-m"><a class="tlink" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Read the whole prompt <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a></p>
 </section>
 
 <hr class="rule">
 
 <section class="section wrap">
-  <h2 class="h2 mb-m">Start with the problem you have this week.</h2>
-  <a class="btn" href="#packs">Explore free packs</a>
+  <h2 class="h2 mb-m">Start with the problem you have right now.</h2>
+  <div class="hero__cta">
+    <a class="btn" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Get the free ${esc(lead.navLabel)} pack</a>
+    <a class="tlink" href="#packs">See all five packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
+  </div>
+  <p class="small mt-m">Enter your email, the pack opens straight away. No account needed.</p>
 </section>`;
 
   return layout({
     site,
     title: `${site.name} — Free AI prompt packs for building online`,
     description:
-      "Practical AI prompt packs for freelancing, cold outreach, content, local business and digital products. Free, one problem per pack.",
+      "Free AI prompt packs for freelancing, cold outreach, content, local business and digital products. 25 detailed prompts per pack, in the order you need them.",
     path: "/",
     page: { type: "home" },
     main
@@ -196,7 +211,12 @@ export function packPage({ site, pack }) {
   const inside = pack.inside.map((b) => `<li>${esc(b)}</li>`).join("");
   const support = pack.support.map((s) => `<p class="lead">${esc(s)}</p>`).join("");
 
-  /* One real prompt, fully readable and copyable. No blurred fake preview. */
+  /* Outcome language. The `inside` list says what you DO; this says what you
+     WALK AWAY WITH. Both matter, and this one has to come last, nearest the CTA. */
+  const benefits = (pack.benefits || []).map((b) => `<li>${esc(b)}</li>`).join("");
+
+  /* One real prompt, fully readable. Deliberately NOT copyable before the form —
+     it stays as proof of quality, but the value comes after converting. */
   const preview = (pack.previews.length ? pack.previews : pack.prompts.slice(0, 1))
     .map((p, i) => {
       const id = `preview-${i}`;
@@ -204,38 +224,19 @@ export function packPage({ site, pack }) {
       <article class="prompt">
         <div class="prompt__head">
           <h3 class="prompt__title"><span class="n">01</span> ${esc(p.title)}</h3>
-          <button class="copy" type="button" data-copy="${id}"
-                  data-prompt-title="${esc(p.title)}" data-copy-event="prompt_preview_copy">
-            <span data-copy-label>Copy prompt</span>
-          </button>
         </div>
         <div class="prompt__body" id="${id}">${promptHtml(p.text)}</div>
       </article>`;
     }).join("");
 
   const seq = pack.sequence.steps.map((s) => `<li>${esc(s)}</li>`).join("");
-
-  /* Paid upgrade: never a price or a checkout button unless a real URL exists. */
-  let upgrade = "";
-  if (pack.upgrade && pack.upgrade.name) {
-    const live = /^https:\/\//.test(pack.upgrade.checkoutUrl || "");
-    upgrade = `
-<section class="section--tight wrap">
-  <div class="upgrade" data-upgrade="${esc(pack.upgrade.name)}">
-    <h2 class="h2">Want the complete ${esc(pack.upgrade.name.replace(/^The /, ""))}?</h2>
-    <p>${esc(pack.upgrade.blurb)}</p>
-    ${live
-      ? `<p class="mt-m"><a class="btn" href="${esc(pack.upgrade.checkoutUrl)}" data-checkout>
-           Get ${esc(pack.upgrade.name)}${pack.upgrade.price ? " — " + esc(pack.upgrade.price) : ""}
-         </a></p>`
-      : `<p class="upgrade__status">Full system coming soon</p>
-         <p class="small mt-s">Everyone on the free pack list hears about it first. Nothing to do now.</p>`}
-  </div>
-</section>`;
-  }
-
   const note = pack.note ? `<p class="small mt-m">${esc(pack.note)}</p>` : "";
 
+  /* Reading order: promise -> what you do -> what you get -> proof -> why all
+     25 matter -> ask. The differentiator has to land BEFORE the form, not after.
+     The paid upgrade is deliberately absent here — teasing a product that does
+     not exist yet makes the free pack feel like a sampler. It lives on the
+     access page only, after the visitor already has the prompts. */
   const main = `
 <section class="hero wrap">
   <span class="hero__index" aria-hidden="true">${esc(pack.index)}</span>
@@ -243,7 +244,7 @@ export function packPage({ site, pack }) {
   <h1>${esc(pack.headline)}</h1>
   <div class="hero__support">${support}</div>
 
-  <p class="hidden-returning" data-returning hidden>
+  <p data-returning hidden>
     <a class="tlink" href="${accessUrl(pack.slug)}">
       You already have this pack — open it <span class="tlink__arrow" aria-hidden="true">&rarr;</span>
     </a>
@@ -251,6 +252,10 @@ export function packPage({ site, pack }) {
 
   <h2 class="eyebrow mt-l mb-m">Inside this pack</h2>
   <ul class="inside">${inside}</ul>
+
+  ${benefits ? `
+  <h2 class="eyebrow mt-l mb-m">What you walk away with</h2>
+  <ul class="outcomes">${benefits}</ul>` : ""}
 
   <div class="hero__cta mt-l">
     <a class="btn" href="#get">Get the free ${esc(pack.navLabel)} pack</a>
@@ -261,9 +266,17 @@ export function packPage({ site, pack }) {
 <hr class="rule">
 
 <section class="section wrap" aria-labelledby="preview-h">
-  <h2 class="eyebrow mb-m" id="preview-h">One prompt from the pack</h2>
+  <h2 class="eyebrow mb-m" id="preview-h">One prompt from the pack, in full</h2>
   ${preview}
-  <p class="small mt-m">This is a real prompt from the pack, not a sample. The full pack has ${count}.</p>
+  <p class="small mt-m">A real prompt from the pack, not a sample. The other ${count - 1} are the same depth.</p>
+</section>
+
+<hr class="rule">
+
+<section class="section wrap" aria-labelledby="seq-h">
+  <h2 class="h2 mb-m" id="seq-h">Why an order matters</h2>
+  <p class="lead mb-m">${esc(pack.sequence.lead)}</p>
+  <ol class="seq">${seq}</ol>
 </section>
 
 <hr class="rule">
@@ -271,6 +284,12 @@ export function packPage({ site, pack }) {
 <section class="section wrap" id="get" aria-labelledby="get-h">
   <h2 class="h2" id="get-h">Get the full ${esc(pack.name)}</h2>
   <p class="lead mt-s">All ${count} prompts, in the order you should use them.</p>
+
+  <ul class="assurance mt-m">
+    <li>You have just read one of the ${count} in full — the rest are the same depth.</li>
+    <li>The pack opens on the next screen. You are not waiting on an email.</li>
+    <li>No account, no payment details, no card.</li>
+  </ul>
 
   <form class="form mt-m" data-lead-form novalidate>
     <div class="field">
@@ -297,16 +316,6 @@ export function packPage({ site, pack }) {
   </p>
   ${note}
 </section>
-
-<hr class="rule">
-
-<section class="section wrap" aria-labelledby="seq-h">
-  <h2 class="h2 mb-m" id="seq-h">Why an order matters</h2>
-  <p class="lead mb-m">${esc(pack.sequence.lead)}</p>
-  <ol class="seq">${seq}</ol>
-</section>
-
-${upgrade}
 
 <hr class="rule">
 
