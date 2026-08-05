@@ -35,13 +35,29 @@ export default {
     lead: "Most prompt packs give you random commands. This gives you an order of operations.",
     steps: ["Pick a business type", "Audit for a visible problem", "Package the fix", "Contact the owner", "Turn one into referrals"]
   },
-  upgrade: {
+  /* --------------------------------------------------------------------------
+     PREMIUM PRODUCT
+     ready:false means the content does not exist yet. While it is false the
+     site shows this as not yet available and renders NO price and NO buy
+     button, whatever checkoutUrl says. Flip it only when the prompts below
+     are actually written and the download is in place.
+     -------------------------------------------------------------------------- */
+  premium: {
     name: "The Local Business System",
+    ready: false,
+    promptCount: 200,
     blurb: "Deeper workflows for territory selection, repeatable audits, pricing, in-person and phone approaches, and retainers.",
+    includes: [
+      "Every prompt from the free pack",
+      "Repeatable audit workflows by business type",
+      "Territory and pipeline planning",
+      "In-person, phone and email approaches",
+      "Retainer conversion and referral systems"
+    ],
     checkoutUrl: "",
-    price: null,
-    targetPromptCount: 200
+    downloadUrl: ""
   },
+
   seo: {
     title: "Free Local Business AI Prompt Pack — Turn local problems into a service",
     description: "25 practical AI prompts to find local business problems, package a service, price it, and write a first message to the owner. Free."

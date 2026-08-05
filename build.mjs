@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { SITE, PACKS, HOW_IT_WORKS } from "./content/site.config.mjs";
 import {
   homePage, packPage, accessPage, packsPage,
-  privacyPage, termsPage, notFoundPage
+  privacyPage, termsPage, notFoundPage, pricingPage
 } from "./src/templates.mjs";
 import { makeOgImage } from "./src/ogimage.mjs";
 
@@ -51,10 +51,28 @@ function validate() {
     if (!p.seo?.title || !p.seo?.description) errors.push(`${p.slug}: missing SEO title or description.`);
     if (p.seo?.description?.length > 165) errors.push(`${p.slug}: SEO description is ${p.seo.description.length} chars (max 165).`);
 
-    /* A price may only be shown alongside a working checkout URL. */
-    const hasCheckout = /^https:\/\//.test(p.upgrade?.checkoutUrl || "");
-    if (p.upgrade?.price && !hasCheckout) {
-      errors.push(`${p.slug}: upgrade has a price but no checkout URL — a price must never be shown without a working checkout.`);
+    /* ----------------------------------------------------------------------
+       SELLABILITY GATE
+       A product may only be advertised as purchasable when all three hold:
+         premium.ready === true      the content actually exists
+         checkoutUrl is https://     payment actually works
+         downloadUrl is set          the buyer actually receives something
+       Any partial combination fails the build rather than shipping a shop
+       that can take money without delivering.
+       ---------------------------------------------------------------------- */
+    const prem = p.premium;
+    if (prem) {
+      const hasCheckout = /^https:\/\//.test(prem.checkoutUrl || "");
+      const hasDownload = /^https:\/\//.test(prem.downloadUrl || "");
+      if (hasCheckout && !prem.ready) {
+        errors.push(`${p.slug}: premium has a checkout URL but ready:false — that would sell content that does not exist.`);
+      }
+      if (hasCheckout && !hasDownload) {
+        errors.push(`${p.slug}: premium has a checkout URL but no downloadUrl — buyers would pay and receive nothing.`);
+      }
+      if (prem.ready && !hasDownload) {
+        errors.push(`${p.slug}: premium is marked ready but has no downloadUrl to deliver.`);
+      }
     }
   }
 
@@ -84,6 +102,7 @@ async function build() {
   /* Pages */
   routes.push(await emit("/", homePage({ site: SITE, corePacks, howItWorks: HOW_IT_WORKS })));
   routes.push(await emit("/packs", packsPage({ site: SITE, corePacks, secondaryPacks })));
+  routes.push(await emit("/pricing", pricingPage({ site: SITE, corePacks })));
   routes.push(await emit("/privacy", privacyPage({ site: SITE })));
   routes.push(await emit("/terms", termsPage({ site: SITE })));
 

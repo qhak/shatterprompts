@@ -40,13 +40,29 @@ export default {
     lead: "Most prompt packs give you random commands. This gives you an order of operations.",
     steps: ["Choose a market", "Shape the offer", "Build proof", "Start conversations", "Improve from replies"]
   },
-  upgrade: {
+  /* --------------------------------------------------------------------------
+     PREMIUM PRODUCT
+     ready:false means the content does not exist yet. While it is false the
+     site shows this as not yet available and renders NO price and NO buy
+     button, whatever checkoutUrl says. Flip it only when the prompts below
+     are actually written and the download is in place.
+     -------------------------------------------------------------------------- */
+  premium: {
     name: "The Freelancing System",
+    ready: false,
+    promptCount: 200,
     blurb: "Deeper workflows for choosing a niche, packaging an offer, building proof, finding leads, and handling replies.",
+    includes: [
+      "Every prompt from the free pack",
+      "Deeper workflows for niching, packaging and pricing",
+      "Proposal, contract and onboarding templates",
+      "Objection handling for every stage",
+      "Lead sourcing and pipeline workflows"
+    ],
     checkoutUrl: "",
-    price: null,
-    targetPromptCount: 200
+    downloadUrl: ""
   },
+
   seo: {
     title: "Free Freelancing AI Prompt Pack — Find a service people will pay for",
     description: "25 detailed AI prompts to choose a freelance service, package the offer, set a price, build proof and win a first client. Free."

@@ -43,6 +43,54 @@ export const SITE = {
     }
   },
 
+  /* ==========================================================================
+     COMMERCE
+     --------------------------------------------------------------------------
+     Nothing is purchasable until BOTH are true for a product:
+       1. its content actually exists  (premium.ready: true)
+       2. a real https:// checkout URL is set
+
+     The build FAILS if a price is shown without a working checkout URL, and
+     the templates refuse to render a buy button for a product whose content
+     is not ready. That combination is what stops the site ever taking money
+     for something it cannot deliver.
+     ========================================================================== */
+  commerce: {
+    currency: "USD",
+    currencySymbol: "$",
+
+    /* One-off purchase of a single premium pack. */
+    pack: {
+      price: "2.99",
+      label: "Premium pack",
+      /* Per-pack Stripe Payment Links live on each pack in content/packs/*.mjs
+         under `premium.checkoutUrl`. */
+      blurb: "The full system for one topic. Yours permanently."
+    },
+
+    /* All-access subscription: every premium pack, plus anything added later. */
+    membership: {
+      price: "9.99",
+      interval: "month",
+      label: "All-access",
+      checkoutUrl: "",          // Stripe subscription Payment Link
+      blurb: "Every premium pack, plus every new one while you are subscribed.",
+      includes: [
+        "Every premium pack available today",
+        "Every new pack added while you are subscribed",
+        "Download any pack, any time, from any device",
+        "Cancel whenever you like"
+      ],
+      /* Said plainly on the pricing page. Subscriptions that hide this are the
+         reason people distrust them. */
+      onCancel: "Your access ends at the end of the billing period you have paid for. Anything you downloaded is yours to keep."
+    },
+
+    /* Endpoint that verifies who someone is and what they own.
+       Same Worker, different routes. Empty = member area shows as not yet open. */
+    accountEndpoint: ""         // e.g. https://<worker>/account
+  },
+
   /* Contact + legal. Leave a value empty and the link is simply not rendered. */
   supportEmail: "",
   instagram: "",

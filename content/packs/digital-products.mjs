@@ -35,13 +35,29 @@ export default {
     lead: "Most prompt packs give you random commands. This gives you an order of operations.",
     steps: ["Mine the problem", "Validate the angle", "Package the product", "Write the page", "Launch and learn"]
   },
-  upgrade: {
+  /* --------------------------------------------------------------------------
+     PREMIUM PRODUCT
+     ready:false means the content does not exist yet. While it is false the
+     site shows this as not yet available and renders NO price and NO buy
+     button, whatever checkoutUrl says. Flip it only when the prompts below
+     are actually written and the download is in place.
+     -------------------------------------------------------------------------- */
+  premium: {
     name: "The Digital Product System",
+    ready: false,
+    promptCount: 200,
     blurb: "Deeper workflows for validation, pricing, building the outline, launch sequencing, and post-launch iteration.",
+    includes: [
+      "Every prompt from the free pack",
+      "Validation workflows before you build",
+      "Pricing and packaging deep-dives",
+      "Full launch sequences and content plans",
+      "Post-launch iteration workflows"
+    ],
     checkoutUrl: "",
-    price: null,
-    targetPromptCount: 200
+    downloadUrl: ""
   },
+
   seo: {
     title: "Free Digital Products AI Prompt Pack — Build a product people want",
     description: "25 practical AI prompts to find a real problem, validate demand, package a digital product and write the first sales page. Free."

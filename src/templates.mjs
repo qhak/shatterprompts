@@ -86,7 +86,10 @@ function topbar(site) {
   return `<header class="topbar" data-topbar>
   <div class="wrap-wide topbar__inner">
     <a class="wordmark" href="/">${esc(site.name)}</a>
-    <a class="topbar__link" href="/packs">All packs</a>
+    <nav class="topbar__nav" aria-label="Primary">
+      <a class="topbar__link" href="/packs">All packs</a>
+      <a class="topbar__link" href="/pricing">Pricing</a>
+    </nav>
   </div>
 </header>`;
 }
@@ -367,21 +370,30 @@ export function accessPage({ site, pack }) {
     </article>`;
   }).join("");
 
+  /* Premium block. Renders a real price + buy button ONLY when the content
+     exists, checkout works and there is something to download. Otherwise it
+     states plainly that it is not available yet. */
+  const prem = pack.premium;
   let upgrade = "";
-  if (pack.upgrade && pack.upgrade.name) {
-    const live = /^https:\/\//.test(pack.upgrade.checkoutUrl || "");
+  if (prem && prem.name) {
+    const sellable = prem.ready
+      && /^https:\/\//.test(prem.checkoutUrl || "")
+      && /^https:\/\//.test(prem.downloadUrl || "");
+    const money = site.commerce.currencySymbol + site.commerce.pack.price;
     upgrade = `
 <hr class="rule">
 <section class="section wrap">
-  <div class="upgrade" data-upgrade="${esc(pack.upgrade.name)}">
+  <div class="upgrade" data-upgrade="${esc(prem.name)}">
     <h2 class="h2">When you have worked through these</h2>
-    <p>${esc(pack.upgrade.blurb)}</p>
-    ${live
-      ? `<p class="mt-m"><a class="btn" href="${esc(pack.upgrade.checkoutUrl)}" data-checkout>
-           Get ${esc(pack.upgrade.name)}${pack.upgrade.price ? " — " + esc(pack.upgrade.price) : ""}</a></p>`
-      : `<p class="upgrade__status">Full system coming soon</p>`}
+    <p>${esc(prem.blurb)}</p>
+    ${sellable
+      ? `<p class="mt-m"><a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a></p>
+         <p class="small mt-s">Or <a href="/pricing" style="color:var(--fg)">all packs for ${esc(site.commerce.currencySymbol + site.commerce.membership.price)}/${esc(site.commerce.membership.interval)}</a>.</p>`
+      : `<p class="upgrade__status">Not available yet</p>
+         <p class="small mt-s">Being written now. You are on the list, so you will hear when it is ready.</p>`}
   </div>
-</section>`;
+</section>
+`;
   }
 
   const note = pack.note ? `<p class="small mt-m">${esc(pack.note)}</p>` : "";
@@ -612,6 +624,140 @@ export function notFoundPage({ site }) {
     description: "That page does not exist.",
     path: "/404",
     page: { type: "404" },
+    main
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/* PRICING                                                                    */
+/* -------------------------------------------------------------------------- */
+
+export function pricingPage({ site, corePacks }) {
+  const c = site.commerce;
+  const sym = c.currencySymbol;
+
+  /* A tier is only buyable when payment works AND something exists to deliver. */
+  const membershipLive = /^https:\/\//.test(c.membership.checkoutUrl || "");
+  const readyPacks = corePacks.filter((p) => p.premium && p.premium.ready);
+  const anyPackLive = corePacks.some((p) =>
+    p.premium && p.premium.ready && /^https:\/\//.test(p.premium.checkoutUrl || ""));
+
+  const packRows = corePacks.map((p) => {
+    const prem = p.premium || {};
+    const live = prem.ready && /^https:\/\//.test(prem.checkoutUrl || "");
+    return `
+    <div class="tierpack">
+      <div class="tierpack__body">
+        <span class="tierpack__name">${esc(p.navLabel)}</span>
+        <span class="tierpack__meta">${p.prompts.length} free &middot; ${esc(prem.name || "premium")} ${live ? "available" : "in progress"}</span>
+      </div>
+      ${live
+        ? `<a class="btn btn--ghost" href="${esc(prem.checkoutUrl)}" data-checkout>${esc(sym + c.pack.price)}</a>`
+        : `<a class="tlink" href="${packUrl(p.slug)}">Get the free ${p.prompts.length} <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>`}
+    </div>`;
+  }).join("");
+
+  const memberIncludes = c.membership.includes.map((i) => `<li>${esc(i)}</li>`).join("");
+
+  const main = `
+<section class="hero wrap">
+  <p class="eyebrow eyebrow--accent hero__eyebrow">Pricing</p>
+  <h1>Start free. Pay only if you want the full system.</h1>
+  <p class="lead mt-s">Every pack has a free version you can use today. The premium version of
+  each goes much deeper, and there is a single subscription that covers all of them.</p>
+</section>
+
+<hr class="rule">
+
+<section class="section wrap-wide">
+  <div class="tiers">
+
+    <div class="tier">
+      <h2 class="tier__name">Free</h2>
+      <p class="tier__price">${esc(sym)}0</p>
+      <p class="tier__note">Per pack, with your email</p>
+      <ul class="outcomes tier__list">
+        <li>25 detailed prompts</li>
+        <li>The full ordered workflow</li>
+        <li>Opens instantly, no account</li>
+        <li>Yours to keep</li>
+      </ul>
+      <a class="btn btn--full" href="/packs">Browse the free packs</a>
+    </div>
+
+    <div class="tier">
+      <h2 class="tier__name">${esc(c.pack.label)}</h2>
+      <p class="tier__price">${esc(sym + c.pack.price)}</p>
+      <p class="tier__note">One pack, one payment</p>
+      <ul class="outcomes tier__list">
+        <li>Everything in the free pack</li>
+        <li>The complete system for that topic</li>
+        <li>Downloadable, yours permanently</li>
+        <li>Free updates to that pack</li>
+      </ul>
+      ${anyPackLive
+        ? `<a class="btn btn--full" href="#packs">Choose a pack</a>`
+        : `<p class="tier__status">Not available yet</p>`}
+    </div>
+
+    <div class="tier tier--feature">
+      <span class="tier__flag">Best value</span>
+      <h2 class="tier__name">${esc(c.membership.label)}</h2>
+      <p class="tier__price">${esc(sym + c.membership.price)}<span class="tier__per">/${esc(c.membership.interval)}</span></p>
+      <p class="tier__note">Everything, while subscribed</p>
+      <ul class="outcomes tier__list">${memberIncludes}</ul>
+      ${membershipLive
+        ? `<a class="btn btn--full" href="${esc(c.membership.checkoutUrl)}" data-checkout>Subscribe — ${esc(sym + c.membership.price)}/${esc(c.membership.interval)}</a>`
+        : `<p class="tier__status">Not available yet</p>`}
+    </div>
+
+  </div>
+
+  ${(!anyPackLive && !membershipLive) ? `
+  <div class="notice mt-l">
+    <strong>Paid plans are not open yet.</strong> The premium packs are still being written.
+    Nothing here can be bought today, and no payment details are collected anywhere on this site.
+    ${readyPacks.length ? `${readyPacks.length} of ${corePacks.length} premium packs are finished.` : "Every free pack is complete and available now."}
+  </div>` : ""}
+</section>
+
+<hr class="rule">
+
+<section class="section wrap" id="packs" aria-labelledby="packs-h">
+  <h2 class="h2 mb-m" id="packs-h">The packs</h2>
+  <div class="tierpacks">${packRows}</div>
+</section>
+
+<hr class="rule">
+
+<section class="section wrap">
+  <h2 class="h2 mb-m">Questions worth answering before you pay</h2>
+  <div class="prose">
+    <h2>What is actually different in the premium version?</h2>
+    <p>The free pack is 25 prompts covering the whole workflow at a usable depth. The premium
+    version goes much further into each stage, and includes the templates and follow-on
+    workflows the free pack only points at.</p>
+
+    <h2>What happens if I cancel the subscription?</h2>
+    <p>${esc(c.membership.onCancel)}</p>
+
+    <h2>Do I need an account?</h2>
+    <p>Not for the free packs — enter your email and they open immediately. For anything paid you
+    do need to be able to prove it is you, so downloads are unlocked by a code sent to the email
+    you paid with. No password to remember or lose.</p>
+
+    <h2>Are refunds available?</h2>
+    <p>Refund terms will be published here in full before payments open, rather than invented
+    now. They will also be shown at checkout before you pay.</p>
+  </div>
+</section>`;
+
+  return layout({
+    site,
+    title: `Pricing — ${site.name}`,
+    description: `Free AI prompt packs, premium packs at ${sym}${c.pack.price} each, or all-access for ${sym}${c.membership.price} a month.`,
+    path: "/pricing",
+    page: { type: "pricing" },
     main
   });
 }

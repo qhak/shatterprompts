@@ -35,13 +35,29 @@ export default {
     lead: "Most content prompts write you a caption. This builds the system that decides what the caption is for.",
     steps: ["Define who and what for", "Set three pillars", "Write the hook first", "Publish and repurpose", "Review what actually worked"]
   },
-  upgrade: {
+  /* --------------------------------------------------------------------------
+     PREMIUM PRODUCT
+     ready:false means the content does not exist yet. While it is false the
+     site shows this as not yet available and renders NO price and NO buy
+     button, whatever checkoutUrl says. Flip it only when the prompts below
+     are actually written and the download is in place.
+     -------------------------------------------------------------------------- */
+  premium: {
     name: "The Content System",
+    ready: false,
+    promptCount: 200,
     blurb: "Deeper workflows for positioning, a 30-day calendar, repurposing across formats, and a monthly performance review.",
+    includes: [
+      "Every prompt from the free pack",
+      "30-day and 90-day calendar builders",
+      "Repurposing workflows across every format",
+      "Hook libraries by niche",
+      "Monthly performance review workflows"
+    ],
     checkoutUrl: "",
-    price: null,
-    targetPromptCount: 200
+    downloadUrl: ""
   },
+
   seo: {
     title: "Free Content Creation AI Prompt Pack — Content that creates demand",
     description: "25 practical AI prompts for content pillars, hooks, short-form scripts, captions, calls to action and a simple posting system. Free."

@@ -35,13 +35,29 @@ export default {
     lead: "Most outreach advice hands you a template. This gives you the order that makes a template unnecessary.",
     steps: ["Define who is worth contacting", "Research one real problem", "Write the specific first line", "Sequence the follow-ups", "Read the replies and adjust"]
   },
-  upgrade: {
+  /* --------------------------------------------------------------------------
+     PREMIUM PRODUCT
+     ready:false means the content does not exist yet. While it is false the
+     site shows this as not yet available and renders NO price and NO buy
+     button, whatever checkoutUrl says. Flip it only when the prompts below
+     are actually written and the download is in place.
+     -------------------------------------------------------------------------- */
+  premium: {
     name: "The Outreach System",
+    ready: false,
+    promptCount: 200,
     blurb: "Deeper workflows for building a prospect list, research at volume, multi-channel sequencing, and reply handling.",
+    includes: [
+      "Every prompt from the free pack",
+      "List building and research at volume",
+      "Multi-channel sequences: email, DM, phone",
+      "Reply handling and objection workflows",
+      "Deliverability and testing playbooks"
+    ],
     checkoutUrl: "",
-    price: null,
-    targetPromptCount: 200
+    downloadUrl: ""
   },
+
   seo: {
     title: "Free Cold Outreach AI Prompt Pack — Write outreach that earns a reply",
     description: "25 practical AI prompts to research prospects, find a real problem, write personal cold emails and DMs, and follow up properly. Free."
