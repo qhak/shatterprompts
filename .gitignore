@@ -12,3 +12,6 @@ node_modules/
 
 # Generated bundle for AI review
 SHATTERPROMPTS-ALL-CODE.txt
+
+# Generated premium prompt content (large, built up batch by batch)
+content/premium/*.json
