@@ -23,12 +23,17 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const [, , slug, batchPath] = process.argv;
+const [, , slug, batchPath, tierArg] = process.argv;
+const tier = (tierArg || "premium").toLowerCase();
 
-if (!slug || !batchPath) {
-  console.error("\n  usage: node tools/add-batch.mjs <pack-slug> <batch.json>\n");
+if (!slug || !batchPath || !["free", "premium"].includes(tier)) {
+  console.error("\n  usage: node tools/add-batch.mjs <pack-slug> <batch.json> [free|premium]");
+  console.error("  default tier is premium\n");
   process.exit(1);
 }
+
+/* Free packs are 25, premium are 200. */
+const TARGET = tier === "free" ? 25 : 200;
 
 const REQUIRED_SECTIONS = ["WHAT I NEED", "HOW TO DO IT", "RETURN", "RULES"];
 const MIN_WORDS = 120;
@@ -59,7 +64,7 @@ function similarity(a, b) {
   return shared / Math.min(A.size, B.size);
 }
 
-const store = join(ROOT, "content", "premium", `${slug}.json`);
+const store = join(ROOT, "content", tier, `${slug}.json`);
 const existing = existsSync(store) ? JSON.parse(await readFile(store, "utf8")) : [];
 
 let batch;
@@ -132,11 +137,13 @@ await writeFile(store, JSON.stringify(merged, null, 2), "utf8");
 const words = merged.map((p) => p.text.split(/\s+/).length);
 const avg = Math.round(words.reduce((a, b) => a + b, 0) / words.length);
 
-console.log(`\n  Added ${prompts.length} prompts to ${slug}.`);
+console.log(`\n  Added ${prompts.length} prompts to ${slug} (${tier}).`);
 console.log(`  Pack now holds ${merged.length} prompts (avg ${avg} words, shortest ${Math.min(...words)}).`);
-console.log(`  Stored at content/premium/${slug}.json\n`);
-if (merged.length < 200) {
-  console.log(`  ${200 - merged.length} to go for a 200-prompt premium pack.\n`);
+console.log(`  Stored at content/${tier}/${slug}.json\n`);
+if (merged.length < TARGET) {
+  console.log(`  ${TARGET - merged.length} to go for a ${TARGET}-prompt ${tier} pack.\n`);
+} else if (tier === "free") {
+  console.log(`  Target reached. Run: node tools/apply-free.mjs ${slug}\n`);
 } else {
-  console.log(`  Target reached. Set premium.ready once the download is in place.\n`);
+  console.log(`  Target reached. Add downloadUrl, then set premium.ready = true.\n`);
 }

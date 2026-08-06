@@ -15,3 +15,11 @@ SHATTERPROMPTS-ALL-CODE.txt
 
 # Generated premium prompt content (large, built up batch by batch)
 content/premium/*.json
+content/free/*.json
+
+# Ruflo local secrets and runtime data
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
