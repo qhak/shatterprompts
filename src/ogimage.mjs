@@ -78,7 +78,15 @@ export function makeOgImage() {
     let cx = x;
     for (const ch of str.toUpperCase()) {
       const g = GLYPHS[ch];
-      if (!g) throw new Error(`ogimage: no glyph for "${ch}" — add it to GLYPHS.`);
+      /* An unmapped character (punctuation, accents) shouldn't fail the whole
+         site build over one decorative social-preview image — render it as a
+         blank space and warn, so a future copy edit degrades gracefully
+         instead of taking down node build.mjs for all 26 pages. */
+      if (!g) {
+        console.warn(`  ogimage: no glyph for "${ch}" — rendering blank space instead. Add it to GLYPHS to fix.`);
+        cx += 6 * scale;
+        continue;
+      }
       for (let r = 0; r < 7; r++) {
         for (let col = 0; col < 5; col++) {
           if (g[r][col] === "1") rect(cx + col * scale, y + r * scale, scale, scale, c);

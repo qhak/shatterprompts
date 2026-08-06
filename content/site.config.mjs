@@ -16,6 +16,7 @@ import outreach        from "./packs/outreach.mjs";
 import content         from "./packs/content.mjs";
 import localBusiness   from "./packs/local-business.mjs";
 import digitalProducts from "./packs/digital-products.mjs";
+import jobSearch        from "./packs/job-search.mjs";
 
 export const SITE = {
   name: "SHATTERPROMPTS",
@@ -123,6 +124,7 @@ export const PACKS = [
   content,
   localBusiness,
   digitalProducts,
+  jobSearch,
 
   /* ==========================================================================
      SECONDARY PACKS
@@ -133,7 +135,7 @@ export const PACKS = [
   {
     slug: "productivity",
     tier: "secondary",
-    index: "06",
+    index: "07",
     keyword: "",
     name: "Productivity Pack",
     navLabel: "Productivity",
@@ -170,7 +172,7 @@ Identify the two patterns causing the gap, then propose one change to my routine
   {
     slug: "study",
     tier: "secondary",
-    index: "07",
+    index: "08",
     keyword: "",
     name: "Study and Learning Pack",
     navLabel: "Study and Learning",
@@ -201,43 +203,6 @@ Finish with the three mistakes students most often make with it.` },
       { title: "Adaptive quiz", text: `Quiz me on [TOPIC]. Ask one question at a time, wait for my answer, then tell me whether I am right, why, and what the ideal answer includes.
 
 Start easy and increase difficulty each time I answer correctly. Ten questions total.` }
-    ]
-  },
-
-  {
-    slug: "job-search",
-    tier: "secondary",
-    index: "08",
-    keyword: "",
-    name: "Job Search Pack",
-    navLabel: "Job Search",
-    rowOutcome: "Build specific applications from real evidence.",
-    audience: "People applying for roles and getting no response.",
-    outcome: "Stronger CV bullets, a specific cover letter, and interview practice.",
-    headline: "Build specific applications from real evidence.",
-    support: [
-      "Prompts for rewriting CV bullets, writing a cover letter that is not generic, and practising interviews.",
-      "Carried over from the earlier version of this site."
-    ],
-    inside: ["Rewrite CV bullets with evidence", "Write a 250-word cover letter", "Practise scored STAR answers"],
-    benefits: ["Stop sending generic applications", "Use your own facts, not invented ones", "Rehearse before the real thing"],
-    sequence: { lead: "Prompts in a sensible order.", steps: ["Fix the CV", "Write the letter", "Research the company", "Rehearse"] },
-    upgrade: { name: "", blurb: "", checkoutUrl: "", price: null },
-    seo: {
-      title: "Free Job Search AI Prompt Pack — Build stronger applications",
-      description: "Practical AI prompts for rewriting CV bullets, writing specific cover letters, and practising interview answers. Free."
-    },
-    previews: [],
-    prompts: [
-      { title: "Rewrite CV bullets", text: `Rewrite the CV bullets below for a [ROLE] application. Each bullet: strong verb, what I did, how I did it, and a measurable result.
-
-If a bullet has no number, ask me for one instead of inventing it. BULLETS: [PASTE]` },
-      { title: "Cover letter", text: `Write a cover letter for [ROLE] at [COMPANY], max 250 words, using these three requirements from the ad: [PASTE].
-
-Reference one specific thing about the company. No "I am writing to express my interest". Plain, direct, first person.` },
-      { title: "Interview practice", text: `Interview me for [ROLE]. Ask one competency question at a time in STAR format.
-
-After each answer, score it 1–5 on structure, evidence and relevance, then show a stronger version of my own answer using only the facts I gave you.` }
     ]
   },
 
@@ -316,11 +281,4 @@ Show approximate macros and prep time per meal, and flag which ones batch-cook w
 Identify what I have actually been consistent with, what I have avoided, and the single smallest change most likely to improve consistency. NOTES: [PASTE]` }
     ]
   }
-];
-
-/* Homepage "How it works" — three steps only. */
-export const HOW_IT_WORKS = [
-  { n: "1", title: "Choose your current problem", body: "Pick the pack that matches what you are trying to do this week." },
-  { n: "2", title: "Get the free pack by email", body: "Enter your email and the pack opens straight away." },
-  { n: "3", title: "Use the prompts to execute", body: "Work through them in order. Each one produces something you can use." }
 ];

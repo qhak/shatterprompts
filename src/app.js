@@ -263,14 +263,24 @@
     upgrade.addEventListener("click", function (e) {
       var link = e.target.closest("a, button");
       if (!link) return;
-      var name = upgrade.getAttribute("data-upgrade");
-      trackEvent("paid_upgrade_clicked", { upgrade_name: name });
-      /* checkout_started only fires when a real checkout URL exists. */
-      if (link.hasAttribute("data-checkout")) {
-        trackEvent("checkout_started", { upgrade_name: name, checkout_url: link.href });
-      }
+      trackEvent("paid_upgrade_clicked", { upgrade_name: upgrade.getAttribute("data-upgrade") });
     });
   }
+
+  /* -------------------------------------------------------- checkout clicks
+     Fires for every real checkout link on the site, not just the access-page
+     upgrade block above — /pricing's tier cards and per-pack shop rows use
+     the same [data-checkout] attribute but sit outside [data-upgrade], so a
+     listener scoped only to that element would never see clicks from there. */
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest("[data-checkout]");
+    if (!link) return;
+    var upgradeAncestor = link.closest("[data-upgrade]");
+    trackEvent("checkout_started", {
+      upgrade_name: upgradeAncestor ? upgradeAncestor.getAttribute("data-upgrade") : "",
+      checkout_url: link.href
+    });
+  });
 
   /* ============================================================ EMAIL FORM */
   var form = document.querySelector("[data-lead-form]");
@@ -464,7 +474,11 @@
     });
   }
 
-  /* --------------------------------------------------------- page view ping */
+  /* --------------------------------------------------------- page view ping
+     A generic event on every page (home, /packs, /pricing, legal, 404 — not
+     just packs), so top-of-funnel volume and bounce are measurable once an
+     analytics provider is connected, instead of only ever seeing pack pages. */
+  trackEvent("page_view", { page_type: PAGE.type || "", pack_name: PAGE.packName || "" });
   if (PAGE.type === "pack") {
     trackEvent("pack_page_view", { pack_name: PAGE.packName || "", tier: PAGE.tier || "" });
   }

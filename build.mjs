@@ -13,7 +13,7 @@ import { mkdir, writeFile, rm, copyFile, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { SITE, PACKS, HOW_IT_WORKS } from "./content/site.config.mjs";
+import { SITE, PACKS } from "./content/site.config.mjs";
 import {
   homePage, packPage, accessPage, packsPage,
   privacyPage, termsPage, notFoundPage, pricingPage
@@ -100,7 +100,7 @@ async function build() {
   const routes = [];
 
   /* Pages */
-  routes.push(await emit("/", homePage({ site: SITE, corePacks, howItWorks: HOW_IT_WORKS })));
+  routes.push(await emit("/", homePage({ site: SITE, corePacks })));
   routes.push(await emit("/packs", packsPage({ site: SITE, corePacks, secondaryPacks })));
   routes.push(await emit("/pricing", pricingPage({ site: SITE, corePacks })));
   routes.push(await emit("/privacy", privacyPage({ site: SITE })));

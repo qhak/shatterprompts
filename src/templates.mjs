@@ -120,7 +120,7 @@ function footer(site) {
 /* HOMEPAGE                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export function homePage({ site, corePacks, howItWorks }) {
+export function homePage({ site, corePacks }) {
   const rows = corePacks.map((p) => `
     <a class="packrow" href="${packUrl(p.slug)}" data-pack-link="${esc(p.slug)}">
       <span class="packrow__n">${esc(p.index)}</span>
@@ -150,7 +150,7 @@ export function homePage({ site, corePacks, howItWorks }) {
   </div>
   <div class="hero__cta">
     <a class="btn" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Get the free ${esc(lead.navLabel)} pack</a>
-    <a class="tlink" href="#packs">See all five packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
+    <a class="tlink" href="#packs">See all packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
   </div>
   <p class="hero__reel">
     Came from a Reel? <a href="#packs">Go straight to your pack.</a>
@@ -162,7 +162,7 @@ export function homePage({ site, corePacks, howItWorks }) {
 <section class="section wrap" id="packs" aria-labelledby="packs-h">
   <p class="statement mb-m">These are not random one-line prompts. <em>Every pack is built
   around a single outcome, in the order you need to do the work.</em></p>
-  <h2 class="h2 mb-m" id="packs-h">Five packs. One problem each.</h2>
+  <h2 class="h2 mb-m" id="packs-h">${corePacks.length} packs. One problem each.</h2>
   <nav class="packlist" aria-label="Free prompt packs">${rows}</nav>
 </section>
 
@@ -189,7 +189,7 @@ export function homePage({ site, corePacks, howItWorks }) {
   <h2 class="h2 mb-m">Start with the problem you have right now.</h2>
   <div class="hero__cta">
     <a class="btn" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Get the free ${esc(lead.navLabel)} pack</a>
-    <a class="tlink" href="#packs">See all five packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
+    <a class="tlink" href="#packs">See all packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
   </div>
   <p class="small mt-m">Enter your email, the pack opens straight away. No account needed.</p>
 </section>`;
@@ -362,7 +362,8 @@ export function accessPage({ site, pack }) {
       <div class="prompt__head">
         <h2 class="prompt__title"><span class="n">${String(i + 1).padStart(2, "0")}</span> ${esc(p.title)}</h2>
         <button class="copy" type="button" data-copy="${bodyId}"
-                data-prompt-title="${esc(p.title)}" data-copy-event="prompt_copy">
+                data-prompt-title="${esc(p.title)}" data-copy-event="prompt_copy"
+                aria-label="Copy prompt: ${esc(p.title)}">
           <span data-copy-label>Copy</span>
         </button>
       </div>
@@ -390,7 +391,7 @@ export function accessPage({ site, pack }) {
       ? `<p class="mt-m"><a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a></p>
          <p class="small mt-s">Or <a href="/pricing" style="color:var(--fg)">all packs for ${esc(site.commerce.currencySymbol + site.commerce.membership.price)}/${esc(site.commerce.membership.interval)}</a>.</p>`
       : `<p class="upgrade__status">Not available yet</p>
-         <p class="small mt-s">Being written now. You are on the list, so you will hear when it is ready.</p>`}
+         <p class="small mt-s">Being written now. Bookmark this page — it will show a download here as soon as it is ready.</p>`}
   </div>
 </section>
 `;
@@ -659,6 +660,18 @@ export function pricingPage({ site, corePacks }) {
 
   const memberIncludes = c.membership.includes.map((i) => `<li>${esc(i)}</li>`).join("");
 
+  /* Shown BEFORE the priced tier cards, not after — a visitor scans price and
+     the "Best value" flag first (Z-pattern), so the honesty notice has to
+     land before that, or it's read too late to change what the visitor
+     already assumed. */
+  const nothingLive = !anyPackLive && !membershipLive;
+  const notice = nothingLive ? `
+  <div class="notice mb-m">
+    <strong>Paid plans are not open yet.</strong> The premium packs are still being written.
+    Nothing here can be bought today, and no payment details are collected anywhere on this site.
+    ${readyPacks.length ? `${readyPacks.length} of ${corePacks.length} premium packs are finished.` : "Every free pack is complete and available now."}
+  </div>` : "";
+
   const main = `
 <section class="hero wrap">
   <p class="eyebrow eyebrow--accent hero__eyebrow">Pricing</p>
@@ -670,6 +683,7 @@ export function pricingPage({ site, corePacks }) {
 <hr class="rule">
 
 <section class="section wrap-wide">
+  ${notice}
   <div class="tiers">
 
     <div class="tier">
@@ -712,13 +726,6 @@ export function pricingPage({ site, corePacks }) {
     </div>
 
   </div>
-
-  ${(!anyPackLive && !membershipLive) ? `
-  <div class="notice mt-l">
-    <strong>Paid plans are not open yet.</strong> The premium packs are still being written.
-    Nothing here can be bought today, and no payment details are collected anywhere on this site.
-    ${readyPacks.length ? `${readyPacks.length} of ${corePacks.length} premium packs are finished.` : "Every free pack is complete and available now."}
-  </div>` : ""}
 </section>
 
 <hr class="rule">
