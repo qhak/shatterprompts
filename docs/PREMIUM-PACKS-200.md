@@ -1,10 +1,14 @@
 # Premium packs — 200 prompts × 6 niches
 
-Six paid packs, 200 prompts each. Built in **eight runs of 25**, one per stage.
+Six paid packs, 200 prompts each. Built in **eight batches of 25** — not because
+that number is special, but because quality collapses somewhere around prompt 30
+in a single reply and the model starts rewording what it already wrote.
 
-Never ask for 200 in a single reply. Quality collapses somewhere around prompt 30
-and the model starts rewording what it already wrote — which the validator will
-reject anyway, wasting the whole batch.
+The 8 batches are **prompt types**, not a funnel. Every niche gets the same 8
+types — start, build, improve, analyse, troubleshoot, decide, systemize, scale —
+which is what actually makes a premium pack feel different from the free one:
+the free pack walks someone through a process once; the premium pack is a tool
+for every situation that comes up afterwards.
 
 | # | Niche | Slug | Free pack | Premium |
 |---|-------|------|-----------|---------|
@@ -17,27 +21,48 @@ reject anyway, wasting the whole batch.
 
 ---
 
+## The 8 categories
+
+Every niche below uses these same 8. They are not sequential — run them in any
+order — but each one has a distinct job, so a prompt never has to do two things
+at once.
+
+| Category | Job |
+|---|---|
+| **START** | Begin from zero — choose, plan, set up, before any work exists yet. |
+| **BUILD** | Create the actual asset — the thing you send, publish, or hand over. |
+| **IMPROVE** | Take a rough or existing version and make it stronger. |
+| **ANALYSE** | Diagnose, score, or evaluate something that already happened. |
+| **TROUBLESHOOT** | Recover from something that has gone wrong. |
+| **DECIDE** | Choose between real options, with the criteria stated. |
+| **SYSTEMIZE** | Turn a one-off into a repeatable process or template. |
+| **SCALE** | Grow past the first success — more volume, more people, higher stakes. |
+
+This is what makes 200 prompts "fairly different" rather than 200 rewordings of
+the same five ideas: a START prompt and a TROUBLESHOOT prompt on the same topic
+produce genuinely different work, even before the niche content is added.
+
+---
+
 ## How to run a niche
 
-For each niche there is one **MASTER** block and eight **STAGE** blocks.
-
 1. Copy the MASTER block for the niche.
-2. Paste STAGE 1 into the `<<< STAGE >>>` slot.
-3. Run it. Save the JSON to `~/Downloads/<slug>-s1.json`.
-4. Validate:
-
-```bash
-node tools/add-batch.mjs freelancing ~/Downloads/freelancing-s1.json premium
-```
-
-5. Repeat for stages 2-8. Before each run, paste the titles already accepted into
-   the `ALREADY WRITTEN` slot — this is what stops stage 6 rewriting stage 3.
-
-Get the accepted titles at any point with:
+2. Paste one CATEGORY block into the `<<< CATEGORY >>>` slot.
+3. Before running, paste the titles already accepted into `ALREADY WRITTEN` —
+   get them with:
 
 ```bash
 node -e "console.log(JSON.parse(require('fs').readFileSync('content/premium/freelancing.json','utf8')).map(p=>p.title).join('\n'))"
 ```
+
+4. Run it. Save the JSON to `~/Downloads/<slug>-<category>.json`.
+5. Validate and store:
+
+```bash
+node tools/add-batch.mjs freelancing ~/Downloads/freelancing-start.json premium
+```
+
+6. Repeat for the other 7 categories, in any order.
 
 At 200:
 
@@ -49,13 +74,13 @@ premium: {
 }
 ```
 
-The build **refuses** to ship a checkout without a download, or a `ready: true`
+The build **refuses** to ship a checkout without a download, or `ready: true`
 without a `downloadUrl`. That gate exists so nobody can pay $2.99 and receive
 nothing. Do not remove it.
 
 ### Cost and pacing
 
-Eight runs per niche, six niches — 48 runs. Do **one niche end to end first**
+Eight batches per niche, six niches — 48 runs. Do **one niche end to end first**
 (Freelancing), put it on sale at $2.99, and see whether anyone buys before
 writing the other 1,000 prompts.
 
@@ -79,11 +104,11 @@ Topic: Freelancing — selling a skill as a service.
 Buyer: someone with a skill who is already trying to sell it. They may have one
 or two clients. They are not a beginner who needs "what is freelancing"
 explained, and they are not paying for motivation.
-Premium standard: these prompts go deeper than the free pack. More inputs, more
-demanding output formats, more edge cases handled, and rules that stop the model
-producing something plausible and useless.
+Premium standard: every prompt must be clearly usable — a reader should see
+exactly what to paste in within five seconds, not have to interpret the prompt
+first.
 
-<<< STAGE >>>
+<<< CATEGORY >>>
 
 ALREADY WRITTEN — do not repeat, reword or overlap with any of these:
 [PASTE ACCEPTED TITLES, OR "none yet"]
@@ -110,11 +135,12 @@ RULES
 - [3-5 constraints. At least one must prevent generic or invented output.]
 
 REQUIREMENTS
-1. Exactly 25 prompts, all inside this stage. Other batches cover the rest — do
-   not stray into them.
+1. Exactly 25 prompts, all inside this category. The other 7 categories cover
+   different jobs — do not write a BUILD prompt in a TROUBLESHOOT batch, etc.
 2. 150-320 words each. Under 150 is too thin for a paid pack.
 3. All five headings present, spelled exactly.
-4. At least one [PLACEHOLDER] in capitals per prompt.
+4. At least one [PLACEHOLDER] in capitals per prompt, placed so the reader
+   instantly sees what to paste in.
 5. Distinct jobs. Vary the job, not the wording. If two prompts would produce
    similar output from similar inputs, one of them should not exist.
 6. Each RULES block must do real work. At least one rule per prompt must stop
@@ -128,6 +154,8 @@ REQUIREMENTS
    headings, ranked lists with the reason for the rank.
 8. Vary the role in the opening line. Twenty-five prompts should not all start
    "You are an experienced freelance consultant".
+9. Keep it clean: no filler sentences, no restating the prompt's own title back
+   to the reader, no throat-clearing before the useful part starts.
 
 BANNED — these get the batch rejected by the validator
 "unleash", "level up", "game-changing", "revolutionary", "10x", "secret weapon",
@@ -143,159 +171,160 @@ Use \n for line breaks inside text values. Plain text only — no markdown insid
 the prompt text. Ensure the JSON parses.
 ```
 
-## STAGE 1 — Choosing what to sell
+## CATEGORY: START
 
 ```
-STAGE
-Stage 1 of 8: Choosing what to sell.
-Covers: converting existing ability into a service someone pays for, and
-eliminating everything else. Deciding, not delivering.
-Stay out of: pricing (stage 4), proof (stage 5), finding clients (stage 6).
+CATEGORY
+START — begin from zero, before any client, offer or list exists.
+This batch covers: getting from "I can do this skill" to a first real attempt at
+selling it, with nothing built yet.
+These are prompt types, not steps — a reader may run this before or after any
+other category.
 
-Cover this ground across the 25. Use these as anchors and invent the rest inside
-the same territory:
-- Skill inventory from work history, hobbies and things people already ask for
-- Separating what they enjoy from what sells, and deciding when those conflict
-- Service vs productised service vs retainer — which suits this person
-- Testing whether a service is already being bought by someone, somewhere
-- Adjacent services that reuse the same skill for a richer buyer
-- The "unfair advantage" audit — access, context, speed, or specific experience
-- Time-to-competence: what could be sold in 30 days vs what needs six months
-- Forcing elimination down to one, with the reason each option was cut
+Ground to cover, as 25 distinct prompts:
+- Turn a skill inventory into services someone actually pays for
+- Choose a first buyer type, from options compared on ability to pay and reach
+- Define a minimum viable offer worth pitching on day one
+- Sort the legal and business basics worth doing before the first pitch
+- Build a first prospecting list from literally nothing
+- Set a realistic 30-day plan for landing the first paying job
+- Choose the founding project to use as the first case study
+- Write the first version of a one-line offer, and test it against five rewrites
 ```
 
-## STAGE 2 — Niching and market research
+## CATEGORY: BUILD
 
 ```
-STAGE
-Stage 2 of 8: Niching and market research.
-Covers: choosing who to sell to and understanding them well enough to write in
-their language.
-Stay out of: writing the offer itself (stage 3), outreach copy (stage 7).
+CATEGORY
+BUILD — create the core assets a freelancer actually sends or shows.
+This batch covers: turning a decision into a real, usable artefact.
+These are prompt types, not steps.
 
-Anchors:
-- Vertical vs horizontal niching, and how to choose between them
-- Sizing a niche without inventing market statistics
-- Finding where a niche congregates online and offline
-- Reading a niche's own vocabulary back to them
-- Interviewing five people in the niche without leading the witness
-- Mapping who else already sells to this niche and what they charge for
-- Spotting a niche that is too poor, too small, or too crowded — and saying so
-- Committing: writing the niche statement and the test that would disprove it
+Ground to cover, as 25 distinct prompts:
+- The service page or one-pager a prospect reads before saying yes
+- The pricing sheet with tiers that differ in scope, not effort
+- A scope-of-work / contract-lite template
+- The discovery-call script and question order
+- A portfolio piece built from a realistic self-directed brief
+- A proposal template that turns notes into a one-page document
+- The "how I work" onboarding document a new client receives
+- A personal-brand one-liner and short bio
 ```
 
-## STAGE 3 — Building the offer
+## CATEGORY: IMPROVE
 
 ```
-STAGE
-Stage 3 of 8: Building the offer.
-Covers: turning a service into a defined, deliverable, describable thing.
-Stay out of: price (stage 4), proposals sent to a named prospect (stage 7).
+CATEGORY
+IMPROVE — take something that already exists and make it stronger.
+This batch covers: editing, tightening and levelling up real drafts, not
+starting from nothing.
+These are prompt types, not steps.
 
-Anchors:
-- The one-line offer, and five rewrites testing different emphases
-- Scope definition with an explicit "not included" list
-- Turning an hourly service into a fixed-scope package
-- Designing the deliverable so the client can tell it worked
-- Onboarding requirements — what the client must supply before work starts
-- Guarantee design that is honest and survivable, or the decision not to offer one
-- The good/better/best ladder, differing in scope rather than in hours
-- Offer stress test: what breaks if the client is difficult, slow or unclear
+Ground to cover, as 25 distinct prompts:
+- Rewrite a proposal that was sent and rejected
+- Tighten a scope of work that has become bloated
+- Sharpen a CV or portfolio bio that reads generic
+- Turn a flat case study into one with a real narrative arc
+- Fix pricing that has clearly been set too low
+- Rewrite a cold pitch that got no reply
+- Polish a client-facing report so it reads as work worth paying for
+- Narrow a niche statement that is too broad to mean anything
 ```
 
-## STAGE 4 — Pricing and money
+## CATEGORY: ANALYSE
 
 ```
-STAGE
-Stage 4 of 8: Pricing and money.
-Covers: what to charge, how to say it, and how to get paid.
-Stay out of: objection handling in a live sale (stage 7), delivery (stage 8).
+CATEGORY
+ANALYSE — diagnose, score or evaluate something that has already happened.
+This batch covers: turning real data or a real situation into a clear judgement.
+These are prompt types, not steps.
 
-Anchors:
-- Rate floor from actual costs, target income and realistic billable hours
-- Value pricing from the client's own numbers, never from assumed ones
-- Moving from hourly to project to retainer, and when each is wrong
-- The rate-increase conversation with an existing client
-- Deposits, milestones and payment terms
-- Late payment: the escalating sequence, and the point at which work stops
-- Discount policy — when a discount is a trade and when it is a loss
-- Deciding the walk-away number before the call, and holding it
+Ground to cover, as 25 distinct prompts:
+- Audit a losing proposal for the actual reason it lost
+- Score three competing offers against what the buyer actually needs
+- Evaluate whether a specific client relationship is worth keeping
+- Analyse a month of leads to find the real bottleneck
+- Audit current pricing against margin and market evidence
+- Evaluate a portfolio and identify the pieces actively hurting it
+- Analyse a bad client experience for the root cause, not the symptom
+- Benchmark a rate against comparables the user provides, not invents
 ```
 
-## STAGE 5 — Proof and portfolio
+## CATEGORY: TROUBLESHOOT
 
 ```
-STAGE
-Stage 5 of 8: Proof and portfolio.
-Covers: making the work visible and credible, using only what actually happened.
-Stay out of: outreach messages (stage 7), delivery process (stage 8).
+CATEGORY
+TROUBLESHOOT — recover from something that has already gone wrong.
+This batch covers: the situations nobody plans for.
+These are prompt types, not steps.
 
-Anchors:
-- Case study structure: situation, constraint, action, measured result
-- Recovering real numbers from a finished job, and flagging what stays unverified
-- Building proof with no clients: self-directed work against a realistic brief
-- Testimonial requests that produce specifics, and the four questions that do it
-- Turning a testimonial into a usable quote without changing its meaning
-- Portfolio selection: what to cut, and why three strong pieces beat nine
-- Writing the personal site's home page and about page
-- Handling an NDA or unshowable work without lying about it
+Ground to cover, as 25 distinct prompts:
+- A client has gone silent mid-project
+- A project was underpriced and is now underwater
+- Scope creep is happening in real time
+- A client is disputing an invoice
+- A deadline was missed and trust needs repairing
+- Harsh feedback arrived and needs a response
+- A client is asking for extra work "as a favour"
+- A slow month has emptied the pipeline
 ```
 
-## STAGE 6 — Finding leads
+## CATEGORY: DECIDE
 
 ```
-STAGE
-Stage 6 of 8: Finding leads.
-Covers: producing a named list of people worth contacting, repeatably.
-Stay out of: the messages themselves (stage 7).
+CATEGORY
+DECIDE — choose between real options, with the criteria stated up front.
+This batch covers: decisions freelancers face repeatedly, each with genuine
+trade-offs.
+These are prompt types, not steps.
 
-Anchors:
-- Turning the niche statement into search criteria that return real names
-- Platform-by-platform sourcing plans, with the actual filters to use
-- Qualification checklist and a scoring model for a raw list
-- Warm-network mapping — everyone who already knows them, ranked
-- Referral partners: who sells to the same buyer without competing
-- Inbound: the one channel worth building, chosen on evidence
-- Job boards and marketplaces as a lead source rather than a workplace
-- Lead tracking that fits in a spreadsheet and survives a busy week
+Ground to cover, as 25 distinct prompts:
+- Take a lower-fit but well-paid project, or wait for a better one
+- Choose between two live offers to accept
+- Raise prices now, or wait for a better moment
+- Specialise further, or stay broad
+- Fire a difficult client, or keep tolerating it
+- Hourly or fixed-price for a specific job
+- Pursue an inbound lead, or let it go
+- Bring in a subcontractor, or turn the work down
 ```
 
-## STAGE 7 — Outreach and sales
+## CATEGORY: SYSTEMIZE
 
 ```
-STAGE
-Stage 7 of 8: Outreach and sales.
-Covers: first contact through to a signed yes.
-Stay out of: list building (stage 6), delivery (stage 8).
+CATEGORY
+SYSTEMIZE — turn a one-off into something repeatable.
+This batch covers: building the process so the next time is faster.
+These are prompt types, not steps.
 
-Anchors:
-- First-message templates by channel, each requiring one observable fact
-- The follow-up sequence, with a stated stopping point
-- Discovery call: question order, what to listen for, when to stop asking
-- Diagnosing the real problem behind the stated one
-- The proposal, one page, with scope, price, timeline and next step
-- The eight objections that actually occur, answered without discounting reflexively
-- Negotiating scope instead of price
-- Closing, and the follow-up when the answer is "let me think about it"
+Ground to cover, as 25 distinct prompts:
+- Turn one proposal into a reusable proposal template
+- Build a repeatable client-onboarding checklist
+- Build a weekly pipeline-review routine
+- Template the discovery-call notes format
+- Build a client-offboarding process
+- Template the invoice-chase sequence
+- Build a repeatable content routine for marketing the business itself
+- Template the referral-ask process, including timing
 ```
 
-## STAGE 8 — Delivery and retention
+## CATEGORY: SCALE
 
 ```
-STAGE
-Stage 8 of 8: Delivery and retention.
-Covers: doing the work well enough that it repeats.
-Stay out of: sales (stage 7), pricing theory (stage 4).
+CATEGORY
+SCALE — grow past the point where solo, ad-hoc delivery still works.
+This batch covers: what changes once demand exceeds one person's hours.
+These are prompt types, not steps.
 
-Anchors:
-- Kick-off: the questions that prevent the project going wrong in week three
-- Project plan and milestone communication
-- Weekly client update that takes ten minutes and prevents check-in emails
-- Scope creep: recognising it, and the exact sentence that reprices it
-- Difficult feedback and unreasonable revision requests
-- Handover, documentation, and making the result legible
-- The retainer conversation at the end of a successful project
-- Win/loss review, and the referral ask with the right timing and wording
+Ground to cover, as 25 distinct prompts:
+- Plan the move from solo delivery to a small team
+- Design a productised version of the core service
+- Plan raising capacity without raising hours worked
+- Design a retainer ladder for existing clients
+- Plan a referral-partner network at volume
+- Design a waitlist for excess demand
+- Plan a price increase across the whole existing client base
+- Design handing off delivery while keeping the sales relationship
 ```
 
 ---
@@ -316,11 +345,11 @@ Topic: Cold outreach — email, DMs, LinkedIn and phone.
 Buyer: someone already sending cold messages and getting silence. They have
 something to sell and a rough idea who buys it. They do not need "what is cold
 email" explained.
-Premium standard: deeper than the free pack. More inputs, more demanding output
-formats, more edge cases, and rules that stop the model producing something
-plausible and useless.
+Premium standard: every prompt must be clearly usable — a reader should see
+exactly what to paste in within five seconds, not have to interpret the prompt
+first.
 
-<<< STAGE >>>
+<<< CATEGORY >>>
 
 ALREADY WRITTEN — do not repeat, reword or overlap with any of these:
 [PASTE ACCEPTED TITLES, OR "none yet"]
@@ -345,16 +374,18 @@ RULES
 - [3-5 constraints. At least one must prevent generic or invented output.]
 
 REQUIREMENTS
-1. Exactly 25 prompts, all inside this stage.
+1. Exactly 25 prompts, all inside this category.
 2. 150-320 words each.
 3. All five headings, spelled exactly.
-4. At least one [PLACEHOLDER] per prompt.
+4. At least one [PLACEHOLDER] per prompt, placed so the reader instantly sees
+   what to paste in.
 5. Distinct jobs. Vary the job, not the wording.
 6. Each RULES block must do real work. In this niche, at least one rule per
    prompt must forbid inventing facts about the prospect's company, forbid
    fabricated compliments, and forbid claiming results the user did not supply.
 7. Output formats should be specific: named columns, word counts, sections.
 8. Vary the role in the opening line across the 25.
+9. Keep it clean: no filler, no restating the title back to the reader.
 
 BANNED — these get the batch rejected by the validator
 "unleash", "level up", "game-changing", "revolutionary", "10x", "secret weapon",
@@ -371,157 +402,159 @@ Return ONLY a JSON array. No preamble, no explanation, no code fence.
 Use \n for line breaks inside text values. Plain text only. Ensure the JSON parses.
 ```
 
-## STAGE 1 — Defining who to contact
+## CATEGORY: START
 
 ```
-STAGE
-Stage 1 of 8: Defining who to contact.
-Covers: deciding who is worth a message before any list is built.
-Stay out of: sourcing tools (stage 2), message copy (stage 4).
+CATEGORY
+START — begin from zero, before any list, sequence or channel is chosen.
+This batch covers: the decisions that have to happen before the first message
+is written.
+These are prompt types, not steps.
 
-Anchors:
-- ICP reverse-engineered from deals that already closed
-- Buying triggers, and how each one is observable from outside
-- Disqualification criteria that remove a prospect immediately
-- Segmenting one market into three tiers with different messages
-- The economics: what a deal is worth, and how much effort each tier justifies
-- Choosing between the person with the problem and the person with the budget
-- Company-size boundaries — too small to pay, too big to reach
-- Writing the one-paragraph targeting brief everything else is judged against
+Ground to cover, as 25 distinct prompts:
+- Build the first ICP definition from nothing
+- Write the very first test campaign, small and disposable
+- Set up a tracking sheet before any sending starts
+- Pick the first channel to test, and why
+- Draft the initial 10-prospect pilot list
+- Write the founding message before any reply data exists
+- Define the metric that will decide if the pilot worked
+- Set the first week's sending plan
 ```
 
-## STAGE 2 — Building the list
+## CATEGORY: BUILD
 
 ```
-STAGE
-Stage 2 of 8: Building the list.
-Covers: turning criteria into real names, cleanly and legally.
-Stay out of: research on individual prospects (stage 3), copy (stage 4).
+CATEGORY
+BUILD — create the actual messages and infrastructure.
+This batch covers: the real assets that get sent or used every day.
+These are prompt types, not steps.
 
-Anchors:
-- Source mapping: where this list can be built, with the filters for each source
-- Search-string construction for directories, job boards and social platforms
-- Using hiring activity, funding, reviews and site changes as list signals
-- Finding the right person and their likely role title
-- Verifying a contact without guessing at an email pattern
-- List hygiene: deduplication, role addresses, and what to remove before sending
-- Consent and legal basis — what changes by jurisdiction, and asking the user
-  what applies to them rather than assuming
-- Scoring and ordering the list so the best 20 get the most effort
+Ground to cover, as 25 distinct prompts:
+- The multi-touch sequence, built end to end
+- A prospect-research checklist
+- The outreach tracking system's structure
+- A library of proof points to reference honestly
+- Channel-specific templates: email, LinkedIn, DM
+- A qualification scorecard for inbound and outbound alike
+- The meeting-booking message
+- A re-engagement sequence for a list that went cold
 ```
 
-## STAGE 3 — Research and personalisation
+## CATEGORY: IMPROVE
 
 ```
-STAGE
-Stage 3 of 8: Research and personalisation.
-Covers: finding one true, specific, useful thing about a prospect.
-Stay out of: writing the full message (stage 4).
+CATEGORY
+IMPROVE — take a real, already-sent message or sequence and make it work
+better.
+This batch covers: editing what exists, not writing from nothing.
+These are prompt types, not steps.
 
-Anchors:
-- The five-minute research routine that produces three usable facts
-- Reading a company's own site for the problem they are trying to solve
-- Reading their job ads as a statement of what is broken
-- Reading reviews and comments for the complaint they have not fixed
-- Distinguishing an observable problem from a guessed one
-- Compressing research into one sentence that could not be sent to anyone else
-- Personalisation at volume — what can be templated and what cannot
-- The research kill-switch: when to skip a prospect rather than force a hook
+Ground to cover, as 25 distinct prompts:
+- Rewrite an email with a low reply rate
+- Tighten a weak subject-line set
+- Add real personalisation to a templated message
+- Sharpen a CTA that is too vague to act on
+- Revise a sequence that gets opens but no replies
+- Improve a LinkedIn note that gets ignored
+- Polish a voicemail script that is not landing
+- Narrow a list-targeting definition that is too broad
 ```
 
-## STAGE 4 — First-touch email
+## CATEGORY: ANALYSE
 
 ```
-STAGE
-Stage 4 of 8: The first email.
-Covers: the message itself.
-Stay out of: follow-ups (stage 6), other channels (stage 5).
+CATEGORY
+ANALYSE — diagnose or evaluate outreach that has already run.
+This batch covers: turning real numbers and replies into a clear judgement.
+These are prompt types, not steps.
 
-Anchors:
-- The under-90-word structure: relevance, one claim, one small ask
-- Opening lines that are impossible to send to anyone else
-- Subject lines that describe the email honestly, and rejecting clickbait
-- The ask: call vs question vs resource, and which suits the situation
-- Cutting filler — every line that exists for the sender's comfort
-- Rewriting a long email down without losing the point
-- Three versions of one email testing three different angles
-- Pre-send review checklist that catches the obvious failures
+Ground to cover, as 25 distinct prompts:
+- Diagnose a zero-reply campaign from the actual numbers
+- Identify which touch in a sequence is losing people
+- Evaluate list quality against reply data
+- Audit a message for what it actually says versus what was intended
+- Analyse reply sentiment across a batch of responses
+- Benchmark open and reply rates against the user's own history
+- Evaluate one channel's return against another
+- Analyse why booked meetings are not converting further
 ```
 
-## STAGE 5 — Other channels
+## CATEGORY: TROUBLESHOOT
 
 ```
-STAGE
-Stage 5 of 8: LinkedIn, DMs, phone and video.
-Covers: the same job in channels with different rules.
-Stay out of: email copy (stage 4), sequences (stage 6).
+CATEGORY
+TROUBLESHOOT — recover from something that has already gone wrong.
+This batch covers: the failure modes that come with sending at any real volume.
+These are prompt types, not steps.
 
-Anchors:
-- LinkedIn connection note and the message after acceptance
-- Instagram or X DMs, where length and tone rules are stricter
-- Warming a prospect through comments before messaging at all
-- The cold call opening, and the branch for "we're busy right now"
-- Voicemail that gets a callback
-- Loom or video message: script, length, and what to show
-- Choosing a channel per prospect rather than per campaign
-- Multi-channel sequencing without appearing everywhere at once
+Ground to cover, as 25 distinct prompts:
+- A sudden deliverability drop
+- An angry or hostile reply
+- A sequence stuck at zero opens
+- A domain flagged for spam
+- A prospect who ghosted after a good call
+- Messaging that no longer matches a changed offer
+- A reply that is hostile about being contacted at all
+- The wrong version of a message sent to the wrong list
 ```
 
-## STAGE 6 — Follow-up sequences
+## CATEGORY: DECIDE
 
 ```
-STAGE
-Stage 6 of 8: Follow-up sequences.
-Covers: touches two to seven.
-Stay out of: reply handling (stage 7).
+CATEGORY
+DECIDE — choose between real options, with the criteria stated up front.
+This batch covers: recurring calls that have genuine trade-offs.
+These are prompt types, not steps.
 
-Anchors:
-- Sequence design: number of touches, spacing, and what changes each time
-- Follow-up two: a new angle rather than a repeat
-- Follow-up three: evidence, with a rule against inventing any of it
-- The value-add touch that is genuinely useful on its own
-- The one-line nudge, and why it sometimes outperforms everything else
-- The break-up message that is easy to reply to
-- Re-engaging a list that went cold three months ago
-- Sequence rules: when to stop, and what to do with a "not now"
+Ground to cover, as 25 distinct prompts:
+- Pause a bad week, or push through it
+- Choose between two subject-line approaches
+- Decide whether a lukewarm reply is worth a follow-up
+- Expand or narrow the ICP
+- Automate sending, or keep it manual at this volume
+- Buy a list, or build one
+- Keep or cut an underperforming channel
+- Decide the point at which a sequence should stop
 ```
 
-## STAGE 7 — Objections and replies
+## CATEGORY: SYSTEMIZE
 
 ```
-STAGE
-Stage 7 of 8: Handling what comes back.
-Covers: every reply type, including the discouraging ones.
-Stay out of: sequence structure (stage 6), deliverability (stage 8).
+CATEGORY
+SYSTEMIZE — turn outreach into a repeatable weekly operation.
+This batch covers: the process around the messages, not the messages
+themselves.
+These are prompt types, not steps.
 
-Anchors:
-- "Not interested" — one good reply, and knowing when to stop
-- "Send me some info" — turning a brush-off into a call or a clean close
-- "We already work with someone" — finding out whether that is true
-- "How much?" before value is established
-- "Email me in six months" — the diarised follow-up that actually lands
-- Hostile or rude replies, answered without escalation
-- The warm reply: booking a time in the fewest messages
-- Qualifying on the reply so the call is not wasted
+Ground to cover, as 25 distinct prompts:
+- A repeatable weekly sending cadence
+- The qualification-to-booking handoff, templated
+- A repeatable per-prospect research routine
+- The follow-up ladder, templated
+- A reusable objection-response library
+- A reporting format for weekly results
+- A repeatable list-building routine
+- A templated re-engagement campaign for old leads
 ```
 
-## STAGE 8 — Testing, deliverability and volume
+## CATEGORY: SCALE
 
 ```
-STAGE
-Stage 8 of 8: Making it repeatable.
-Covers: the system around the messages.
-Stay out of: copy (stages 4-5), replies (stage 7).
+CATEGORY
+SCALE — grow past what one person sending manually can sustain.
+This batch covers: what changes once outreach needs to run at real volume.
+These are prompt types, not steps.
 
-Anchors:
-- The weekly numbers review: sent, delivered, replied, booked
-- Diagnosing zero replies from the actual figures, refusing to guess without them
-- Designing a test that changes one variable at a time
-- Sample size — knowing when a result means nothing yet
-- Deliverability basics: domain, warm-up, volume, and what breaks them
-- Spam-trigger review of a draft, without superstition
-- Daily operating plan at a volume one person can sustain
-- The quarterly reset: what to keep, what to rewrite, what to abandon
+Ground to cover, as 25 distinct prompts:
+- Move from fully manual to semi-automated sending
+- Design a process usable by more than one person
+- Expand into a second channel at volume
+- Build a referral-based pipeline to reduce cold reliance
+- Design a full operating rhythm, not just a campaign
+- Build testing infrastructure for continuous experiments
+- Expand the ICP into adjacent segments
+- Design a dashboard for ongoing performance tracking
 ```
 
 ---
@@ -542,11 +575,11 @@ Topic: Content creation for an audience that leads to an offer.
 Buyer: someone posting to grow an audience for a service or product. They can
 already film, write and edit. What they lack is a system, a reason for each post
 to exist, and a path from viewer to customer.
-Premium standard: deeper than the free pack. More inputs, more demanding output
-formats, more edge cases, and rules that stop the model producing something
-plausible and useless.
+Premium standard: every prompt must be clearly usable — a reader should see
+exactly what to paste in within five seconds, not have to interpret the prompt
+first.
 
-<<< STAGE >>>
+<<< CATEGORY >>>
 
 ALREADY WRITTEN — do not repeat, reword or overlap with any of these:
 [PASTE ACCEPTED TITLES, OR "none yet"]
@@ -571,10 +604,11 @@ RULES
 - [3-5 constraints. At least one must prevent generic or invented output.]
 
 REQUIREMENTS
-1. Exactly 25 prompts, all inside this stage.
+1. Exactly 25 prompts, all inside this category.
 2. 150-320 words each.
 3. All five headings, spelled exactly.
-4. At least one [PLACEHOLDER] per prompt.
+4. At least one [PLACEHOLDER] per prompt, placed so the reader instantly sees
+   what to paste in.
 5. Distinct jobs. Vary the job, not the wording.
 6. Each RULES block must do real work. In this niche, at least one rule per
    prompt must forbid engagement-bait, forbid stating how a platform's algorithm
@@ -583,6 +617,7 @@ REQUIREMENTS
 7. Output formats should be specific: scripts with timings, slide-by-slide
    breakdowns, ranked lists with reasons.
 8. Vary the role in the opening line across the 25.
+9. Keep it clean: no filler, no restating the title back to the reader.
 
 BANNED — these get the batch rejected by the validator
 "unleash", "level up", "game-changing", "revolutionary", "10x", "secret weapon",
@@ -598,156 +633,156 @@ Return ONLY a JSON array. No preamble, no explanation, no code fence.
 Use \n for line breaks inside text values. Plain text only. Ensure the JSON parses.
 ```
 
-## STAGE 1 — Audience and positioning
+## CATEGORY: START
 
 ```
-STAGE
-Stage 1 of 8: Audience and positioning.
-Covers: who this is for and why they should follow this account and not another.
-Stay out of: ideas (stage 2), hooks (stage 3).
+CATEGORY
+START — begin from zero, before a single post exists.
+This batch covers: the decisions that have to happen before posting starts.
+These are prompt types, not steps.
 
-Anchors:
-- Defining the single viewer in enough detail to judge a post against
-- The transformation promised, checked against what the offer delivers
-- Positioning against the ten nearest accounts, found and analysed
-- The stance: what this account believes that others in the niche do not
-- Choosing the primary platform on evidence, not preference
-- Bio, handle and profile image as one coherent statement
-- Personal brand vs faceless — deciding, with the trade-offs stated
-- The content promise: the sentence that says what following gets them
+Ground to cover, as 25 distinct prompts:
+- Build the first content plan from nothing
+- Write the first 10 post ideas
+- Set up an idea-capture system before it is needed
+- Choose the founding content format
+- Write the account's launch post
+- Define the first month's posting cadence
+- Set the initial content goals, stated so they can be checked later
+- Build the starter content calendar
 ```
 
-## STAGE 2 — Pillars and ideas
+## CATEGORY: BUILD
 
 ```
-STAGE
-Stage 2 of 8: Pillars and idea generation.
-Covers: never opening the app with nothing to say.
-Stay out of: hooks (stage 3), scripts (stages 4-5).
+CATEGORY
+BUILD — create the actual templates and assets used every time content is made.
+This batch covers: reusable structures, not one-off posts.
+These are prompt types, not steps.
 
-Anchors:
-- Three pillars, each able to carry fifty posts
-- Thirty ideas from one pillar, differing in angle not wording
-- Mining comments, DMs and replies for what the audience actually asks
-- Turning real client and customer questions into posts
-- The contrarian take, argued honestly rather than for provocation
-- Story-based ideas from the user's own history
-- Series and recurring formats that build expectation
-- The capture-and-rank system so ideas are never generated under deadline
+Ground to cover, as 25 distinct prompts:
+- A script template for short-form video
+- A carousel template
+- A hook swipe file
+- A caption formula
+- A repurposing workflow, one piece into several
+- The content calendar's structure
+- A CTA library matched to different post types
+- A content brief template for a collaborator or editor
 ```
 
-## STAGE 3 — Hooks and openings
+## CATEGORY: IMPROVE
 
 ```
-STAGE
-Stage 3 of 8: Hooks and openings.
-Covers: the first line and the first three seconds.
-Stay out of: the body of the content (stages 4-5).
+CATEGORY
+IMPROVE — take a real draft and make it stronger.
+This batch covers: editing existing content, not writing from nothing.
+These are prompt types, not steps.
 
-Anchors:
-- Ten genuinely different hooks for one idea, each with its reasoning
-- Diagnosing why an opening failed and rewriting it three ways
-- Hook patterns catalogued, with the situation each one suits
-- Matching the hook to the promise so the post can pay it off
-- The visual hook — what is on screen during the first line
-- Written hooks for carousels, threads and newsletters
-- Curiosity without deception: the line between the two, applied
-- Testing two hooks on the same content and reading the result
+Ground to cover, as 25 distinct prompts:
+- Rewrite a flat hook
+- Tighten a script that rambles
+- Sharpen a caption that undersells the post
+- Restructure a video with poor retention
+- Revise a CTA that gets no clicks
+- Fix a thread that trails off before the point lands
+- Rebuild a carousel's weak middle slides
+- Rewrite a bio that is not converting
 ```
 
-## STAGE 4 — Short-form video
+## CATEGORY: ANALYSE
 
 ```
-STAGE
-Stage 4 of 8: Short-form video.
-Covers: Reels, TikTok, Shorts — script to publish.
-Stay out of: written formats (stage 5), calendars (stage 7).
+CATEGORY
+ANALYSE — diagnose or evaluate content that has already been posted.
+This batch covers: turning real metrics into a clear judgement.
+These are prompt types, not steps.
 
-Anchors:
-- The 45-second script with timing marks and B-roll notes
-- The 15-second script, where every word has to earn its place
-- Talking-head structure that holds attention without editing tricks
-- Demonstration and screen-recording scripts
-- Story format: setup, turn, point, in under a minute
-- On-screen text and captions as a second layer of information
-- Filming plan for batching six videos in one session
-- Self-review before posting: the checklist that catches the obvious failures
+Ground to cover, as 25 distinct prompts:
+- Diagnose a low-view post from the actual metrics
+- Read a retention graph for where the drop-off happens
+- Evaluate which content pillar is underperforming
+- Audit a month of posts for the real pattern in what worked
+- Analyse follower growth against posting cadence
+- Benchmark a post against the account's own history, not a guessed average
+- Evaluate whether a CTA change affected conversion
+- Read comment sentiment for what it says about content direction
 ```
 
-## STAGE 5 — Written and long-form
+## CATEGORY: TROUBLESHOOT
 
 ```
-STAGE
-Stage 5 of 8: Carousels, threads, newsletters and long-form.
-Covers: everything that is read rather than watched.
-Stay out of: video (stage 4), CTAs (stage 6).
+CATEGORY
+TROUBLESHOOT — recover from something that has already gone wrong.
+This batch covers: the situations a content creator eventually hits.
+These are prompt types, not steps.
 
-Anchors:
-- Carousel, slide by slide, where slide one survives without the caption
-- The thread, structured so each post earns the next
-- Captions that add to the content rather than repeating it
-- The newsletter issue: one idea, one takeaway, one action
-- A long-form post that is worth the length
-- Turning a video script into a written piece properly
-- Editing pass: cutting a draft by a third without losing the point
-- Writing in the user's own voice from a sample they paste
+Ground to cover, as 25 distinct prompts:
+- A viral post that brought the wrong audience
+- A pile-on of negative comments
+- A content rut with no ideas left
+- Reach dropping after a platform change
+- Burnout from the posting cadence
+- An account that plateaued after early growth
+- A collaboration post that underperformed
+- A brand voice that has drifted inconsistent
 ```
 
-## STAGE 6 — CTAs and funnels
+## CATEGORY: DECIDE
 
 ```
-STAGE
-Stage 6 of 8: From viewer to customer.
-Covers: the path out of the feed.
-Stay out of: content formats (stages 4-5), analytics (stage 8).
+CATEGORY
+DECIDE — choose between real options, with the criteria stated up front.
+This batch covers: recurring calls with genuine trade-offs.
+These are prompt types, not steps.
 
-Anchors:
-- The comment-keyword-to-DM flow, written end to end
-- DM scripts that do not read as automated
-- The offer post that sells without pretending it is not selling
-- Soft CTAs for content that is not selling anything today
-- Bio link strategy and what the destination page must say
-- The lead magnet: choosing one worth an email address
-- Nurture sequence after the email is given
-- Ratio and pacing: how often to sell, decided deliberately
+Ground to cover, as 25 distinct prompts:
+- Chase a trend, or skip it
+- Choose between two content directions
+- Niche down further, or stay broad
+- Prioritise one platform when time is limited
+- Collaborate with a specific creator, or not
+- Pause posting during a life event
+- Post a controversial take, or leave it
+- Retire an underperforming series, or persist with it
 ```
 
-## STAGE 7 — Repurposing and calendars
+## CATEGORY: SYSTEMIZE
 
 ```
-STAGE
-Stage 7 of 8: Systems, calendars and repurposing.
-Covers: sustaining output without burning out.
-Stay out of: analytics (stage 8).
+CATEGORY
+SYSTEMIZE — turn content production into a repeatable process.
+This batch covers: the system around the content, not the content itself.
+These are prompt types, not steps.
 
-Anchors:
-- One video into five genuinely different posts
-- Cross-platform adaptation, respecting each platform's rules
-- Reviving a post that performed well six months ago
-- The monthly calendar built from pillars and ideas
-- The weekly production block, sized to real available time
-- Batching: scripting, filming, editing and scheduling as separate sessions
-- The minimum viable week for when everything goes wrong
-- Asset library and naming so nothing is remade twice
+Ground to cover, as 25 distinct prompts:
+- A weekly content-batching process
+- The idea-to-publish pipeline, templated
+- A repeatable analytics-review routine
+- The repurposing workflow, templated
+- A reusable comment-response system
+- A collaboration-outreach process
+- A repeatable content-audit cadence
+- The monthly planning session, templated
 ```
 
-## STAGE 8 — Analytics and iteration
+## CATEGORY: SCALE
 
 ```
-STAGE
-Stage 8 of 8: Reading the numbers.
-Covers: deciding what to change, on evidence.
-Stay out of: producing content (stages 4-5).
+CATEGORY
+SCALE — grow past what one person can produce alone.
+This batch covers: what changes once output needs to increase.
+These are prompt types, not steps.
 
-Anchors:
-- The five numbers worth watching, and everything to ignore
-- Diagnosing low views from the actual figures, refusing to guess without them
-- Views but no followers: separating reach from reason-to-follow
-- Followers but no sales: finding where the path breaks
-- Retention graphs: reading the drop-off and locating the cause
-- Post-mortem on a post that did unexpectedly well
-- Designing a one-variable test across four posts
-- The monthly review that ends in exactly one change
+Ground to cover, as 25 distinct prompts:
+- Move from solo content to a small team
+- Design a system for outsourcing editing
+- Expand into a second platform
+- Add a paid-promotion layer on top of organic
+- Batch at three times the volume without losing quality
+- Design a content-to-product pipeline
+- Plan a content calendar 90 days out
+- Delegate research or scripting to someone else
 ```
 
 ---
@@ -768,11 +803,11 @@ Topic: Selling services to local businesses.
 Buyer: someone selling to businesses they can visit, phone or find on a map —
 trades, salons, restaurants, gyms, dentists, garages. Often no clients yet, no
 case studies, no tool budget.
-Premium standard: deeper than the free pack. More inputs, more demanding output
-formats, more edge cases, and rules that stop the model producing something
-plausible and useless.
+Premium standard: every prompt must be clearly usable — a reader should see
+exactly what to paste in within five seconds, not have to interpret the prompt
+first.
 
-<<< STAGE >>>
+<<< CATEGORY >>>
 
 ALREADY WRITTEN — do not repeat, reword or overlap with any of these:
 [PASTE ACCEPTED TITLES, OR "none yet"]
@@ -797,10 +832,11 @@ RULES
 - [3-5 constraints. At least one must prevent generic or invented output.]
 
 REQUIREMENTS
-1. Exactly 25 prompts, all inside this stage.
+1. Exactly 25 prompts, all inside this category.
 2. 150-320 words each.
 3. All five headings, spelled exactly.
-4. At least one [PLACEHOLDER] per prompt.
+4. At least one [PLACEHOLDER] per prompt, placed so the reader instantly sees
+   what to paste in.
 5. Distinct jobs. Vary the job, not the wording.
 6. Each RULES block must do real work. In this niche, at least one rule per
    prompt must forbid inventing findings the user has not observed, forbid
@@ -809,6 +845,7 @@ REQUIREMENTS
 7. Output formats should be specific: scored checklists, one-page proposals,
    call scripts with branches.
 8. Vary the role in the opening line across the 25.
+9. Keep it clean: no filler, no restating the title back to the reader.
 
 BANNED — these get the batch rejected by the validator
 "unleash", "level up", "game-changing", "revolutionary", "10x", "secret weapon",
@@ -825,156 +862,157 @@ Return ONLY a JSON array. No preamble, no explanation, no code fence.
 Use \n for line breaks inside text values. Plain text only. Ensure the JSON parses.
 ```
 
-## STAGE 1 — Business type and territory
+## CATEGORY: START
 
 ```
-STAGE
-Stage 1 of 8: Choosing the business type and the territory.
-Covers: deciding who to sell to, geographically and by trade.
-Stay out of: auditing (stage 2), offers (stage 3).
+CATEGORY
+START — begin from zero, before a territory or client exists.
+This batch covers: the decisions that have to happen before the first pitch.
+These are prompt types, not steps.
 
-Anchors:
-- Comparing trades on margin, urgency and owner reachability
-- Estimating a realistic monthly budget from job value and volume
-- Territory sizing: enough prospects, small enough to work
-- Seasonality — which trades to approach in which months
-- Owner-operated vs managed vs franchise, and who can actually say yes
-- Choosing the lead service, easiest to say yes to
-- Disqualification list: who to skip and why
-- The written targeting brief everything else is judged against
+Ground to cover, as 25 distinct prompts:
+- Pick the founding business type to target
+- Build the first prospecting list from nothing
+- Write the first audit from scratch, on a test business
+- Define the initial offer before any client exists
+- Set the first outreach plan
+- Build the starting price sheet
+- Define the first-month working territory
+- Write the founding pitch, before any track record exists
 ```
 
-## STAGE 2 — Auditing from outside
+## CATEGORY: BUILD
 
 ```
-STAGE
-Stage 2 of 8: Finding problems visible from outside.
-Covers: everything that can be assessed without access.
-Stay out of: turning findings into an offer (stage 3).
+CATEGORY
+BUILD — create the actual tools and documents used with every prospect.
+This batch covers: reusable assets, not a one-off pitch.
+These are prompt types, not steps.
 
-Anchors:
-- Google Business Profile audit as a scored checklist
-- Ten-minute website audit: speed, phone number, hours, next step
-- Mobile experience audit, done on an actual phone
-- Review audit — volume, recency, responses, and what the complaints reveal
-- Social presence: worth fixing or worth abandoning
-- Comparing the prospect against three local competitors
-- Booking and enquiry path tested end to end as a customer
-- Turning every finding into the three the owner will care about
+Ground to cover, as 25 distinct prompts:
+- The audit checklist tool
+- The proposal template
+- The pricing menu
+- The client onboarding packet
+- A reporting template an owner will actually read
+- A referral-request script
+- A case-study template
+- A follow-up sequence template
 ```
 
-## STAGE 3 — Findings into an offer
+## CATEGORY: IMPROVE
 
 ```
-STAGE
-Stage 3 of 8: Packaging the fix.
-Covers: turning an audit into something sellable.
-Stay out of: price (stage 4), the approach (stages 5-6).
+CATEGORY
+IMPROVE — take something real and make it stronger.
+This batch covers: editing existing pitches, audits and reports.
+These are prompt types, not steps.
 
-Anchors:
-- One offer with a defined outcome, not a menu
-- Scoping the first job: small enough to say yes to, big enough to matter
-- The one-page proposal: problem, fix, price, timeline, next step
-- The free-audit-as-offer, and what to hold back
-- Productising so the second client takes half the time
-- Deliverables the owner can actually see and judge
-- What to do when the audit found nothing worth fixing
-- The delivery checklist, written before the first sale
+Ground to cover, as 25 distinct prompts:
+- Rewrite a proposal that got no response
+- Tighten an audit that is too long for an owner to read
+- Fix a pitch that sounds like it came from a stranger
+- Sharpen a pricing page that undersells the value
+- Revise a call script that sounds scripted
+- Improve a report an owner visibly ignored
+- Rework a referral ask that got silence
+- Narrow an offer that is too vague to act on
 ```
 
-## STAGE 4 — Pricing for local owners
+## CATEGORY: ANALYSE
 
 ```
-STAGE
-Stage 4 of 8: Pricing.
-Covers: the number, and how to justify it to someone watching every pound.
-Stay out of: live objection handling (stage 7).
+CATEGORY
+ANALYSE — diagnose or evaluate something that has already happened.
+This batch covers: turning real outcomes into a clear judgement.
+These are prompt types, not steps.
 
-Anchors:
-- Pricing from what the problem costs them, using their numbers
-- One-off vs monthly, and which the owner can actually commit to
-- The three-tier menu, differing in scope rather than in effort
-- Setup fee plus retainer, and when to drop the setup fee
-- Payment terms for a business with lumpy cash flow
-- The version to offer when the first number is too high
-- Deciding the walk-away price before the meeting
-- Raising the price on an existing local client
+Ground to cover, as 25 distinct prompts:
+- Diagnose why a specific audit did not convert
+- Analyse a batch of rejected pitches for the pattern
+- Evaluate whether a territory is actually viable
+- Audit close rate by business type
+- Analyse pricing against real willingness to pay
+- Benchmark delivered results against what was promised
+- Evaluate a lead source's quality
+- Analyse a lost client for the real reason, not the stated one
 ```
 
-## STAGE 5 — First contact remotely
+## CATEGORY: TROUBLESHOOT
 
 ```
-STAGE
-Stage 5 of 8: Email, DM and messaging.
-Covers: reaching the owner without turning up.
-Stay out of: phone and in-person (stage 6).
+CATEGORY
+TROUBLESHOOT — recover from something that has already gone wrong.
+This batch covers: the situations that come with dealing with local owners
+directly.
+These are prompt types, not steps.
 
-Anchors:
-- The first email, built on one specific audit finding
-- Facebook or Instagram DM to a business page
-- Messaging via a contact form when there is no direct address
-- Subject lines for someone who does not read email during the day
-- The video audit message: script, length, what to show
-- Timing — when a busy owner actually reads things
-- The follow-up sequence with a stated stopping point
-- The referral-introduction message when there is a mutual connection
+Ground to cover, as 25 distinct prompts:
+- A client stopped responding after signing
+- An owner is disputing the invoice
+- A delivered project underperformed
+- A bad review arrived from a client
+- A client is asking for more work for free
+- A territory has become saturated
+- A competitor is undercutting on price
+- A slow season has emptied the pipeline
 ```
 
-## STAGE 6 — In person and phone
+## CATEGORY: DECIDE
 
 ```
-STAGE
-Stage 6 of 8: Walk-ins and calls.
-Covers: the local advantage nobody else uses.
-Stay out of: written outreach (stage 5), closing (stage 7).
+CATEGORY
+DECIDE — choose between real options, with the criteria stated up front.
+This batch covers: recurring calls with genuine trade-offs.
+These are prompt types, not steps.
 
-Anchors:
-- The first fifteen seconds of a walk-in, and when to leave
-- What to hand over, and what it must contain
-- The phone opening, and the branch for "we're slammed right now"
-- Getting past the receptionist honestly
-- Booking a return visit at a time the owner is not busy
-- The sit-down meeting: agenda, order, and the moment to stop presenting
-- Reading the room when the owner is clearly not interested
-- Local networking and trade events, used deliberately
+Ground to cover, as 25 distinct prompts:
+- Expand territory, or go deeper in the current one
+- Choose between two business types to pursue
+- Discount to win a first client, or hold the price
+- Keep a difficult client, or let them go
+- One-off or retainer for a specific lead
+- Specialise in one trade, or stay general
+- Hire help for delivery, or stay solo
+- Walk from a bad-fit prospect, or keep pursuing
 ```
 
-## STAGE 7 — Objections and closing
+## CATEGORY: SYSTEMIZE
 
 ```
-STAGE
-Stage 7 of 8: Getting to yes.
-Covers: the conversation from interest to signature.
-Stay out of: delivery (stage 8).
+CATEGORY
+SYSTEMIZE — turn one good result into a repeatable process.
+This batch covers: the system around the work, not the work itself.
+These are prompt types, not steps.
 
-Anchors:
-- "We already have someone" — establishing whether that is true
-- "Too expensive" — reducing scope rather than price
-- "I need to think about it" — the next step that keeps it alive
-- "My nephew does it" — answered without insulting anyone
-- "Does this actually work?" with no case studies to point at
-- "Send me a contract" — the simple agreement a local owner will sign
-- Setting expectations honestly before taking money
-- Knowing when to walk away, and doing it well
+Ground to cover, as 25 distinct prompts:
+- The audit-to-proposal pipeline, templated
+- A repeatable client-onboarding process
+- A monthly-reporting cadence
+- The referral-ask timing, templated
+- A repeatable prospecting routine
+- A set of standard objection responses
+- A delivery checklist
+- The price-increase conversation, templated
 ```
 
-## STAGE 8 — Delivery, reporting and growth
+## CATEGORY: SCALE
 
 ```
-STAGE
-Stage 8 of 8: Keeping the client and getting the next one.
-Covers: after the money arrives.
-Stay out of: sales (stage 7).
+CATEGORY
+SCALE — grow past what one person can deliver alone.
+This batch covers: what changes once client count outgrows solo capacity.
+These are prompt types, not steps.
 
-Anchors:
-- Onboarding: access, assets and expectations, collected in one go
-- The monthly report an owner will actually read
-- Reporting a result honestly when the result is small
-- Reporting when the month went badly
-- The check-in call that prevents cancellation
-- Turning a project into a retainer
-- The referral ask: timing, wording, and who to ask for by name
-- The case study built from a real local client, with permission
+Ground to cover, as 25 distinct prompts:
+- Expand into a second trade vertical
+- Hire a subcontractor for delivery
+- Expand territory systematically
+- Build a referral-partner network
+- Raise prices across the whole existing client base
+- Design a productised package for faster onboarding
+- Build a small local team
+- Manage twenty or more clients without things slipping
 ```
 
 ---
@@ -995,11 +1033,11 @@ Topic: Building and selling a digital product.
 Buyer: someone who wants income that does not trade hours for money. They may
 have a small audience or a skill, but no validated product. Their real risk is
 building something nobody asked for.
-Premium standard: deeper than the free pack. More inputs, more demanding output
-formats, more edge cases, and rules that stop the model producing something
-plausible and useless.
+Premium standard: every prompt must be clearly usable — a reader should see
+exactly what to paste in within five seconds, not have to interpret the prompt
+first.
 
-<<< STAGE >>>
+<<< CATEGORY >>>
 
 ALREADY WRITTEN — do not repeat, reword or overlap with any of these:
 [PASTE ACCEPTED TITLES, OR "none yet"]
@@ -1024,10 +1062,11 @@ RULES
 - [3-5 constraints. At least one must prevent generic or invented output.]
 
 REQUIREMENTS
-1. Exactly 25 prompts, all inside this stage.
+1. Exactly 25 prompts, all inside this category.
 2. 150-320 words each.
 3. All five headings, spelled exactly.
-4. At least one [PLACEHOLDER] per prompt.
+4. At least one [PLACEHOLDER] per prompt, placed so the reader instantly sees
+   what to paste in.
 5. Distinct jobs. Vary the job, not the wording.
 6. Each RULES block must do real work. In this niche, at least one rule per
    prompt must forbid inventing customer quotes or demand, forbid revenue
@@ -1036,6 +1075,7 @@ REQUIREMENTS
 7. Output formats should be specific: outlines, page sections with word counts,
    ranked lists with reasons.
 8. Vary the role in the opening line across the 25.
+9. Keep it clean: no filler, no restating the title back to the reader.
 
 BANNED — these get the batch rejected by the validator
 "unleash", "level up", "game-changing", "revolutionary", "10x", "secret weapon",
@@ -1051,156 +1091,157 @@ Return ONLY a JSON array. No preamble, no explanation, no code fence.
 Use \n for line breaks inside text values. Plain text only. Ensure the JSON parses.
 ```
 
-## STAGE 1 — Problem mining
+## CATEGORY: START
 
 ```
-STAGE
-Stage 1 of 8: Finding a problem worth solving.
-Covers: everything before there is an idea.
-Stay out of: validation (stage 2), format (stage 3).
+CATEGORY
+START — begin from zero, before a product idea has been chosen.
+This batch covers: the decisions that have to happen before anything is built.
+These are prompt types, not steps.
 
-Anchors:
-- Mining the user's own history for problems they have already solved
-- Reading a community for repeated, specific complaints
-- Search behaviour as evidence of a problem people try to fix
-- Clustering scattered complaints into one problem
-- The expensive-problem test: enough time or money to be worth removing
-- Frequency vs severity, and which matters more here
-- Problems that are real but unsolvable by a digital product
-- The one-paragraph problem statement a sufferer would recognise
+Ground to cover, as 25 distinct prompts:
+- Pick the founding product idea from nothing
+- Write the first validation message
+- Set up a pre-launch list before there is anything to sell
+- Define the initial scope
+- Build the first outline
+- Write the founding landing-page draft
+- Set the launch date and the plan behind it
+- Define the initial price
 ```
 
-## STAGE 2 — Validation
+## CATEGORY: BUILD
 
 ```
-STAGE
-Stage 2 of 8: Evidence that someone will pay.
-Covers: testing before building.
-Stay out of: building the product (stage 3), the sales page (stage 5).
+CATEGORY
+BUILD — create the actual assets that make up the launch.
+This batch covers: real, usable pieces, not ideas about them.
+These are prompt types, not steps.
 
-Anchors:
-- The validation offer: describing it as if it existed
-- Conversation guide that asks about the problem without leading the witness
-- Ten outreach messages to people who have the problem
-- Designing a pre-sale that is honest about what does not exist yet
-- The landing-page test, and what result would mean nothing
-- Separating encouragement from intent to buy
-- Setting the kill threshold before results arrive
-- The go/no-go decision, made against the threshold rather than the feeling
+Ground to cover, as 25 distinct prompts:
+- The sales page, section by section
+- The welcome / onboarding sequence
+- The FAQ
+- The launch email sequence
+- The product outline or table of contents
+- The pricing and tier structure
+- A lead magnet
+- The post-purchase survey
 ```
 
-## STAGE 3 — Format and scope
+## CATEGORY: IMPROVE
 
 ```
-STAGE
-Stage 3 of 8: Deciding what to actually build.
-Covers: format, scope, outline.
-Stay out of: naming and pricing (stage 4).
+CATEGORY
+IMPROVE — take something real and make it stronger.
+This batch covers: editing existing drafts, not writing from nothing.
+These are prompt types, not steps.
 
-Anchors:
-- Matching format to problem: template, course, ebook, tool, community
-- What the user can realistically finish, given their actual hours
-- Cutting to a v1, with an explicit deferred list
-- Outlining so each section has a job and a stated outcome
-- The minimum that still solves the problem completely
-- Production plan with milestones and a real deadline
-- Deciding what to make yourself and what to buy or license
-- Quality bar: what "finished" means, defined before starting
+Ground to cover, as 25 distinct prompts:
+- Rewrite a flat headline
+- Tighten a bloated sales page
+- Sharpen a weak call to action
+- Revise a launch email that got low opens
+- Adjust pricing after weak conversion
+- Clarify an outline that reads unclear
+- Rework an FAQ that dodges the real objections
+- Rebuild a lead magnet that is getting no signups
 ```
 
-## STAGE 4 — Naming and pricing
+## CATEGORY: ANALYSE
 
 ```
-STAGE
-Stage 4 of 8: Name, price and packaging.
-Covers: how it is presented as a purchase.
-Stay out of: the sales page copy (stage 5).
+CATEGORY
+ANALYSE — diagnose or evaluate something that has already happened.
+This batch covers: turning real numbers and feedback into a clear judgement.
+These are prompt types, not steps.
 
-Anchors:
-- Names that describe the outcome, tested for searchability
-- Checking a name is not already taken or embarrassing to say
-- Pricing from value and format rather than from feel
-- Price testing without misleading early buyers
-- Tiers and bundles that differ in substance
-- One-off vs subscription, and when subscription is the wrong answer
-- Order bumps and upsells that are genuinely relevant
-- The refund policy, written honestly and then honoured
+Ground to cover, as 25 distinct prompts:
+- Diagnose low landing-page conversion from the actual numbers
+- Find where a launch sequence lost momentum
+- Read refund reasons for the real pattern
+- Audit a sales page against the objections it is missing
+- Read validation-message replies for genuine signal
+- Benchmark launch performance against the original plan
+- Evaluate pricing against actual conversion, not intuition
+- Compare which lead magnet is actually performing
 ```
 
-## STAGE 5 — Sales page
+## CATEGORY: TROUBLESHOOT
 
 ```
-STAGE
-Stage 5 of 8: The sales page.
-Covers: every section of it.
-Stay out of: email (stage 6), launch (stage 7).
+CATEGORY
+TROUBLESHOOT — recover from something that has already gone wrong.
+This batch covers: the failure points a launch runs into.
+These are prompt types, not steps.
 
-Anchors:
-- Ten headlines stating the outcome, ranked with reasons
-- The problem section, precise enough that the reader feels understood
-- What-you-get: concrete artefacts and quantities, not adjectives
-- Who this is not for, written honestly
-- The objection section, answering real reasons without dismissing them
-- Proof section built only from what actually exists
-- FAQ including the uncomfortable questions
-- The checkout section: price, terms, and what happens after paying
+Ground to cover, as 25 distinct prompts:
+- A launch is underperforming mid-week
+- A wave of refund requests has arrived
+- High traffic but no sales on the page
+- A technical failure during the launch window
+- Negative feedback from early buyers
+- A pre-launch list that has stalled
+- A competitor launching something similar
+- Momentum that never built after a slow open
 ```
 
-## STAGE 6 — List building
+## CATEGORY: DECIDE
 
 ```
-STAGE
-Stage 6 of 8: Building an audience to sell to.
-Covers: getting people to hear about it before launch day.
-Stay out of: the launch itself (stage 7).
+CATEGORY
+DECIDE — choose between real options, with the criteria stated up front.
+This batch covers: recurring calls with genuine trade-offs.
+These are prompt types, not steps.
 
-Anchors:
-- Choosing a lead magnet worth an email address
-- The opt-in page, short and specific
-- The welcome sequence: five emails with a job each
-- A weekly email that people open without a sale attached
-- Growing the list without an existing audience
-- Collaborations and guest appearances, approached properly
-- Segmenting by what people clicked and asked for
-- List hygiene, and re-engaging before the launch
+Ground to cover, as 25 distinct prompts:
+- Delay the launch, or push ahead
+- Choose between two pricing models
+- Pivot the product based on feedback, or hold the line
+- Run a relaunch, or move on to something new
+- One-time price or subscription
+- Add an upsell, or keep the offer simple
+- Decide whether validation signal is strong enough to build
+- Sunset an underperforming product, or keep supporting it
 ```
 
-## STAGE 7 — Launch
+## CATEGORY: SYSTEMIZE
 
 ```
-STAGE
-Stage 7 of 8: Selling it.
-Covers: the launch window.
-Stay out of: post-launch (stage 8).
+CATEGORY
+SYSTEMIZE — turn one launch into a repeatable process.
+This batch covers: the system behind the launch, not the launch content
+itself.
+These are prompt types, not steps.
 
-Anchors:
-- The launch calendar: what goes out when, and the job of each piece
-- Pre-launch content that makes the announcement land
-- Launch email one, for people who have never heard of it
-- The middle-of-launch email that addresses the real hesitation
-- The closing email, honest about what actually changes at the deadline
-- Social launch posts that sell without pretending otherwise
-- Answering the questions that arrive during a launch
-- Handling a launch that is clearly going badly, while it is happening
+Ground to cover, as 25 distinct prompts:
+- A repeatable launch checklist
+- The validation-message process, templated
+- A reusable sales-page structure
+- The post-launch review, templated
+- A content-to-list pipeline
+- A refund-handling process
+- A pricing-decision framework
+- The buyer-feedback loop, templated
 ```
 
-## STAGE 8 — After launch
+## CATEGORY: SCALE
 
 ```
-STAGE
-Stage 8 of 8: What happens next.
-Covers: buyers, results, and version two.
-Stay out of: the launch (stage 7).
+CATEGORY
+SCALE — grow past a single product and a single launch.
+This batch covers: what changes once the first product has proven itself.
+These are prompt types, not steps.
 
-Anchors:
-- The buyer welcome that reduces refunds and increases completion
-- Five survey questions that produce usable answers
-- Reading refund reasons without defensiveness
-- Collecting a real testimonial with permission
-- Post-launch review: what worked, what did not, what is unknown
-- Evergreen: turning a launch into something that sells continuously
-- Deciding v2 from buyer feedback rather than from preference
-- The second product, chosen from what buyers asked for next
+Ground to cover, as 25 distinct prompts:
+- Plan a second product for the same audience
+- Design an evergreen funnel from a single launch
+- Bundle products into a suite
+- Design affiliate or partner promotion
+- Raise price for new buyers while honouring existing ones
+- Design a membership or subscription layer
+- Plan repeat launches on a calendar
+- Outsource production to support higher volume
 ```
 
 ---
@@ -1222,11 +1263,11 @@ Buyer: someone applying for roles and getting no response, or reaching interview
 and stopping there. They are not asking for career therapy and they do not want
 "believe in yourself". They want their application to be specific and their
 answers to hold up.
-Premium standard: deeper than the free pack. More inputs, more demanding output
-formats, more edge cases, and rules that stop the model producing something
-plausible and useless.
+Premium standard: every prompt must be clearly usable — a reader should see
+exactly what to paste in within five seconds, not have to interpret the prompt
+first.
 
-<<< STAGE >>>
+<<< CATEGORY >>>
 
 ALREADY WRITTEN — do not repeat, reword or overlap with any of these:
 [PASTE ACCEPTED TITLES, OR "none yet"]
@@ -1251,10 +1292,11 @@ RULES
 - [3-5 constraints. At least one must prevent generic or invented output.]
 
 REQUIREMENTS
-1. Exactly 25 prompts, all inside this stage.
+1. Exactly 25 prompts, all inside this category.
 2. 150-320 words each.
 3. All five headings, spelled exactly.
-4. At least one [PLACEHOLDER] per prompt.
+4. At least one [PLACEHOLDER] per prompt, placed so the reader instantly sees
+   what to paste in.
 5. Distinct jobs. Vary the job, not the wording.
 6. This niche needs the strictest honesty rules in the set. Every prompt that
    touches a CV, an application, or an interview answer MUST include a rule
@@ -1263,6 +1305,7 @@ REQUIREMENTS
 7. Output formats should be specific: rewritten bullets in a table, letters with
    word counts, scored answers with the score criteria named.
 8. Vary the role in the opening line across the 25.
+9. Keep it clean: no filler, no restating the title back to the reader.
 
 BANNED — these get the batch rejected by the validator
 "unleash", "level up", "game-changing", "revolutionary", "10x", "secret weapon",
@@ -1279,156 +1322,157 @@ Return ONLY a JSON array. No preamble, no explanation, no code fence.
 Use \n for line breaks inside text values. Plain text only. Ensure the JSON parses.
 ```
 
-## STAGE 1 — Targeting and role research
+## CATEGORY: START
 
 ```
-STAGE
-Stage 1 of 8: Deciding what to apply for.
-Covers: everything before an application is written.
-Stay out of: CV (stage 2), letters (stage 3).
+CATEGORY
+START — begin from zero, before a target list, CV or tracker exists.
+This batch covers: the decisions that have to happen before the first
+application goes out.
+These are prompt types, not steps.
 
-Anchors:
-- Extracting evidenced accomplishments from a messy work history
-- Translating ability into the titles employers actually advertise
-- Adjacent roles the user has not considered but qualifies for
-- Reading a job ad: hard requirements vs wish list
-- Scoring a role honestly, and naming what is missing
-- Researching whether a company is worth working for
-- Salary research from public sources, with the uncertainty stated
-- The target list, and the weekly application volume that is sustainable
+Ground to cover, as 25 distinct prompts:
+- Build the first target-role list from nothing
+- Write the first version of the CV
+- Set up an application tracker
+- Define the initial search criteria and radius
+- Write the founding LinkedIn profile
+- Set a realistic weekly application target
+- Build the first STAR story bank
+- Plan the first week of the search
 ```
 
-## STAGE 2 — CV and evidence
+## CATEGORY: BUILD
 
 ```
-STAGE
-Stage 2 of 8: The CV.
-Covers: the document itself.
-Stay out of: cover letters (stage 3), LinkedIn (stage 4).
+CATEGORY
+BUILD — create the actual documents and materials used in every application.
+This batch covers: real, reusable assets.
+These are prompt types, not steps.
 
-Anchors:
-- Rewriting bullets as verb, action, method, measurable result
-- Recovering a real number from memory, and marking what stays unconfirmed
-- Replacing the generic summary with three specific lines
-- Tailoring the CV to one advert without adding anything untrue
-- Identifying the ad's key terms and where they can legitimately appear
-- Ordering sections for a career-changer, a returner, or a first job
-- Cutting a three-page CV to two without losing evidence
-- The final review pass: every claim traced to something real
+Ground to cover, as 25 distinct prompts:
+- The CV tailored to a specific job ad
+- The cover letter
+- The STAR answer bank
+- The "why this company" research document
+- A salary-negotiation prep sheet
+- The reference list and the ask that goes with it
+- A 30-60-90 day plan for interviews that request one
+- The thank-you note template
 ```
 
-## STAGE 3 — Cover letters and written applications
+## CATEGORY: IMPROVE
 
 ```
-STAGE
-Stage 3 of 8: Everything written for a specific employer.
-Covers: letters, forms and free-text boxes.
-Stay out of: CV (stage 2), interviews (stages 5-6).
+CATEGORY
+IMPROVE — take something real and make it stronger.
+This batch covers: editing existing CVs, letters and answers.
+These are prompt types, not steps.
 
-Anchors:
-- The 250-word letter built on three requirements and one specific company fact
-- Opening lines that are not "I am writing to express my interest"
-- Answering "why this company" without flattery
-- Answering "why you" without listing adjectives
-- The long-form application question, structured and evidenced
-- Explaining a gap, a dismissal, or a change of field, briefly and honestly
-- Writing for a role where the user meets most but not all requirements
-- The final honesty pass across the whole application
+Ground to cover, as 25 distinct prompts:
+- Rewrite a weak CV bullet
+- Tighten a cover letter that rambles
+- Sharpen a vague interview answer
+- Revise a LinkedIn summary that undersells
+- Improve an answer to a screening question
+- Fix a networking message that gets ignored
+- Shorten a story that runs too long for the interview
+- Strengthen an answer to a weakness question
 ```
 
-## STAGE 4 — LinkedIn and networking
+## CATEGORY: ANALYSE
 
 ```
-STAGE
-Stage 4 of 8: Being found and being referred.
-Covers: the parts of a search that are not applications.
-Stay out of: written applications (stage 3), interviews (stages 5-6).
+CATEGORY
+ANALYSE — diagnose or evaluate something that has already happened.
+This batch covers: turning a real outcome into a clear judgement.
+These are prompt types, not steps.
 
-Anchors:
-- The LinkedIn headline and about section, written for a specific search
-- Turning CV bullets into a profile that reads as a person
-- Messaging a hiring manager so the message is worth replying to
-- Asking someone who barely knows the user for a referral
-- Reconnecting with a former colleague without it being transactional
-- Approaching a recruiter, and what to ask before engaging
-- A short piece of public work that demonstrates the skill
-- Following up on a networking conversation without pestering
+Ground to cover, as 25 distinct prompts:
+- Diagnose why applications are getting no response
+- Analyse interview performance against the actual questions asked
+- Evaluate a CV against one specific job ad's requirements
+- Audit a batch of rejections for the pattern
+- Identify where in the process candidacies keep dropping
+- Benchmark the CV against likely competition, honestly, without invention
+- Evaluate whether the target-role list is realistic
+- Analyse feedback received for the actual lesson in it
 ```
 
-## STAGE 5 — Interview preparation
+## CATEGORY: TROUBLESHOOT
 
 ```
-STAGE
-Stage 5 of 8: Before the interview.
-Covers: research and rehearsal.
-Stay out of: the interview itself (stage 6), tasks (stage 7).
+CATEGORY
+TROUBLESHOOT — recover from something that has already gone wrong.
+This batch covers: the moments a job search actually derails.
+These are prompt types, not steps.
 
-Anchors:
-- Researching the company from public information only
-- Reading the job ad again for the competencies that will be tested
-- Building the STAR bank from real history, mapped to those competencies
-- Preparing the answer to "tell me about yourself" in ninety seconds
-- Preparing for the weakness, the failure and the conflict questions
-- Preparing questions that reveal whether the job is any good
-- Salary expectations: what to say when asked early
-- Logistics and the day-before checklist
+Ground to cover, as 25 distinct prompts:
+- A bad answer given mid-interview
+- Silence after a strong final round
+- An application likely caught by a keyword filter
+- Being ghosted after informal offer talk
+- A lowball offer
+- A reference who gave lukewarm feedback
+- A gap that keeps getting questioned
+- Motivation collapsing during a long search
 ```
 
-## STAGE 6 — Interview performance
+## CATEGORY: DECIDE
 
 ```
-STAGE
-Stage 6 of 8: In the room.
-Covers: answering well and recovering when it goes wrong.
-Stay out of: preparation (stage 5), the offer (stage 8).
+CATEGORY
+DECIDE — choose between real options, with the criteria stated up front.
+This batch covers: recurring calls with genuine trade-offs.
+These are prompt types, not steps.
 
-Anchors:
-- Mock interview: one question at a time, scored, with the criteria named
-- Rewriting a weak answer using only the facts the user supplied
-- Structuring an answer under time pressure
-- Handling a question the user cannot answer
-- Answering when the honest answer is a weakness
-- Panel, phone and video interviews, and what changes in each
-- Reading the interviewer's follow-up questions as signals
-- The final-round conversation, where the job is usually decided
+Ground to cover, as 25 distinct prompts:
+- Choose between two competing offers
+- Accept a counter-offer from the current employer, or not
+- Widen the search criteria, or hold the line
+- Disclose a reason for leaving, or not
+- Take a lower-title role at a better company, or hold out
+- Negotiate the first offer, or accept it
+- Pursue a role that is a partial fit, or skip it
+- Pause the search and regroup, or keep pushing
 ```
 
-## STAGE 7 — Tasks, tests and assessments
+## CATEGORY: SYSTEMIZE
 
 ```
-STAGE
-Stage 7 of 8: The stages that are not conversations.
-Covers: take-homes, presentations, and assessment days.
-Stay out of: interviews (stages 5-6), offers (stage 8).
+CATEGORY
+SYSTEMIZE — turn the search into a repeatable weekly process.
+This batch covers: the system around the search, not any single application.
+These are prompt types, not steps.
 
-Anchors:
-- Scoping a take-home task and deciding how long to spend
-- Clarifying questions to ask before starting
-- Structuring the submission so the reviewer finds the reasoning
-- The presentation task: structure, slides, and timing
-- Case-study and scenario questions, worked through out loud
-- Assessment-centre group exercises
-- Personality and aptitude tests, approached honestly
-- Reviewing a completed task before sending it
+Ground to cover, as 25 distinct prompts:
+- A repeatable weekly application routine
+- The CV-tailoring process, templated per ad
+- An interview-prep checklist
+- The follow-up cadence, templated
+- A repeatable networking-outreach routine
+- An offer-evaluation framework
+- The rejection-to-feedback process, templated
+- The reference-request process, templated
 ```
 
-## STAGE 8 — Offer, negotiation and the first 90 days
+## CATEGORY: SCALE
 
 ```
-STAGE
-Stage 8 of 8: After the yes.
-Covers: closing out the search properly.
-Stay out of: interviews (stages 5-6).
+CATEGORY
+SCALE — grow past a single, narrow search track.
+This batch covers: what changes when the search needs to widen or speed up.
+These are prompt types, not steps.
 
-Anchors:
-- The thank-you note, sent within a day, adding one unsaid thing
-- Chasing silence with a stated stopping point
-- Turning a rejection into feedback, and extracting the lesson if none comes
-- Evaluating the whole package against what the user said they wanted
-- Preparing the negotiation: ask, justification, fallback
-- Negotiating without inventing a competing offer
-- Comparing two offers on stated criteria rather than on feel
-- Resigning well, and the first 90 days plan
+Ground to cover, as 25 distinct prompts:
+- Run multiple parallel search tracks across industries or functions
+- Build a personal-brand push to generate inbound interest
+- Work with a recruiter alongside self-search
+- Build a portfolio or work-sample strategy
+- Negotiate beyond salary — equity, remote, title
+- Plan a career-ladder beyond this one role
+- Build a professional network before the next search is needed
+- Stay interview-ready in the gaps between active searches
 ```
 
 ---
@@ -1449,8 +1493,9 @@ complete corrected JSON array of all 25, same format, no preamble.
 | `missing section(s)` | A heading was dropped, usually RULES | Tell it the headings are literal |
 | `only N words` | Compressed to fit 25 in one reply | Ask for 1-13, then 14-25, as two replies |
 | `no [INPUT] placeholder` | It wrote advice, not a prompt | Point at the specific item |
-| `too similar to` | It drifted into another stage, or repeated itself | Re-paste ALREADY WRITTEN and name the stage boundary |
+| `too similar to` | It repeated itself, or drifted into another category's job | Re-paste ALREADY WRITTEN and re-read the category's job line |
 | `banned phrase` | Marketing drift | Name the phrase, ask for a plain replacement |
 
-`too similar to` is the one that appears most at stages 5-8. It almost always
-means the ALREADY WRITTEN slot was left empty or stale. Refresh it every run.
+`too similar to` is the one that appears most from category 3 onward. It almost
+always means the `ALREADY WRITTEN` slot was left empty or stale. Refresh it
+every run.
