@@ -143,7 +143,7 @@ export function homePage({ site, corePacks }) {
   const main = `
 <section class="hero wrap">
   <p class="eyebrow eyebrow--accent hero__eyebrow">Free AI prompt packs</p>
-  <h1>AI prompts for the part where you actually have to do the work.</h1>
+  <h1>Prompts for the part where you do the work.</h1>
   <div class="hero__support">
     <p class="lead">Freelancing, cold outreach, content, local business, digital products.
     One pack per problem, written in the order you need to work through it.</p>
@@ -318,13 +318,6 @@ export function packPage({ site, pack }) {
     <a href="/privacy" style="color:var(--fg)">Privacy</a>.
   </p>
   ${note}
-</section>
-
-<hr class="rule">
-
-<section class="section wrap">
-  <h2 class="h2 mb-m">Get the ${esc(pack.name)}</h2>
-  <a class="btn" href="#get">Get the free pack</a>
 </section>`;
 
   return layout({
@@ -389,7 +382,8 @@ export function accessPage({ site, pack }) {
     <p>${esc(prem.blurb)}</p>
     ${sellable
       ? `<p class="mt-m"><a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a></p>
-         <p class="small mt-s">Or <a href="/pricing" style="color:var(--fg)">all packs for ${esc(site.commerce.currencySymbol + site.commerce.membership.price)}/${esc(site.commerce.membership.interval)}</a>.</p>`
+         <p class="small mt-s">Secure checkout via Stripe — opens in a new step.
+         Or <a href="/pricing" style="color:var(--fg)">all packs for ${esc(site.commerce.currencySymbol + site.commerce.membership.price)}/${esc(site.commerce.membership.interval)}</a>.</p>`
       : `<p class="upgrade__status">Not available yet</p>
          <p class="small mt-s">Being written now. Bookmark this page — it will show a download here as soon as it is ready.</p>`}
   </div>
@@ -721,7 +715,8 @@ export function pricingPage({ site, corePacks }) {
       <p class="tier__note">Everything, while subscribed</p>
       <ul class="outcomes tier__list">${memberIncludes}</ul>
       ${membershipLive
-        ? `<a class="btn btn--full" href="${esc(c.membership.checkoutUrl)}" data-checkout>Subscribe — ${esc(sym + c.membership.price)}/${esc(c.membership.interval)}</a>`
+        ? `<a class="btn btn--full" href="${esc(c.membership.checkoutUrl)}" data-checkout>Subscribe — ${esc(sym + c.membership.price)}/${esc(c.membership.interval)}</a>
+           <p class="small mt-s">Secure checkout via Stripe — opens in a new step.</p>`
         : `<p class="tier__status">Not available yet</p>`}
     </div>
 
@@ -732,6 +727,7 @@ export function pricingPage({ site, corePacks }) {
 
 <section class="section wrap" id="packs" aria-labelledby="packs-h">
   <h2 class="h2 mb-m" id="packs-h">The packs</h2>
+  ${anyPackLive ? `<p class="small mb-m">Secure checkout via Stripe for every priced pack below — opens in a new step.</p>` : ""}
   <div class="tierpacks">${packRows}</div>
 </section>
 

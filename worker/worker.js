@@ -24,6 +24,16 @@ export default {
 
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors.headers });
     if (!cors.allowed) return json({ ok: false, error: "origin_not_allowed" }, 403, cors.headers);
+
+    const url = new URL(req.url);
+
+    /* Access-token lookup — lets a signup opened on one device/browser be
+       verified from any other, instead of trusting only that browser's
+       localStorage. See accessLookup() below. */
+    if (req.method === "GET" && url.pathname === "/access") {
+      return accessLookup(url, env, cors.headers);
+    }
+
     if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405, cors.headers);
 
     let body;
@@ -82,11 +92,20 @@ async function subscribe(req, body, env, cors) {
     country: req.headers.get("cf-ipcountry") || ""
   };
 
+  /* Access token — returned to the client and put in the /access URL, so
+     opening that link on a different browser or device still works instead
+     of hitting the signup gate again. Expires in 180 days, same as a long
+     "remember me". */
+  const token = randomToken();
+
   /* Store the lead. One key per email+pack so re-requests do not create
      duplicates, plus a dated index key for easy export. */
   try {
     await env.LEADS.put(`lead:${email}:${packSlug}`, JSON.stringify(lead));
     await env.LEADS.put(`idx:${day}:${Date.now()}:${hashish(email)}`, JSON.stringify(lead));
+    await env.LEADS.put(`access:${token}`, JSON.stringify({ email, pack_slug: packSlug }), {
+      expirationTtl: 60 * 60 * 24 * 180
+    });
   } catch (err) {
     /* If the lead cannot be stored, say so rather than pretending it worked. */
     return json({ ok: false, error: "storage_failed" }, 500, cors);
@@ -112,7 +131,29 @@ async function subscribe(req, body, env, cors) {
   const deliveryConfigured = env.DELIVERY_CONFIRMED === "1";
   const emailed = addedToMailerLite && deliveryConfigured;
 
-  return json({ ok: true, emailed }, 200, cors);
+  return json({ ok: true, emailed, token }, 200, cors);
+}
+
+/* ------------------------------------------------------------ access lookup
+   GET /access?t=<token> — verifies a token minted by subscribe() above and
+   hands back the email + pack it belongs to. Lets the access page grant entry
+   on a browser that never submitted the form itself. */
+async function accessLookup(url, env, cors) {
+  const token = String(url.searchParams.get("t") || "");
+  if (!/^[a-f0-9]{40}$/.test(token)) {
+    return json({ ok: false, error: "bad_request" }, 400, cors);
+  }
+
+  let record;
+  try {
+    const raw = await env.LEADS.get(`access:${token}`);
+    record = raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return json({ ok: false, error: "lookup_failed" }, 500, cors);
+  }
+
+  if (!record) return json({ ok: false, error: "not_found" }, 404, cors);
+  return json({ ok: true, email: record.email, pack_slug: record.pack_slug }, 200, cors);
 }
 
 /* ---------------------------------------------------------------- MailerLite */
@@ -188,7 +229,7 @@ function corsHeaders(req, env) {
   const allowed = configured.includes(origin) || (localDev && isLocal);
 
   const headers = {
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
@@ -220,6 +261,12 @@ const normalizeEmail = (v) => String(v || "").trim().toLowerCase();
 const validEmail = (v) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v) && v.length <= 254;
 const clientIp = (req) => req.headers.get("cf-connecting-ip") || "unknown";
 const parseJson = (v) => { try { return JSON.parse(v); } catch { return null; } };
+
+/* Opaque 40-char hex token — unguessable, not tied to the email itself. */
+function randomToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(20));
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 /* Short non-cryptographic digest — only used to bucket rate limits without
    writing raw emails or IPs into KV keys. */

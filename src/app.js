@@ -305,6 +305,21 @@
       clearError();
     });
 
+    /* Catch an obviously malformed address as soon as the field is left, not
+       only on submit — but only once there's something to judge (an empty
+       required field is a submit-time concern), and without stealing focus
+       back the way showError() does for a submit failure: the visitor just
+       left this field on purpose, dragging them back would be worse than
+       the delayed feedback this is meant to fix. */
+    emailInput && emailInput.addEventListener("blur", function () {
+      var value = emailInput.value.trim();
+      if (value && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(value) && errorEl) {
+        errorEl.textContent = "That email address does not look right.";
+        errorEl.hidden = false;
+        emailInput.setAttribute("aria-invalid", "true");
+      }
+    });
+
     function clearError() {
       if (!errorEl) return;
       errorEl.hidden = true;
@@ -375,7 +390,15 @@
           delivery_mode: result.stored ? (result.emailed ? "endpoint_emailed" : "endpoint_stored") : "local_only"
         });
 
-        window.location.href = PAGE.accessUrl || ("/" + slug + "/access");
+        /* Carry the access token in the URL itself, not just localStorage, so
+           this exact link still works if it's opened on a different browser
+           or device later — an emailed copy, a bookmark synced elsewhere, a
+           DM re-opened outside the app that first submitted the form. */
+        var dest = PAGE.accessUrl || ("/" + slug + "/access");
+        if (result.token) {
+          dest += (dest.indexOf("?") > -1 ? "&" : "?") + "t=" + encodeURIComponent(result.token);
+        }
+        window.location.href = dest;
       }).catch(function (err) {
         setBusy(false);
         showError(err && err.message ? err.message : "Something went wrong. Your email is still here — try again.");
@@ -412,7 +435,7 @@
         if (!res.ok) throw new Error("We could not save that just now. Please try again.");
         return res.json().catch(function () { return {}; });
       }).then(function (data) {
-        return { stored: true, emailed: !!(data && data.emailed) };
+        return { stored: true, emailed: !!(data && data.emailed), token: (data && data.token) || "" };
       }).catch(function (err) {
         clearTimeout(timer);
         if (err && err.name === "AbortError") throw new Error("That took too long. Check your connection and try again.");
@@ -433,38 +456,76 @@
   var gate = document.querySelector("[data-access-gate]");
   var packBody = document.querySelector("[data-access-body]");
 
+  function showGate() {
+    gate.hidden = false;
+    packBody.hidden = true;
+    trackEvent("pack_access_gated", {});
+  }
+
+  function showGranted(record) {
+    gate.hidden = true;
+    packBody.hidden = false;
+
+    /* Tell the person exactly what happened — never claim an email was sent. */
+    var statusEl = document.querySelector("[data-access-status]");
+    if (statusEl) {
+      var name = PAGE.packName || "pack";
+      if (record.emailed && record.email) {
+        statusEl.innerHTML = "Your " + escapeHtml(name) + " is ready below. We have also sent a copy to " +
+          "<strong>" + escapeHtml(record.email) + "</strong>.";
+      } else if (record.stored) {
+        statusEl.innerHTML = "Your " + escapeHtml(name) + " is ready below. Email delivery is not switched on yet, " +
+          "so nothing has been sent to your inbox — bookmark this page to come back to it.";
+      } else {
+        statusEl.innerHTML = "Your " + escapeHtml(name) + " is ready below. Email delivery is not connected yet, so " +
+          "no email has been sent and your address has not been stored anywhere except this browser. " +
+          "Bookmark this page to come back to it.";
+      }
+    }
+
+    trackEvent("pack_accessed", {
+      delivery_mode: record.stored ? (record.emailed ? "endpoint_emailed" : "endpoint_stored") : "local_only"
+    });
+  }
+
   if (gate && packBody) {
     var record = getAccess()[PAGE.slug];
 
-    if (!record) {
-      /* No local record — show the gate, hide the pack. */
-      gate.hidden = false;
-      packBody.hidden = true;
-      trackEvent("pack_access_gated", {});
+    if (record) {
+      showGranted(record);
     } else {
-      gate.hidden = true;
-      packBody.hidden = false;
+      /* No local record on this browser — before assuming the visitor never
+         signed up, check for an access token in the URL. Covers the case a
+         signup happened on a different browser or device: the link itself
+         carries proof, not just this browser's storage. */
+      var urlToken = new URLSearchParams(location.search).get("t") || "";
+      var endpoint = INT.leadEndpoint;
 
-      /* Tell the person exactly what happened — never claim an email was sent. */
-      var statusEl = document.querySelector("[data-access-status]");
-      if (statusEl) {
-        var name = PAGE.packName || "pack";
-        if (record.emailed && record.email) {
-          statusEl.innerHTML = "Your " + escapeHtml(name) + " is ready below. We have also sent a copy to " +
-            "<strong>" + escapeHtml(record.email) + "</strong>.";
-        } else if (record.stored) {
-          statusEl.innerHTML = "Your " + escapeHtml(name) + " is ready below. Email delivery is not switched on yet, " +
-            "so nothing has been sent to your inbox — bookmark this page to come back to it.";
-        } else {
-          statusEl.innerHTML = "Your " + escapeHtml(name) + " is ready below. Email delivery is not connected yet, so " +
-            "no email has been sent and your address has not been stored anywhere except this browser. " +
-            "Bookmark this page to come back to it.";
-        }
+      if (urlToken && endpoint) {
+        var accessEndpoint = endpoint.replace(/\/subscribe\/?$/, "/access");
+        fetch(accessEndpoint + "?t=" + encodeURIComponent(urlToken))
+          .then(function (res) { return res.ok ? res.json() : null; })
+          .then(function (data) {
+            if (data && data.ok && data.pack_slug === PAGE.slug) {
+              var verified = {
+                email: data.email,
+                ts: new Date().toISOString(),
+                emailed: false,
+                stored: true,
+                source: "",
+                campaign: ""
+              };
+              grantAccess(PAGE.slug, verified);
+              write(KEY_EMAIL, data.email);
+              showGranted(verified);
+            } else {
+              showGate();
+            }
+          })
+          .catch(function () { showGate(); });
+      } else {
+        showGate();
       }
-
-      trackEvent("pack_accessed", {
-        delivery_mode: record.stored ? (record.emailed ? "endpoint_emailed" : "endpoint_stored") : "local_only"
-      });
     }
   }
 

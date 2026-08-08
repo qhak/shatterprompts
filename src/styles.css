@@ -20,8 +20,25 @@
   --accent-soft: rgba(206, 32, 41, .16);
   --accent-text: #EF5058;   /* 5.5:1 — the only red allowed on small text */
 
+  /* Confirmation only — copy-success today, payment-success later. Never
+     reuse --accent-text here: red already means "error" on this site. */
+  --ok: #4FAE7C;   /* ~5.3:1 on --bg */
+
   --line:      #232326;
   --line-soft: #18191B;
+
+  /* Spacing scale — named so new components pull from here instead of
+     choosing a value by eye. Existing rules keep their current values; this
+     is the reference for anything new. */
+  --space-1: .25rem;   /* 4px */
+  --space-2: .5rem;    /* 8px */
+  --space-3: .75rem;   /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
 
@@ -153,7 +170,8 @@ p + p { margin-top: 1rem; }
 }
 .topbar.is-scrolled { border-bottom-color: var(--line); background: rgba(12,12,13,.94); }
 .topbar__inner {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  display: flex; flex-wrap: wrap; row-gap: .5rem;
+  align-items: center; justify-content: space-between; gap: 1rem;
   min-height: 3.5rem;
 }
 .wordmark {
@@ -254,7 +272,7 @@ p + p { margin-top: 1rem; }
   line-height: 1.25; display: block; transition: color .18s ease;
 }
 .packrow__outcome {
-  font-size: .9375rem; color: var(--fg-dim); line-height: 1.5; margin-top: .3125rem;
+  font-size: .8125rem; color: var(--fg-dim); line-height: 1.5; margin-top: .3125rem;
 }
 .packrow__arrow {
   color: var(--fg-faint); font-size: 1rem; align-self: center;
@@ -382,7 +400,7 @@ p + p { margin-top: 1rem; }
   transition: color .18s ease, border-color .18s ease;
 }
 .copy:hover { color: var(--fg); border-color: var(--fg-dim); }
-.copy[data-copied="true"] { color: var(--accent-text); border-color: var(--accent); }
+.copy[data-copied="true"] { color: var(--ok); border-color: var(--ok); }
 
 /* ---------- form ---------- */
 .form { display: grid; gap: 1.125rem; }
@@ -487,7 +505,7 @@ p + p { margin-top: 1rem; }
   font-variant-numeric: tabular-nums;
 }
 @media (min-width: 64em) {
-  .toc a { padding-block: .5rem; border-bottom: 0; font-size: .875rem; }
+  .toc a { padding-block: .625rem; border-bottom: 0; font-size: .875rem; }
 }
 
 /* ---------- footer ---------- */
@@ -520,7 +538,7 @@ p + p { margin-top: 1rem; }
 /* ---------- legal prose ---------- */
 .prose h2 { font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: .875rem; }
 .prose h2:first-of-type { margin-top: 1.5rem; }
-.prose p, .prose li { font-size: .9375rem; line-height: 1.7; color: var(--fg-dim); }
+.prose p, .prose li { font-size: .9375rem; line-height: 1.7; color: var(--fg-dim); max-width: 36rem; }
 .prose p + p { margin-top: .875rem; }
 .prose ul { display: grid; gap: .5625rem; margin-top: .875rem; }
 .prose li { display: grid; grid-template-columns: auto 1fr; gap: .875rem; }
