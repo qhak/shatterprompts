@@ -20,18 +20,31 @@ const MAX_BODY_BYTES = 8 * 1024;
 
 export default {
   async fetch(req, env) {
+    const url = new URL(req.url);
+
+    /* Stripe calls this directly, server-to-server — there is no browser
+       Origin header, so it has to bypass the CORS allowlist below entirely.
+       Authenticity comes from the signature check inside stripeWebhook()
+       instead of from origin matching. */
+    if (req.method === "POST" && url.pathname === "/stripe-webhook") {
+      return stripeWebhook(req, env);
+    }
+
     const cors = corsHeaders(req, env);
 
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors.headers });
     if (!cors.allowed) return json({ ok: false, error: "origin_not_allowed" }, 403, cors.headers);
-
-    const url = new URL(req.url);
 
     /* Access-token lookup — lets a signup opened on one device/browser be
        verified from any other, instead of trusting only that browser's
        localStorage. See accessLookup() below. */
     if (req.method === "GET" && url.pathname === "/access") {
       return accessLookup(url, env, cors.headers);
+    }
+
+    /* Purchase lookup — same idea, for a Stripe checkout session. */
+    if (req.method === "GET" && url.pathname === "/purchase") {
+      return purchaseLookup(url, env, cors.headers);
     }
 
     if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405, cors.headers);
@@ -153,6 +166,133 @@ async function accessLookup(url, env, cors) {
   }
 
   if (!record) return json({ ok: false, error: "not_found" }, 404, cors);
+  return json({ ok: true, email: record.email, pack_slug: record.pack_slug }, 200, cors);
+}
+
+/* ------------------------------------------------------------------ Stripe
+   Payment Links redirect the buyer straight back with ?session_id=... in the
+   URL — the premium page trades that for an entitlement via /purchase below.
+   The entitlement itself is only ever written from the webhook, once Stripe
+   has actually confirmed the payment; the client-supplied session_id can
+   only ever look one up, never create one. */
+
+async function stripeWebhook(req, env) {
+  if (!env.STRIPE_WEBHOOK_SECRET) return new Response("webhook not configured", { status: 500 });
+
+  const sig = req.headers.get("stripe-signature") || "";
+  const raw = await req.text();
+
+  const valid = await verifyStripeSignature(raw, sig, env.STRIPE_WEBHOOK_SECRET);
+  if (!valid) return new Response("invalid signature", { status: 400 });
+
+  let event;
+  try { event = JSON.parse(raw); } catch { return new Response("bad json", { status: 400 }); }
+
+  if (event.type === "checkout.session.completed") {
+    await grantPurchase(event.data.object, env);
+  }
+
+  /* Stripe only cares that this returns 2xx — it retries on anything else. */
+  return new Response("ok", { status: 200 });
+}
+
+/* Verifies Stripe's webhook signing scheme: HMAC-SHA256 of "<timestamp>.<raw
+   body>" using the endpoint's signing secret, compared to the v1 signature
+   in the Stripe-Signature header. Must run on the exact raw request body —
+   re-serializing parsed JSON would produce a different byte sequence and
+   never match. */
+async function verifyStripeSignature(payload, sigHeader, secret) {
+  const parts = {};
+  sigHeader.split(",").forEach((kv) => {
+    const i = kv.indexOf("=");
+    if (i > -1) parts[kv.slice(0, i)] = kv.slice(i + 1);
+  });
+  const timestamp = parts.t;
+  const expected = parts.v1;
+  if (!timestamp || !expected) return false;
+
+  /* Reject anything more than 5 minutes old — stops a captured payload being
+     replayed later. */
+  const age = Math.abs(Date.now() / 1000 - Number(timestamp));
+  if (!Number.isFinite(age) || age > 300) return false;
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sigBuffer = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${timestamp}.${payload}`));
+  const computed = Array.from(new Uint8Array(sigBuffer), (b) => b.toString(16).padStart(2, "0")).join("");
+
+  return timingSafeEqual(computed, expected);
+}
+
+function timingSafeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/* A Payment Link's checkout.session.completed event does not carry the price
+   that was bought, so this fetches the session's line items with the secret
+   key to find out — then maps that price to a pack (or the membership,
+   which grants every pack) via STRIPE_PRICE_MAP / STRIPE_MEMBERSHIP_PRICE_ID. */
+async function grantPurchase(session, env) {
+  const email = normalizeEmail(session.customer_details?.email || session.customer_email || "");
+  if (!email || !env.STRIPE_SECRET_KEY) return;
+
+  let priceId = "";
+  try {
+    const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${session.id}/line_items`, {
+      headers: { Authorization: "Bearer " + env.STRIPE_SECRET_KEY }
+    });
+    if (r.ok) {
+      const data = await r.json();
+      priceId = data?.data?.[0]?.price?.id || "";
+    }
+  } catch (err) {}
+  if (!priceId) return;
+
+  const isMembership = priceId === env.STRIPE_MEMBERSHIP_PRICE_ID;
+  const priceMap = parseJson(env.STRIPE_PRICE_MAP) || {};
+  /* "*" means every pack — checked for specifically wherever an entitlement
+     is read back. */
+  const packSlug = isMembership ? "*" : (priceMap[priceId] || "");
+  if (!packSlug) return; // an unmapped price — nothing to grant
+
+  const record = { email, pack_slug: packSlug, session_id: session.id, ts: new Date().toISOString() };
+
+  try {
+    await env.LEADS.put(`purchase:${session.id}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400 });
+    /* Durable, email-keyed copy too — not read yet, but it's what a future
+       "resend my access link" endpoint would look up instead of relying on
+       the buyer still having their original session_id. */
+    await env.LEADS.put(`entitlement:${email}:${packSlug}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400 });
+  } catch (err) {}
+}
+
+/* GET /purchase?session_id=... — looks up an entitlement written by the
+   webhook above. Returns 202 (not 404) when nothing is found yet, since the
+   webhook can land a second or two after Stripe redirects the buyer back —
+   the client is expected to retry briefly rather than treat that as failure. */
+async function purchaseLookup(url, env, cors) {
+  const sessionId = String(url.searchParams.get("session_id") || "").slice(0, 200);
+  if (!/^cs_[A-Za-z0-9_]{10,255}$/.test(sessionId)) {
+    return json({ ok: false, error: "bad_request" }, 400, cors);
+  }
+
+  let record;
+  try {
+    const raw = await env.LEADS.get(`purchase:${sessionId}`);
+    record = raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return json({ ok: false, error: "lookup_failed" }, 500, cors);
+  }
+
+  if (!record) return json({ ok: false, error: "pending" }, 202, cors);
   return json({ ok: true, email: record.email, pack_slug: record.pack_slug }, 200, cors);
 }
 

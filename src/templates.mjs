@@ -450,6 +450,99 @@ export function accessPage({ site, pack }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* PREMIUM DELIVERY PAGE                                                     */
+/* -------------------------------------------------------------------------- */
+
+/* Same doc/TOC/prompt UI as the free access page, gated on a Stripe purchase
+   instead of an email signup. Only ever built when content/premium/<slug>.json
+   actually has prompts in it — see loadPremiumPrompts() in build.mjs. */
+export function premiumPage({ site, pack, prompts }) {
+  const count = prompts.length;
+  const prem = pack.premium;
+  const c = site.commerce;
+  const money = c.currencySymbol + c.pack.price;
+  const memberMoney = c.currencySymbol + c.membership.price;
+  const hasCheckout = /^https:\/\//.test(prem.checkoutUrl || "");
+
+  const toc = prompts.map((p, i) => `
+    <a href="#p${i + 1}"><span class="n">${String(i + 1).padStart(3, "0")}</span><span>${esc(p.title)}</span></a>`).join("");
+
+  const body = prompts.map((p, i) => {
+    const id = `p${i + 1}`;
+    const bodyId = `body-${id}`;
+    return `
+    <article class="prompt" id="${id}">
+      <div class="prompt__head">
+        <h2 class="prompt__title"><span class="n">${String(i + 1).padStart(3, "0")}</span> ${esc(p.title)}</h2>
+        <button class="copy" type="button" data-copy="${bodyId}"
+                data-prompt-title="${esc(p.title)}" data-copy-event="premium_prompt_copy"
+                aria-label="Copy prompt: ${esc(p.title)}">
+          <span data-copy-label>Copy</span>
+        </button>
+      </div>
+      <div class="prompt__body" id="${bodyId}">${promptHtml(p.text)}</div>
+    </article>`;
+  }).join("");
+
+  const main = `
+<section class="hero wrap">
+  <!-- Shown only when this browser has no verified purchase for this pack
+       (or a membership) and the URL carries no Stripe session to check. -->
+  <div data-purchase-gate hidden>
+    <p class="eyebrow eyebrow--accent hero__eyebrow">Premium pack</p>
+    <h1>${esc(prem.name)}</h1>
+    <p class="lead mt-s">This page unlocks after you buy it — no purchase found for this browser yet.</p>
+    <div class="hero__cta mt-l">
+      ${hasCheckout
+        ? `<a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a>`
+        : `<p class="upgrade__status">Not available yet</p>`}
+      <a class="tlink" href="/pricing">Or all packs for ${esc(memberMoney)}/${esc(c.membership.interval)} <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
+    </div>
+    <p class="small mt-m" data-purchase-status hidden></p>
+  </div>
+
+  <div data-purchase-body hidden>
+    <span class="hero__index" aria-hidden="true">${esc(pack.index)}</span>
+    <p class="success__badge">Purchase confirmed</p>
+    <h1>${esc(prem.name)}</h1>
+    <p class="lead mt-s">${count} prompts, in the order to use them.</p>
+  </div>
+</section>
+
+<div data-purchase-body hidden>
+  <hr class="rule">
+  <section class="section wrap-wide">
+    <div class="doc">
+      <aside class="doc__aside">
+        <p class="doc__label">Contents</p>
+        <nav class="toc" aria-label="Prompts in this pack">${toc}</nav>
+      </aside>
+      <div class="doc__main">${body}</div>
+    </div>
+  </section>
+  <hr class="rule">
+  <section class="section wrap">
+    <h2 class="h2 mb-m">More packs</h2>
+    <a class="tlink" href="/pricing">See all packs and pricing <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
+  </section>
+</div>`;
+
+  return layout({
+    site,
+    title: `${prem.name} — your premium pack`,
+    description: `Your ${prem.name}: ${count} premium AI prompts in order.`,
+    path: `/${pack.slug}/premium`,
+    page: {
+      type: "premium",
+      slug: pack.slug,
+      packName: prem.name,
+      checkoutUrl: prem.checkoutUrl || ""
+    },
+    main
+  });
+}
+
+/* -------------------------------------------------------------------------- */
 /* ALL PACKS                                                                  */
 /* -------------------------------------------------------------------------- */
 

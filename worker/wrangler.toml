@@ -32,5 +32,15 @@ MAILERLITE_MARKETING_GROUP_ID = ""
 # Set to "1" to allow localhost origins while testing.
 ALLOW_LOCAL_DEV = "0"
 
+# Which Stripe price ID unlocks which pack: {"price_xxx": "freelancing", ...}
+# One entry per pack's $2.99 Payment Link.
+STRIPE_PRICE_MAP = "{}"
+
+# The membership's $9.99/month price ID. A purchase of this price grants
+# every pack ("*"), not just one.
+STRIPE_MEMBERSHIP_PRICE_ID = ""
+
 # SECRET — never put this in vars or in git. Set it with:
 #   npx wrangler secret put MAILERLITE_API_KEY
+#   npx wrangler secret put STRIPE_SECRET_KEY
+#   npx wrangler secret put STRIPE_WEBHOOK_SECRET

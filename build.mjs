@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 import { SITE, PACKS } from "./content/site.config.mjs";
 import {
-  homePage, packPage, accessPage, packsPage,
+  homePage, packPage, accessPage, premiumPage, packsPage,
   privacyPage, termsPage, notFoundPage, pricingPage
 } from "./src/templates.mjs";
 import { makeOgImage } from "./src/ogimage.mjs";
@@ -25,6 +25,20 @@ const OUT = join(ROOT, "dist");
 
 const corePacks = PACKS.filter((p) => p.tier === "core");
 const secondaryPacks = PACKS.filter((p) => p.tier !== "core");
+
+/* content/premium/<slug>.json is the generation tool's output — the single
+   source of truth for premium prompts. It is never folded into the pack
+   .mjs files (200 prompts each would blow past the file-size guideline),
+   and it is gitignored: only the built page ships. */
+async function loadPremiumPrompts(slug) {
+  try {
+    const raw = await readFile(join(ROOT, "content", "premium", `${slug}.json`), "utf8");
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    return [];
+  }
+}
 
 /* ------------------------------------------------------------------ helpers */
 async function emit(routePath, html) {
@@ -37,7 +51,7 @@ async function emit(routePath, html) {
 /* --------------------------------------------------------------- validation
    Fails the build rather than shipping a page that promises something the data
    cannot deliver. */
-function validate() {
+async function validate() {
   const errors = [];
   const seen = new Set();
 
@@ -73,6 +87,12 @@ function validate() {
       if (prem.ready && !hasDownload) {
         errors.push(`${p.slug}: premium is marked ready but has no downloadUrl to deliver.`);
       }
+      if (prem.ready) {
+        const prompts = await loadPremiumPrompts(p.slug);
+        if (!prompts.length) {
+          errors.push(`${p.slug}: premium is marked ready but content/premium/${p.slug}.json has no prompts — the download page would be empty.`);
+        }
+      }
     }
   }
 
@@ -92,7 +112,7 @@ const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 
 /* ---------------------------------------------------------------- the build */
 async function build() {
-  validate();
+  await validate();
 
   await rm(OUT, { recursive: true, force: true });
   await mkdir(join(OUT, "assets"), { recursive: true });
@@ -109,6 +129,13 @@ async function build() {
   for (const pack of PACKS) {
     routes.push(await emit(`/${pack.slug}`, packPage({ site: SITE, pack })));
     routes.push(await emit(`/${pack.slug}/access`, accessPage({ site: SITE, pack })));
+
+    if (pack.premium) {
+      const premiumPrompts = await loadPremiumPrompts(pack.slug);
+      if (premiumPrompts.length) {
+        routes.push(await emit(`/${pack.slug}/premium`, premiumPage({ site: SITE, pack, prompts: premiumPrompts })));
+      }
+    }
   }
 
   /* 404 — Netlify, Cloudflare Pages and GitHub Pages all serve /404.html */
@@ -123,9 +150,9 @@ async function build() {
   /* robots.txt + sitemap.xml — access pages are excluded from both */
   const origin = SITE.origin.replace(/\/$/, "");
   await writeFile(join(OUT, "robots.txt"),
-    `User-agent: *\nAllow: /\nDisallow: /*/access\n\nSitemap: ${origin}/sitemap.xml\n`, "utf8");
+    `User-agent: *\nAllow: /\nDisallow: /*/access\nDisallow: /*/premium\n\nSitemap: ${origin}/sitemap.xml\n`, "utf8");
 
-  const indexable = routes.filter((r) => !r.endsWith("/access"));
+  const indexable = routes.filter((r) => !r.endsWith("/access") && !r.endsWith("/premium"));
   await writeFile(join(OUT, "sitemap.xml"),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     indexable.map((r) =>

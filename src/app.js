@@ -12,10 +12,11 @@
   var INT  = CFG.integrations || {};
   var ANA  = INT.analytics || {};
 
-  var KEY_FIRST  = "sp.attr.first";
-  var KEY_LAST   = "sp.attr.last";
-  var KEY_ACCESS = "sp.access";
-  var KEY_EMAIL  = "sp.email";
+  var KEY_FIRST    = "sp.attr.first";
+  var KEY_LAST     = "sp.attr.last";
+  var KEY_ACCESS   = "sp.access";
+  var KEY_EMAIL    = "sp.email";
+  var KEY_PURCHASE = "sp.purchase";
 
   /* ---------------------------------------------------------------- storage
      Wrapped: Safari private mode and locked-down browsers throw on access. */
@@ -177,6 +178,24 @@
   }
 
   function hasAccess(slug) { return !!getAccess()[slug]; }
+
+  /* ---------------------------------------------------------- pack purchase
+     Same local-record pattern as free access, but a record here only ever
+     gets written after the Worker has verified a real Stripe session — never
+     from anything the client alone can produce. A "*" entry means a
+     membership: it covers every pack, not just one. */
+  function getPurchases() { return read(KEY_PURCHASE, {}) || {}; }
+
+  function grantPurchase(slug, record) {
+    var all = getPurchases();
+    all[slug] = record;
+    return write(KEY_PURCHASE, all);
+  }
+
+  function hasPurchase(slug) {
+    var all = getPurchases();
+    return !!(all[slug] || all["*"]);
+  }
 
   /* ------------------------------------------------------------- top bar */
   var bar = document.querySelector("[data-topbar]");
@@ -525,6 +544,65 @@
           .catch(function () { showGate(); });
       } else {
         showGate();
+      }
+    }
+  }
+
+  /* ============================================================ PREMIUM PAGE
+     Same shape as the access-page gate above, but verifying a Stripe purchase
+     instead of a free signup — and checking a membership ("*") as well as a
+     pack-specific entitlement, since a subscriber's purchase covers every
+     pack, not just the one they happened to buy from. */
+  var purchaseGate = document.querySelector("[data-purchase-gate]");
+  var purchaseBody = document.querySelector("[data-purchase-body]");
+
+  if (purchaseGate && purchaseBody) {
+    var showPurchaseGate = function (message) {
+      purchaseGate.hidden = false;
+      purchaseBody.hidden = true;
+      var statusEl = document.querySelector("[data-purchase-status]");
+      if (statusEl && message) {
+        statusEl.textContent = message;
+        statusEl.hidden = false;
+      }
+      trackEvent("premium_access_gated", {});
+    };
+
+    var showPurchaseGranted = function () {
+      purchaseGate.hidden = true;
+      purchaseBody.hidden = false;
+      trackEvent("premium_accessed", {});
+    };
+
+    if (hasPurchase(PAGE.slug)) {
+      showPurchaseGranted();
+    } else {
+      var sessionId = new URLSearchParams(location.search).get("session_id") || "";
+      var purchaseEndpoint = INT.leadEndpoint ? INT.leadEndpoint.replace(/\/subscribe\/?$/, "/purchase") : "";
+
+      if (sessionId && purchaseEndpoint) {
+        var purchaseAttempts = 0;
+        (function tryVerifyPurchase() {
+          purchaseAttempts++;
+          fetch(purchaseEndpoint + "?session_id=" + encodeURIComponent(sessionId))
+            .then(function (res) {
+              return res.json().catch(function () { return {}; }).then(function (data) {
+                if (data && data.ok && (data.pack_slug === PAGE.slug || data.pack_slug === "*")) {
+                  grantPurchase(PAGE.slug, { email: data.email, pack_slug: data.pack_slug, ts: new Date().toISOString() });
+                  showPurchaseGranted();
+                } else if (res.status === 202 && purchaseAttempts < 5) {
+                  /* Stripe's webhook can land a moment after the redirect —
+                     wait and try again a few times before giving up. */
+                  setTimeout(tryVerifyPurchase, 1500);
+                } else {
+                  showPurchaseGate("We could not confirm that purchase yet. If you just paid, refresh this page in a moment.");
+                }
+              });
+            })
+            .catch(function () { showPurchaseGate(); });
+        })();
+      } else {
+        showPurchaseGate();
       }
     }
   }
