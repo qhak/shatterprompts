@@ -44,7 +44,7 @@ export default {
      -------------------------------------------------------------------------- */
   premium: {
     name: "The Local Business System",
-    ready: false,
+    ready: true,
     promptCount: 200,
     blurb: "Deeper workflows for territory selection, repeatable audits, pricing, in-person and phone approaches, and retainers.",
     includes: [
@@ -54,8 +54,8 @@ export default {
       "In-person, phone and email approaches",
       "Retainer conversion and referral systems"
     ],
-    checkoutUrl: "",
-    downloadUrl: ""
+    checkoutUrl: "https://buy.stripe.com/4gM14o5nA5YUc6L2df7Re03",
+    downloadUrl: "https://shatterprompts.com/local-business/premium"
   },
 
   seo: {

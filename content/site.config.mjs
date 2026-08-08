@@ -77,7 +77,7 @@ export const SITE = {
     bundle: {
       price: "19.99",
       label: "All-Access Bundle",
-      checkoutUrl: "",          // Stripe one-time Payment Link
+      checkoutUrl: "https://buy.stripe.com/9B64gAaHUgDyeeT8BD7Re06",
       blurb: "Every premium pack available today, one payment, yours to keep.",
       includes: [
         "All 6 premium packs available today (1,200 prompts)",

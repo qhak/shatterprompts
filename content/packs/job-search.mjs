@@ -44,7 +44,7 @@ export default {
      -------------------------------------------------------------------------- */
   premium: {
     name: "The Job Search System",
-    ready: false,
+    ready: true,
     promptCount: 200,
     blurb: "Deeper workflows for CV rebuilds across multiple roles, interview rehearsal at volume, offer negotiation, and career switches.",
     includes: [
@@ -54,8 +54,8 @@ export default {
       "Offer evaluation and negotiation playbooks",
       "Career switch and gap-explanation workflows"
     ],
-    checkoutUrl: "",
-    downloadUrl: ""
+    checkoutUrl: "https://buy.stripe.com/00w7sM2bo0EA8Uz7xz7Re05",
+    downloadUrl: "https://shatterprompts.com/job-search/premium"
   },
 
   seo: {

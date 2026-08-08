@@ -49,7 +49,7 @@ export default {
      -------------------------------------------------------------------------- */
   premium: {
     name: "The Freelancing System",
-    ready: false,
+    ready: true,
     promptCount: 200,
     blurb: "Deeper workflows for choosing a niche, packaging an offer, building proof, finding leads, and handling replies.",
     includes: [
@@ -59,8 +59,8 @@ export default {
       "Objection handling for every stage",
       "Lead sourcing and pipeline workflows"
     ],
-    checkoutUrl: "",
-    downloadUrl: ""
+    checkoutUrl: "https://buy.stripe.com/9B6aEYaHU4UQ5In4ln7Re00",
+    downloadUrl: "https://shatterprompts.com/freelancing/premium"
   },
 
   seo: {

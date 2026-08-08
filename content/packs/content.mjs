@@ -44,7 +44,7 @@ export default {
      -------------------------------------------------------------------------- */
   premium: {
     name: "The Content System",
-    ready: false,
+    ready: true,
     promptCount: 200,
     blurb: "Deeper workflows for positioning, a 30-day calendar, repurposing across formats, and a monthly performance review.",
     includes: [
@@ -54,8 +54,8 @@ export default {
       "Hook libraries by niche",
       "Monthly performance review workflows"
     ],
-    checkoutUrl: "",
-    downloadUrl: ""
+    checkoutUrl: "https://buy.stripe.com/dRm3cwaHUbjec6L19b7Re02",
+    downloadUrl: "https://shatterprompts.com/content/premium"
   },
 
   seo: {

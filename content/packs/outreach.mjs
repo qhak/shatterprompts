@@ -44,7 +44,7 @@ export default {
      -------------------------------------------------------------------------- */
   premium: {
     name: "The Outreach System",
-    ready: false,
+    ready: true,
     promptCount: 200,
     blurb: "Deeper workflows for building a prospect list, research at volume, multi-channel sequencing, and reply handling.",
     includes: [
@@ -54,8 +54,8 @@ export default {
       "Reply handling and objection workflows",
       "Deliverability and testing playbooks"
     ],
-    checkoutUrl: "",
-    downloadUrl: ""
+    checkoutUrl: "https://buy.stripe.com/4gMdRaaHU0EAdaPg457Re01",
+    downloadUrl: "https://shatterprompts.com/outreach/premium"
   },
 
   seo: {

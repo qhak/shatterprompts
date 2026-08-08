@@ -44,7 +44,7 @@ export default {
      -------------------------------------------------------------------------- */
   premium: {
     name: "The Digital Product System",
-    ready: false,
+    ready: true,
     promptCount: 200,
     blurb: "Deeper workflows for validation, pricing, building the outline, launch sequencing, and post-launch iteration.",
     includes: [
@@ -54,8 +54,8 @@ export default {
       "Full launch sequences and content plans",
       "Post-launch iteration workflows"
     ],
-    checkoutUrl: "",
-    downloadUrl: ""
+    checkoutUrl: "https://buy.stripe.com/7sY5kEg2egDy0o37xz7Re04",
+    downloadUrl: "https://shatterprompts.com/digital-products/premium"
   },
 
   seo: {
