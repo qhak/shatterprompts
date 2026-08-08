@@ -64,189 +64,579 @@ export default {
   },
 
   previews: [
-    {
-      title: "Stress-test before you build",
-      text: `Before I build anything, stress-test this product concept: [CONCEPT] for [AUDIENCE].
+    { title: "Mine your own history", text: `You are a product-idea researcher who trusts solved problems over invented ones. The best product ideas usually already exist in something the person figured out for themselves or someone else, and your job is to find them.
 
-List the five most likely reasons it will not sell, ordered by probability. For each: what evidence would tell me it is a real risk, and what evidence would tell me it is not.
+MY SITUATION
+Any topic, industry or audience I already suspect I want to work in, if I have one: [TOPIC OR AUDIENCE, OR "not sure yet"].
 
-Then give me three ways to gather that evidence within seven days without building the product.
+WHAT I NEED
+A shortlist of product ideas extracted from problems I have actually already solved.
 
-Be sceptical rather than encouraging. Assume the idea is flawed and try to find where. If you think the concept is fundamentally weak, say so directly rather than softening it.`
-    }
+HOW TO DO IT
+1. Ask me one question at a time and wait for each answer: What have you solved for yourself that took real effort to figure out? What have people asked you for help with more than once? What do you do that others find difficult but you find easy? What have you built, organised or fixed without being paid?
+2. Push back on vague answers — ask for the specific situation, not a general skill.
+3. From my answers, extract only the problems with a clear before-and-after, since those are what a product can actually solve.
+4. Do not generate ideas I did not give you evidence for in my answers.
+
+RETURN
+A numbered list of problems I have solved, each with the evidence from my own answer and a one-line note on who else likely has this same problem.
+
+RULES
+- Do not invent a problem I did not actually describe having solved.
+- Reject anything too vague to test — "I'm good with people" is not a solved problem.
+- If my answers do not yet contain enough to work with, ask more specific follow-up questions instead of guessing.` }
   ],
 
+
   prompts: [
-    { title: "Mine the problem", text: `My audience is [AUDIENCE] and I know something about [TOPIC].
+    { title: "Mine your own history", text: `You are a product-idea researcher who trusts solved problems over invented ones. The best product ideas usually already exist in something the person figured out for themselves or someone else, and your job is to find them.
 
-List twelve specific, painful problems this audience has — the kind they have already tried to solve and failed at.
+MY SITUATION
+Any topic, industry or audience I already suspect I want to work in, if I have one: [TOPIC OR AUDIENCE, OR "not sure yet"].
 
-For each: what they currently do instead, roughly what that costs them in time or money, how urgent it feels, and whether they know they have the problem.
+WHAT I NEED
+A shortlist of product ideas extracted from problems I have actually already solved.
 
-Rank by how likely someone is to pay to solve it this month. Ignore problems people find interesting but never pay for.` },
+HOW TO DO IT
+1. Ask me one question at a time and wait for each answer: What have you solved for yourself that took real effort to figure out? What have people asked you for help with more than once? What do you do that others find difficult but you find easy? What have you built, organised or fixed without being paid?
+2. Push back on vague answers — ask for the specific situation, not a general skill.
+3. From my answers, extract only the problems with a clear before-and-after, since those are what a product can actually solve.
+4. Do not generate ideas I did not give you evidence for in my answers.
 
-    { title: "Interview the audience", text: `I want to test whether [AUDIENCE] really has this problem: [PROBLEM].
+RETURN
+A numbered list of problems I have solved, each with the evidence from my own answer and a one-line note on who else likely has this same problem.
 
-Write ten questions I could ask five real people that would get honest answers rather than polite encouragement.
+RULES
+- Do not invent a problem I did not actually describe having solved.
+- Reject anything too vague to test — "I'm good with people" is not a solved problem.
+- If my answers do not yet contain enough to work with, ask more specific follow-up questions instead of guessing.` },
 
-Rules: no leading questions, nothing that describes my idea, nothing answerable with yes or no. Focus on what they have actually done and paid for, not what they say they would do.
+    { title: "Mine a community for pain", text: `You are a research method designer building me a repeatable way to read a forum, subreddit or comment section for real, specific complaints.
 
-Then tell me what answers would mean I should stop.` },
+MY SITUATION
+The community I have access to and the general topic: [COMMUNITY/PLATFORM AND TOPIC].
 
-    { title: "Stress-test the idea", text: `Before I build anything, stress-test this product concept: [CONCEPT] for [AUDIENCE].
+WHAT I NEED
+A method for reading this community that surfaces repeated, specific complaints rather than general chatter.
 
-List the five most likely reasons it will not sell, ordered by probability. For each: what evidence would tell me it is a real risk, and what evidence would tell me it is not.
+HOW TO DO IT
+1. Give me a fixed sequence: which sections to check first (search, top posts, recurring threads), and what to search for.
+2. Define what counts as a real complaint versus noise — a specific frustration stated more than once is a real signal, a single joke or rant is not.
+3. Set a time limit for this pass, since unstructured browsing can go on indefinitely without producing anything usable.
+4. Give me a simple way to log what I find as I go, so patterns are visible afterward.
 
-Then give me three ways to gather that evidence within seven days without building the product.
+RETURN
+A numbered method: step, what to look for, time budget per step, and a simple logging format.
 
-Be sceptical rather than encouraging. Assume the idea is flawed and try to find where. If you think the concept is fundamentally weak, say so directly rather than softening it.` },
+RULES
+- The method must not require any paid tool or scraping that would breach the platform's terms.
+- Do not tell me what complaints I will find — this produces the method, not the findings.
+- If the topic given is too broad to search meaningfully, ask me to narrow it first.` },
 
-    { title: "Find existing demand", text: `I am considering a product about [PROBLEM] for [AUDIENCE].
+    { title: "Cluster into one problem", text: `You are a synthesis analyst who groups scattered complaints into the single problem most worth solving.
 
-Tell me where this audience already spends money on this problem, what they buy, roughly what they pay, and what those existing solutions consistently fail to do.
+MY SITUATION
+Complaints or pain points I collected, pasted as-is: [PASTE RAW COMPLAINTS].
 
-Then identify the gap I could genuinely fill, and be explicit about whether it is a real gap or just a crowded market with no room.` },
+WHAT I NEED
+These grouped into themes, with the strongest single problem identified.
 
-    { title: "Competitor teardown", text: `Here are two or three products already serving this problem: [PASTE WHAT I CAN SEE].
+HOW TO DO IT
+1. Read through everything I pasted and group complaints that describe the same underlying problem, even if worded differently.
+2. Count how many distinct mentions support each theme — do not count near-duplicates from the same person twice if that is detectable.
+3. Rank themes by frequency and by how specific and consistent the complaints within it are.
+4. Name the top theme as one clear problem statement in the language the community actually used.
 
-Compare them on: who they are for, the promise, format, price, what is included, and what buyers complain about.
+RETURN
+A ranked list of themes with mention counts, and the top theme written as one problem statement using the community's own words.
 
-Then tell me the position that is actually open — narrower audience, different format, different depth, or different price — and which of those I am realistically able to occupy.` },
+RULES
+- Do not merge two genuinely different problems just to inflate a theme's count.
+- Only use complaints actually present in what I pasted — do not add outside knowledge of what this community "probably" struggles with.
+- If nothing in what I pasted repeats more than once, say so rather than forcing a top theme.` },
 
-    { title: "Choose the format", text: `The problem is [PROBLEM] and the outcome I want to deliver is [OUTCOME].
+    { title: "Is it expensive enough", text: `You are a blunt viability judge whose only job is deciding whether a problem costs enough to be worth paying to remove.
 
-Compare five formats — template, short course, toolkit, notion system, guided workbook — for this specific problem.
+MY SITUATION
+Problem statement: [PASTE PROBLEM STATEMENT]. What I know about how often it happens and what it costs people, in time or money: [WHAT I KNOW, OR "not sure"].
 
-For each: how well it fits, how long it takes me to build, how easy it is to explain in one line, how likely the buyer is to actually finish it, and how easy it is to update later.
+WHAT I NEED
+A direct judgement on whether this problem is expensive enough in time, money or consequence to justify someone paying for a fix.
 
-Recommend one and explain what makes the others worse here.` },
+HOW TO DO IT
+1. Estimate, using only what I gave you, roughly how often this problem occurs for the person affected and what it costs them each time it does.
+2. Weigh the cost against typical willingness to pay for a fix at that cost level — a problem that costs five minutes occasionally is a different case from one that costs real money repeatedly.
+3. Give a direct verdict: worth pursuing, borderline, or not expensive enough as currently understood.
+4. State exactly what additional information would sharpen this judgement if it is currently uncertain.
 
-    { title: "Scope it so it ships", text: `I want to build [PRODUCT] delivering [OUTCOME].
+RETURN
+A verdict, the reasoning behind it, and what would need to be true for a borderline case to become a clear yes.
 
-Define the smallest version that fully delivers that outcome — not a stripped-down version, a complete one with a narrower promise.
+RULES
+- Do not invent a cost figure I did not give you — reason qualitatively if no number exists.
+- A verdict of "not expensive enough" is a valid and useful answer — do not avoid it to be encouraging.
+- If the problem statement is too vague to judge, ask for a sharper one before giving a verdict.` },
 
-List what is in, what is deliberately out, and what I would only add if buyers ask.
+    { title: "Write the problem statement", text: `You are a copy editor whose only test is whether a sufferer would read this and say "that is exactly it".
 
-Then estimate build time honestly and tell me which part I am most likely to underestimate.` },
+MY SITUATION
+What I know about the problem, including any real complaints I collected: [PASTE PROBLEM DETAILS AND ANY REAL QUOTES].
 
-    { title: "Outline the product", text: `Outline [PRODUCT] for [AUDIENCE], delivering [OUTCOME].
+WHAT I NEED
+One paragraph describing the problem precisely enough that someone who has it would recognise themselves immediately.
 
-Break it into sections. For each: what the buyer can do afterwards that they could not before, what it contains, and roughly how long it takes them.
+HOW TO DO IT
+1. Draft the paragraph using the specific language and details from what I gave you, not generic problem-description phrasing.
+2. Include the concrete situation the problem shows up in, not just an abstract description of the frustration.
+3. Cut anything that reads as marketing copy rather than an honest description of a real situation.
+4. Write three versions at slightly different angles, then recommend the one most likely to produce genuine recognition.
 
-Order it so each section depends only on what came before. Flag any section that is filler — content included because it seems expected rather than because it moves the buyer forward.` },
+RETURN
+Three versions of the problem statement, each one paragraph, with a recommendation and the reason for it.
 
-    { title: "Name and one-liner", text: `My product: [DESCRIPTION]. Audience: [AUDIENCE]. Outcome: [OUTCOME].
+RULES
+- Do not include a detail, quote, or statistic I did not actually give you.
+- Reject any version that sounds like ad copy rather than an honest description a sufferer would nod along to.
+- Do not soften the problem to sound more solvable than it actually is.` },
 
-Give me eight names — plain and descriptive rather than clever. For each, one line on what a stranger would assume it does.
+    { title: "The validation offer", text: `You are a validation-copy specialist describing a product as if it existed, in a form that can honestly be shown to real people before it is built.
 
-Then write the single sentence I would say when someone asks what it is, in language the buyer would repeat to a friend without changing it.` },
+MY SITUATION
+Problem statement: [PASTE PROBLEM STATEMENT]. Rough idea of the product that would fix it: [ROUGH PRODUCT IDEA].
 
-    { title: "Positioning", text: `Write the positioning for [PRODUCT]: who it is for, who it is explicitly not for, the outcome, and what makes it different from the alternatives.
+WHAT I NEED
+A description of the product, written to test real interest, honest about what does not exist yet.
 
-Then write the "who this is not for" paragraph properly — specific enough that the wrong buyer self-selects out. Being honest here reduces refunds more than any guarantee does.` },
+HOW TO DO IT
+1. Describe what the product would do and for whom, using the problem statement's own language.
+2. Describe the format and rough contents at a level specific enough to react to, without overpromising details not yet decided.
+3. State plainly, in the description itself, that this is not built yet and interest is being tested before building it.
+4. Keep it short enough to react to quickly — this is a test, not a sales page.
 
-    { title: "Price framing", text: `I am pricing [PRODUCT] for [AUDIENCE], considering [PRICE].
+RETURN
+The validation description, under 150 words, including the explicit note that it is not yet built.
 
-What is the buyer comparing this to in their head? What would make the price feel obviously fair, and what would make it feel like too much?
+RULES
+- The description must not claim the product already exists or is finished.
+- Do not include a fabricated testimonial, sales figure, or demand claim.
+- Do not promise a specific outcome the product's rough scope cannot support.` },
 
-Give three price points with what genuinely changes between them, and tell me which to launch with given I have no reviews yet.
+    { title: "Ten validation messages", text: `You are a research-question writer who tests for real pain without leading the witness toward the answer I want.
 
-Show the reasoning rather than picking round numbers.` },
+MY SITUATION
+Problem statement: [PASTE PROBLEM STATEMENT]. Who I can message about this: [WHO I CAN REACH].
 
-    { title: "Pre-sell test", text: `I want to test demand for [PRODUCT] before building it, honestly — no fake scarcity, no pretending it exists.
+WHAT I NEED
+Ten messages I can send to real people that ask about the problem honestly, without leading them toward saying yes.
 
-Design the test: what I put in front of people, what I ask them to do, what number would tell me to build it, and what number would tell me to stop.
+HOW TO DO IT
+1. Write questions about their actual experience with the problem — frequency, cost, what they currently do about it — not questions like "would you buy this?" which produce unreliable answers.
+2. Vary the questions so they probe different angles: how they currently cope, what they have already tried and paid for, how much it bothers them.
+3. Avoid any wording that hints at the product I have in mind, since that biases the answer toward politeness.
+4. Keep each message short enough that a stranger would actually reply.
 
-Be explicit about what I must tell buyers if I take money before the product exists, including delivery date and refund terms.` },
+RETURN
+Ten numbered messages, each under forty words, covering different angles on the problem without mentioning the product.
 
-    { title: "Landing page structure", text: `Plan the structure of a landing page for [PRODUCT].
+RULES
+- No message may ask directly "would you pay for X" — that produces hypothetical, unreliable yeses.
+- Do not lead with flattery or a compliment designed to make a positive answer more likely.
+- Every message must be something a real stranger could plausibly answer honestly in one or two sentences.` },
 
-For each section: its job, what it must contain, and the one question in the reader's head it answers.
+    { title: "Design the pre-sale", text: `You are a pre-sale structure designer whose first principle is honesty about what does not exist yet.
 
-Order it the way a sceptical buyer actually reads. Tell me what belongs above the fold on a phone, and what can be cut entirely if the page gets too long.` },
+MY SITUATION
+Validation offer: [PASTE VALIDATION OFFER]. How I would take payment or commitment if someone said yes: [PAYMENT METHOD, IF DECIDED].
 
-    { title: "Write the sales page", text: `Write the first version of a sales page for [PRODUCT].
+WHAT I NEED
+A pre-sale structure that tests real buying intent without misleading anyone about the product's current state.
 
-Sections: headline stating the outcome, one paragraph on who it is for, the problem in the buyer's own words, exactly what they get, how it works, who it is not for, and the price.
+HOW TO DO IT
+1. Decide what "yes" actually means in this pre-sale — full payment, a deposit, or a no-obligation waitlist with a stated price — and be explicit about which one is being used.
+2. Write the pre-sale copy to state clearly what exists now (an idea and a plan) versus what is being promised (a finished product by a stated date).
+3. Include a plain refund or cancellation policy if money changes hands before the product exists.
+4. Set a clear delivery date or a clear condition for when the product will exist, so buyers are not left in an undefined wait.
 
-Rules: no invented testimonials, no fake urgency, no guarantees I have not agreed to, no claims I have not evidenced. Where a section needs proof I have not given you, mark it [NEEDS PROOF] rather than writing something vague.` },
+RETURN
+The pre-sale structure: what "yes" means, the explicit not-yet-built disclosure, the refund policy, and the delivery commitment.
 
-    { title: "Answer the objections", text: `Act as a sceptical buyer for [PRODUCT] at [PRICE].
+RULES
+- The copy must state plainly that the product does not exist yet if that is true — no wording that implies it does.
+- Do not use fake scarcity or a countdown that is not genuinely real.
+- If I have not decided a payment method, ask before assuming one.` },
 
-List the ten objections you would genuinely have, ordered by how likely they are, including the ones people think but do not say.
+    { title: "Read the signal honestly", text: `You are a signal analyst whose entire job is resisting optimistic interpretation of ambiguous responses.
 
-For each, write an honest answer under 40 words.
+MY SITUATION
+Responses I got from the validation messages or pre-sale, pasted as-is: [PASTE RESPONSES].
 
-Then tell me which objections should be answered directly on the page, and which mean the product itself needs to change.` },
+WHAT I NEED
+An honest read of what these responses actually indicate, separate from what I am hoping they mean.
 
-    { title: "Write the FAQ", text: `Write the FAQ for [PRODUCT], using the objections below: [PASTE].
+HOW TO DO IT
+1. Sort responses into three categories: genuine expressed intent to pay or commit, polite encouragement with no commitment, and no real signal either way.
+2. Explicitly flag any response I might be tempted to read as more positive than it actually is — vague enthusiasm, "sounds cool", or silence are not intent.
+3. Count only the first category as real validation signal, and report that count plainly.
+4. Note any pattern in the objections or hesitations that came up, since that is often more useful than the positive responses.
 
-Rules: answer the awkward questions rather than the flattering ones. Include what happens if it does not work for them, exactly what they get and in what format, whether there are updates, and what support exists.
+RETURN
+Three categorised lists, the real count of genuine intent signals, and the pattern in hesitations if any exists.
 
-Only state terms I have actually decided. If I have not told you the refund policy, write [DECIDE: refund terms] rather than inventing one.` },
+RULES
+- Do not count polite encouragement as validation — it explicitly is not evidence of intent to pay.
+- Do not round a small number of real signals up to sound more promising.
+- If nothing in what I pasted qualifies as genuine intent, say that plainly rather than finding a way to spin it positive.` },
 
-    { title: "Email capture hook", text: `I want to collect emails before [PRODUCT] launches by offering something free and genuinely useful.
+    { title: "Kill or continue", text: `You are a decision enforcer whose only job is holding me to a threshold I set before I saw the results.
 
-Propose five free things I could make in under three hours that solve a real slice of the same problem.
+MY SITUATION
+The validation results: [PASTE RESULTS OR SUMMARY FROM THE SIGNAL READ]. The threshold I want to set for continuing, if I have one already: [THRESHOLD, OR "help me set one"].
 
-For each: what it is, why someone would give an email for it, how it leads naturally to the paid product, and why it would not cannibalise it.
+WHAT I NEED
+A forced decision — continue or kill — measured against a threshold, not against how I feel about the idea now.
 
-Rank by how quickly I could make it.` },
+HOW TO DO IT
+1. If I have not already set a threshold, help me define one now based on what would make this worth building, before looking at whether the actual results meet it.
+2. Compare the actual validation results strictly against that threshold.
+3. State the decision plainly: continue, kill, or continue only with a specific named change to the idea.
+4. If the decision is to continue, name the single biggest remaining risk. If it is to kill, name the most reusable thing learned for the next idea.
 
-    { title: "Launch email sequence", text: `Write a five-email launch sequence for [PRODUCT] to a list who joined for [FREE THING].
+RETURN
+The threshold used, the actual result against it, and the decision with its reasoning.
 
-Each email: one job, one idea, one call to action. Most should be useful on their own to someone who never buys.
+RULES
+- Do not let enthusiasm for the idea override a result that fails the stated threshold.
+- The decision must be one of the three stated outcomes, not a vague "it depends".
+- Do not set a threshold so low after seeing weak results that it retroactively looks like a pass.` },
 
-Give me subject line, purpose, and full body for each, plus the day it sends.
+    { title: "Choose the format", text: `You are a format-selection advisor matching the problem to what can actually be finished, not to the most impressive-sounding format.
 
-No countdown timers, no fake scarcity, no "last chance" unless something genuinely ends.` },
+MY SITUATION
+Problem and validated angle: [PASTE PROBLEM AND VALIDATION RESULT]. What I can realistically produce — writing, video, templates, software, other: [WHAT I CAN PRODUCE]. Time available to build it: [TIME AVAILABLE].
 
-    { title: "Launch content plan", text: `I am launching [PRODUCT] in [N] days to [AUDIENCE].
+WHAT I NEED
+The product format best matched to the problem and to what I can actually finish.
 
-Plan the content for those days: what I post each day, the angle, and what it is meant to do.
+HOW TO DO IT
+1. List two or three formats that could plausibly solve this problem — a guide, a template pack, a course, a tool, a community, a checklist system.
+2. For each, assess fit to the problem (does this format actually solve it) and fit to my stated capability and time.
+3. Reject any format requiring skills or time I did not say I have.
+4. Recommend one format, with the main risk of that choice named directly.
 
-Most of it must be useful on its own to someone who never buys. Mark the two posts doing the actual selling and where they sit in the sequence.
+RETURN
+Two or three candidate formats scored on problem-fit and buildability, with the recommended format and its main risk.
 
-No countdowns or manufactured scarcity.` },
+RULES
+- Do not recommend a format requiring a skill or tool I did not mention having.
+- Do not choose the most "premium-sounding" format if a simpler one solves the problem as well.
+- If time available is very limited, say plainly if no format is realistically finishable in that time.` },
 
-    { title: "Launch day checklist", text: `Build my launch-day checklist for [PRODUCT] sold through [PLATFORM].
+    { title: "Scope so you can finish", text: `You are a scope-cutting editor whose only loyalty is to a finished product, not a complete one.
 
-Cover: what to test before announcing, what to check on the payment and delivery path, what to have written in advance, what to monitor in the first hours, and what to do if something breaks mid-launch.
+MY SITUATION
+Full idea for the product: [PASTE FULL IDEA]. Time available to build it: [TIME AVAILABLE].
 
-Order it by what causes the most damage if missed.` },
+WHAT I NEED
+A cut-down plan that is genuinely completable in the time given, with an explicit list of what is deferred.
 
-    { title: "Delivery and onboarding", text: `Someone just bought [PRODUCT]. Design what happens next.
+HOW TO DO IT
+1. Identify the smallest version of this product that still fully solves the validated problem — not a shrunk version of the whole vision.
+2. Cut anything not essential to solving that core problem, no matter how good the idea is.
+3. List everything cut as "v2", explicitly, so it is not lost, just deferred.
+4. Sanity-check the cut-down scope against the stated time realistically, including buffer for things taking longer than expected.
 
-Cover: the confirmation, how they access it, the first thing I want them to do, and the message that gets them actually starting rather than filing it away.
+RETURN
+The v1 scope (what ships), the v2 list (what is deferred), and a realistic time estimate for v1 with buffer included.
 
-Then write the receipt-plus-welcome email. Include only what genuinely happens — no promises about support or updates I have not committed to.` },
+RULES
+- The v1 scope must still fully address the core validated problem — do not cut so much it stops solving it.
+- Every deferred item must be explicitly listed, not silently dropped.
+- If even the cut-down scope does not fit the stated time, say so and cut further rather than presenting an unrealistic plan.` },
 
-    { title: "Collect feedback", text: `Write the message I send buyers of [PRODUCT] after [DAYS] days asking what worked and what did not.
+    { title: "Outline the product", text: `You are a structural editor who gives every section of a product a job and a stated outcome, not just a topic.
 
-Ask three questions maximum, phrased to get honest criticism rather than politeness. Make it clear I want the negative version.
+MY SITUATION
+Product format and v1 scope: [PASTE FORMAT AND SCOPE].
 
-Then tell me what to do with answers that contradict each other, and how many people need to say something before I act on it.` },
+WHAT I NEED
+A full outline where each section has a defined job and the reader or user knows what they should be able to do after it.
 
-    { title: "Request a testimonial", text: `A buyer told me: [PASTE WHAT THEY SAID].
+HOW TO DO IT
+1. Break the v1 scope into sections or modules in a logical order, each building on what came before.
+2. For each section, state its job — what problem within the bigger problem it solves — and the specific outcome the user has after finishing it.
+3. Check the sequence for gaps: could someone follow this outline and actually reach the end state, or is a step missing?
+4. Flag any section that is filler — present because it seems expected, not because it is necessary.
 
-Write the message asking whether I can use it publicly, and offering to let them edit it first.
+RETURN
+A numbered outline: section title, its job, and the outcome after completing it.
 
-Then draft a tightened version of their words that keeps their voice and adds nothing they did not say. Show clearly what you cut and what you kept — I will not publish anything they did not actually mean.` },
+RULES
+- Every section must have a stated outcome, not just a topic description.
+- Do not include a section whose only purpose is to pad out the product's perceived size.
+- Base the outline only on the scope given, not a generic template for this product category.` },
 
-    { title: "Iterate from feedback", text: `Here is the feedback from my first buyers: [PASTE].
+    { title: "Name it", text: `You are a naming editor who tests names against being searchable and not embarrassing to say out loud, not against personal taste.
 
-Group it into: confusion, missing content, unmet expectation, and genuine praise.
+MY SITUATION
+Product outcome in one sentence: [PASTE OUTCOME SENTENCE].
 
-Separate the changes that fix the product from the ones that fix the sales page — a lot of complaints are actually a promise problem, not a product problem.
+WHAT I NEED
+A shortlist of names that describe the outcome, tested against two practical filters.
 
-Then give me the single change most worth making next, and why the others can wait.` },
+HOW TO DO IT
+1. Generate names that describe what the product actually does for the buyer, not abstract or clever wordplay names that require explanation.
+2. Test each against "searchable": would this be easy to find or refer someone to without confusion with something else?
+3. Test each against "sayable": would a buyer feel comfortable saying this name out loud to a friend?
+4. Cut anything that fails either test and present only the survivors, ranked.
 
-    { title: "Learn from the launch", text: `Here is what happened in my launch: [PASTE — traffic, page views, email signups, sales, and any replies or questions].
+RETURN
+A ranked shortlist of names that passed both tests, with the reason each one passed.
 
-Tell me where people dropped off and the most likely cause at each step. Distinguish a traffic problem from a page problem from an offer problem — they need completely different fixes.
+RULES
+- Do not include a name requiring an explanation to understand what the product is.
+- Reject names that are already heavily used by an unrelated, well-known product or brand.
+- Do not rank based on personal style preference — rank only on the two stated tests.` },
 
-Then give me the single change most likely to matter and the number to watch to know whether it worked.
+    { title: "Price it", text: `You are a pricing analyst who reasons to a number from value and format, with a hard rule against pricing by feel.
 
-Say plainly where the data is too thin to conclude anything rather than inventing a narrative.` }
+MY SITUATION
+Product outcome and format: [PASTE OUTCOME AND FORMAT]. What the problem costs the buyer if unsolved, if known: [COST OF PROBLEM, OR "not sure"]. Roughly what comparable products in this space cost, if known: [COMPARABLE PRICES, OR "not sure"].
+
+WHAT I NEED
+A price with reasoning, not a number chosen because it feels right.
+
+HOW TO DO IT
+1. Reason from the value the product delivers relative to the cost of the problem staying unsolved, using only figures actually given.
+2. Cross-check against comparable products if I gave you any, adjusting for genuine differences in scope or format.
+3. If neither value nor comparables are known, say explicitly that the price is a rough starting estimate, not a researched figure.
+4. Give a price and a brief note on when it would make sense to test a different price later.
+
+RETURN
+A price with its reasoning, explicitly labelled as researched or as a rough estimate depending on what information was available.
+
+RULES
+- Do not present a price as data-backed if it is actually a rough guess — label it honestly.
+- Do not invent a competitor price I did not give you.
+- Do not recommend pricing so low it signals low value if the stated outcome is genuinely significant.` },
+
+    { title: "Headline set", text: `You are a headline writer who states the outcome, not the process, and ranks by clarity over cleverness.
+
+MY SITUATION
+Product outcome sentence: [PASTE OUTCOME SENTENCE]. Who it is for: [PASTE VIEWER OR BUYER PROFILE].
+
+WHAT I NEED
+Ten headlines stating the outcome, ranked with reasons.
+
+HOW TO DO IT
+1. Write each headline to lead with the outcome the buyer gets, not the process or the format of the product.
+2. Vary the angle across the ten — direct statement, specific number, before/after, addressing the buyer directly, naming the problem first.
+3. Score each on clarity: would a stranger understand what they get within three seconds of reading it?
+4. Rank by that clarity score, not by which sounds most exciting.
+
+RETURN
+Ten ranked headlines, each with a one-line reason for its rank.
+
+RULES
+- Reject any headline vague enough to apply to an unrelated product.
+- No invented statistic, income claim, or urgency device in any headline.
+- Do not rank a clever or dramatic headline above a clear one — clarity is the deciding factor.` },
+
+    { title: "The problem section", text: `You are a copywriter whose only test is whether the reader feels the product understands them, using precision rather than sympathy language.
+
+MY SITUATION
+Problem statement: [PASTE VALIDATED PROBLEM STATEMENT].
+
+WHAT I NEED
+The problem section of the sales page, precise enough that the reader assumes the product understands them.
+
+HOW TO DO IT
+1. Describe the problem using the specific situations and language established in the problem statement, not generic pain-point phrasing.
+2. Include the concrete moment the problem shows up, so the reader recognises a scene, not just a feeling.
+3. Avoid sympathetic filler ("we know how hard this is") in favour of specific, recognisable detail.
+4. End the section with a natural bridge into the product being the answer, without yet describing the product itself.
+
+RETURN
+The problem section text, three to five short paragraphs.
+
+RULES
+- Do not introduce a detail about the problem not present in the original problem statement.
+- Reject generic empathy phrases that could appear on any sales page in any niche.
+- Do not exaggerate the severity of the problem beyond what the problem statement supports.` },
+
+    { title: "The what-you-get section", text: `You are a copywriter who lists concrete artefacts and quantities, never adjectives standing in for specifics.
+
+MY SITUATION
+Product outline: [PASTE FULL OUTLINE].
+
+WHAT I NEED
+The what-you-get section, listing exactly what the buyer receives.
+
+HOW TO DO IT
+1. Convert each section of the outline into a concrete deliverable line — a number of templates, a page count, a specific list of modules, a defined tool.
+2. Cut any adjective doing the work a fact should do — "comprehensive", "powerful", "in-depth" get replaced with the actual quantity or specific content.
+3. Group deliverables logically so the list is scannable, not a wall of bullets.
+4. Check every line against the outline — nothing listed here should be absent from what was actually planned.
+
+RETURN
+A bulleted what-you-get list, grouped logically, each bullet naming a concrete artefact or quantity.
+
+RULES
+- Every bullet must correspond to something actually present in the outline I gave you.
+- Reject any bullet that only contains adjectives with no concrete noun or number.
+- Do not list a bonus or extra that was not part of the given outline.` },
+
+    { title: "Handle the objections", text: `You are an objection-handling copywriter who answers the real reasons someone would not buy, without dismissing any of them.
+
+MY SITUATION
+Product, price, and format: [PASTE PRODUCT SUMMARY, PRICE, FORMAT]. Any hesitations people actually raised during validation: [PASTE REAL HESITATIONS, OR "none collected yet"].
+
+WHAT I NEED
+A list of the real reasons someone would not buy this, each answered honestly, not dismissed.
+
+HOW TO DO IT
+1. If real hesitations were collected during validation, use those as the primary list.
+2. Add other likely objections based on the price, format and problem — too expensive, not sure it applies to my situation, tried something similar before and it did not work, not sure I have time to use it.
+3. Answer each honestly — if an objection is actually valid for some buyers, say so rather than arguing past it.
+4. Avoid dismissive language that makes the objection feel unheard.
+
+RETURN
+Each objection paired with an honest answer, as a list.
+
+RULES
+- Do not invent a customer objection presented as if it were real feedback unless it was actually collected — mark constructed objections as anticipated, not as reported.
+- If an objection is genuinely valid for a segment of buyers, say so rather than forcing a rebuttal.
+- No answer may include an invented statistic, guarantee, or testimonial.` },
+
+    { title: "The FAQ", text: `You are an FAQ writer who answers the questions actually asked, including the uncomfortable ones, rather than softball questions that flatter the product.
+
+MY SITUATION
+Product summary and price: [PASTE SUMMARY AND PRICE]. Any real questions people have asked so far: [PASTE REAL QUESTIONS, OR "none yet"].
+
+WHAT I NEED
+An FAQ that answers genuine buyer concerns honestly, not a list of questions designed to show off features.
+
+HOW TO DO IT
+1. Prioritise any real questions given first, answered honestly and specifically.
+2. Add likely uncomfortable questions this product should expect — does this work if I am a beginner, what if I do not have time to finish it, how is this different from free information available elsewhere, what is the refund policy.
+3. Write direct answers, including admitting a genuine limitation where one exists rather than spinning it.
+4. Keep answers short enough to actually be read.
+
+RETURN
+A numbered FAQ, each question with a direct, honest answer.
+
+RULES
+- Do not avoid an uncomfortable question just because the honest answer is not flattering.
+- Do not answer a refund or guarantee question with a policy I have not actually confirmed exists.
+- No invented review or customer quote used as an answer.` },
+
+    { title: "The launch sequence", text: `You are a launch planner assigning a specific job to every email and post across the launch window, rather than repeating the same pitch.
+
+MY SITUATION
+Product, price, and launch window length: [PRODUCT SUMMARY, PRICE, LAUNCH WINDOW]. Audience size and where they are, roughly: [AUDIENCE SIZE AND CHANNEL].
+
+WHAT I NEED
+A plan for the emails and posts across the launch window, each with a distinct job.
+
+HOW TO DO IT
+1. Map out touchpoints across the window — an announcement, a problem-focused piece, a behind-the-scenes or FAQ piece, a deadline reminder if the launch is time-limited, a final call.
+2. Assign each touchpoint a distinct job so no two pieces are making the same pitch in different words.
+3. Match volume to audience size — a small audience needs fewer, more personal touches than a large one.
+4. If there is a real deadline (cart close, bonus expiry), state it plainly; if there is not one, do not invent one.
+
+RETURN
+A sequence: touchpoint, timing within the window, channel, and its distinct job.
+
+RULES
+- No fake countdown or deadline — only include a deadline if one genuinely exists.
+- Each touchpoint's job must be different from every other touchpoint's job.
+- Do not plan more volume than is reasonable for the stated audience size.` },
+
+    { title: "Launch email one", text: `You are a launch copywriter writing for people who have never heard of this product before.
+
+MY SITUATION
+Product summary, outcome, and price: [PASTE PRODUCT SUMMARY, OUTCOME, PRICE].
+
+WHAT I NEED
+The announcement email, written assuming zero prior context from the reader.
+
+HOW TO DO IT
+1. Open by naming the problem the way the audience would recognise it, before introducing the product.
+2. Introduce the product plainly — what it is, what it does, and for whom — without assuming the reader already knows anything about it.
+3. State the price and where to buy clearly, once, without burying it.
+4. Close with one direct next step.
+
+RETURN
+The full announcement email text.
+
+RULES
+- Do not assume any prior familiarity with the product or with me — introduce both plainly.
+- No invented urgency or scarcity unless it is genuinely real.
+- No income or results claim beyond what the product's actual, validated scope supports.` },
+
+    { title: "The social launch post", text: `You are a direct-response copywriter for social posts who insists a sales post admit plainly that it is one.
+
+MY SITUATION
+Product summary, outcome, and price: [PASTE PRODUCT SUMMARY, OUTCOME, PRICE]. Platform: [PLATFORM].
+
+WHAT I NEED
+A launch post that sells without pretending it is not selling.
+
+HOW TO DO IT
+1. State early in the post that this is the launch of a paid product — no disguising it as pure value content with a surprise pitch at the end.
+2. Name the problem and outcome briefly, using only what has already been established.
+3. Include the price and where to get it clearly.
+4. Match tone and length to the platform given.
+
+RETURN
+The full post text, sized for the given platform.
+
+RULES
+- The post must make clear within the first two lines that it is announcing something for sale.
+- No fake scarcity, no invented countdown, no "only N spots left" unless genuinely true.
+- No invented testimonial, sales count, or income claim.` },
+
+    { title: "Post-purchase survey", text: `You are a feedback-design specialist who writes questions that produce usable answers, not vague satisfaction ratings.
+
+MY SITUATION
+Product and what I most want to learn from early buyers: [PRODUCT SUMMARY AND WHAT I WANT TO LEARN].
+
+WHAT I NEED
+Five questions for buyers that produce specific, usable answers.
+
+HOW TO DO IT
+1. Avoid generic satisfaction questions like "how satisfied are you" that produce numbers with no actionable detail behind them.
+2. Ask about specific moments — what almost stopped them from buying, what they used first, what they expected that was missing, what they would tell a friend who was unsure.
+3. Include at least one question that could surface a genuine problem with the product, not only positive feedback.
+4. Keep the survey short enough that a real buyer would actually finish it.
+
+RETURN
+Five questions, each with a one-line note on what kind of answer it is designed to surface.
+
+RULES
+- No question may be answerable with a single number that gives no actionable detail.
+- At least one question must be explicitly designed to surface criticism, not just praise.
+- Do not write a question that fishes for a testimonial-style quote rather than honest feedback.` },
+
+    { title: "Decide v2", text: `You are a product-decision analyst who turns launch results and buyer feedback into one concrete next decision, not a wishlist.
+
+MY SITUATION
+Launch results — units sold, revenue, anything measured: [PASTE RESULTS]. Buyer feedback collected: [PASTE FEEDBACK].
+
+WHAT I NEED
+A single decision on what v2 should actually be, based on real results and real feedback.
+
+HOW TO DO IT
+1. Identify what the results actually show — strong, weak, or inconclusive — without spinning a weak launch into a promising one.
+2. Cross-reference feedback against the deferred v2 list from the original scoping, checking whether real buyer feedback supports building those deferred items or points elsewhere.
+3. Identify the single most-requested or most-blocking gap mentioned in feedback, if one exists.
+4. Recommend one specific next move — build the top-requested item, fix a specific problem, or do not build a v2 yet because the signal is not there.
+
+RETURN
+An honest read of the launch results, the single most-supported v2 direction, and the reasoning tying it to actual feedback.
+
+RULES
+- Do not recommend building something into v2 that was not actually supported by real feedback or results.
+- Do not present a weak launch as a strong one to justify continuing.
+- The recommendation must be one specific decision, not an open list of possible directions.` }
   ]
 };
