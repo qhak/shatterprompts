@@ -33,12 +33,12 @@ MAILERLITE_MARKETING_GROUP_ID = ""
 ALLOW_LOCAL_DEV = "0"
 
 # Which Stripe price ID unlocks which pack: {"price_xxx": "freelancing", ...}
-# One entry per pack's $2.99 Payment Link.
+# One entry per pack's $4.99 Payment Link.
 STRIPE_PRICE_MAP = "{}"
 
-# The membership's $9.99/month price ID. A purchase of this price grants
-# every pack ("*"), not just one.
-STRIPE_MEMBERSHIP_PRICE_ID = ""
+# The all-access bundle's one-time $19.99 price ID. A purchase of this price
+# grants every pack ("*"), not just one. Not a subscription — one payment.
+STRIPE_BUNDLE_PRICE_ID = ""
 
 # SECRET — never put this in vars or in git. Set it with:
 #   npx wrangler secret put MAILERLITE_API_KEY

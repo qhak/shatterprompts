@@ -383,7 +383,7 @@ export function accessPage({ site, pack }) {
     ${sellable
       ? `<p class="mt-m"><a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a></p>
          <p class="small mt-s">Secure checkout via Stripe — opens in a new step.
-         Or <a href="/pricing" style="color:var(--fg)">all packs for ${esc(site.commerce.currencySymbol + site.commerce.membership.price)}/${esc(site.commerce.membership.interval)}</a>.</p>`
+         Or <a href="/pricing" style="color:var(--fg)">all 6 packs for ${esc(site.commerce.currencySymbol + site.commerce.bundle.price)}, one time</a>.</p>`
       : `<p class="upgrade__status">Not available yet</p>
          <p class="small mt-s">Being written now. Bookmark this page — it will show a download here as soon as it is ready.</p>`}
   </div>
@@ -461,7 +461,7 @@ export function premiumPage({ site, pack, prompts }) {
   const prem = pack.premium;
   const c = site.commerce;
   const money = c.currencySymbol + c.pack.price;
-  const memberMoney = c.currencySymbol + c.membership.price;
+  const bundleMoney = c.currencySymbol + c.bundle.price;
   const hasCheckout = /^https:\/\//.test(prem.checkoutUrl || "");
 
   const toc = prompts.map((p, i) => `
@@ -487,7 +487,7 @@ export function premiumPage({ site, pack, prompts }) {
   const main = `
 <section class="hero wrap">
   <!-- Shown only when this browser has no verified purchase for this pack
-       (or a membership) and the URL carries no Stripe session to check. -->
+       (or the all-access bundle) and the URL carries no Stripe session to check. -->
   <div data-purchase-gate hidden>
     <p class="eyebrow eyebrow--accent hero__eyebrow">Premium pack</p>
     <h1>${esc(prem.name)}</h1>
@@ -496,7 +496,7 @@ export function premiumPage({ site, pack, prompts }) {
       ${hasCheckout
         ? `<a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a>`
         : `<p class="upgrade__status">Not available yet</p>`}
-      <a class="tlink" href="/pricing">Or all packs for ${esc(memberMoney)}/${esc(c.membership.interval)} <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
+      <a class="tlink" href="/pricing">Or all 6 packs for ${esc(bundleMoney)}, one time <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
     </div>
     <p class="small mt-m" data-purchase-status hidden></p>
   </div>
@@ -725,7 +725,7 @@ export function pricingPage({ site, corePacks }) {
   const sym = c.currencySymbol;
 
   /* A tier is only buyable when payment works AND something exists to deliver. */
-  const membershipLive = /^https:\/\//.test(c.membership.checkoutUrl || "");
+  const bundleLive = /^https:\/\//.test(c.bundle.checkoutUrl || "");
   const readyPacks = corePacks.filter((p) => p.premium && p.premium.ready);
   const anyPackLive = corePacks.some((p) =>
     p.premium && p.premium.ready && /^https:\/\//.test(p.premium.checkoutUrl || ""));
@@ -745,13 +745,13 @@ export function pricingPage({ site, corePacks }) {
     </div>`;
   }).join("");
 
-  const memberIncludes = c.membership.includes.map((i) => `<li>${esc(i)}</li>`).join("");
+  const bundleIncludes = c.bundle.includes.map((i) => `<li>${esc(i)}</li>`).join("");
 
   /* Shown BEFORE the priced tier cards, not after — a visitor scans price and
      the "Best value" flag first (Z-pattern), so the honesty notice has to
      land before that, or it's read too late to change what the visitor
      already assumed. */
-  const nothingLive = !anyPackLive && !membershipLive;
+  const nothingLive = !anyPackLive && !bundleLive;
   const notice = nothingLive ? `
   <div class="notice mb-m">
     <strong>Paid plans are not open yet.</strong> The premium packs are still being written.
@@ -764,7 +764,7 @@ export function pricingPage({ site, corePacks }) {
   <p class="eyebrow eyebrow--accent hero__eyebrow">Pricing</p>
   <h1>Start free. Pay only if you want the full system.</h1>
   <p class="lead mt-s">Every pack has a free version you can use today. The premium version of
-  each goes much deeper, and there is a single subscription that covers all of them.</p>
+  each goes much deeper, and there is a one-time bundle that covers all six.</p>
 </section>
 
 <hr class="rule">
@@ -803,12 +803,12 @@ export function pricingPage({ site, corePacks }) {
 
     <div class="tier tier--feature">
       <span class="tier__flag">Best value</span>
-      <h2 class="tier__name">${esc(c.membership.label)}</h2>
-      <p class="tier__price">${esc(sym + c.membership.price)}<span class="tier__per">/${esc(c.membership.interval)}</span></p>
-      <p class="tier__note">Everything, while subscribed</p>
-      <ul class="outcomes tier__list">${memberIncludes}</ul>
-      ${membershipLive
-        ? `<a class="btn btn--full" href="${esc(c.membership.checkoutUrl)}" data-checkout>Subscribe — ${esc(sym + c.membership.price)}/${esc(c.membership.interval)}</a>
+      <h2 class="tier__name">${esc(c.bundle.label)}</h2>
+      <p class="tier__price">${esc(sym + c.bundle.price)}</p>
+      <p class="tier__note">All 6 packs, one payment</p>
+      <ul class="outcomes tier__list">${bundleIncludes}</ul>
+      ${bundleLive
+        ? `<a class="btn btn--full" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all 6 — ${esc(sym + c.bundle.price)}</a>
            <p class="small mt-s">Secure checkout via Stripe — opens in a new step.</p>`
         : `<p class="tier__status">Not available yet</p>`}
     </div>
@@ -834,13 +834,16 @@ export function pricingPage({ site, corePacks }) {
     version goes much further into each stage, and includes the templates and follow-on
     workflows the free pack only points at.</p>
 
-    <h2>What happens if I cancel the subscription?</h2>
-    <p>${esc(c.membership.onCancel)}</p>
+    <h2>Is the bundle a subscription?</h2>
+    <p>No. It's one payment for the six premium packs that exist today — nothing recurring, nothing
+    to cancel. If new packs are added later, they'll be sold on their own rather than added
+    retroactively to what you already paid for, and you'll never lose access to anything you've
+    already bought.</p>
 
     <h2>Do I need an account?</h2>
-    <p>Not for the free packs — enter your email and they open immediately. For anything paid you
-    do need to be able to prove it is you, so downloads are unlocked by a code sent to the email
-    you paid with. No password to remember or lose.</p>
+    <p>Not for the free packs — enter your email and they open immediately. For anything paid, Stripe
+    redirects you straight to your pack once checkout completes, and this browser stays unlocked for
+    it from then on. No password to remember or lose.</p>
 
     <h2>Are refunds available?</h2>
     <p>Refund terms will be published here in full before payments open, rather than invented
@@ -851,7 +854,7 @@ export function pricingPage({ site, corePacks }) {
   return layout({
     site,
     title: `Pricing — ${site.name}`,
-    description: `Free AI prompt packs, premium packs at ${sym}${c.pack.price} each, or all-access for ${sym}${c.membership.price} a month.`,
+    description: `Free AI prompt packs, premium packs at ${sym}${c.pack.price} each, or all 6 for ${sym}${c.bundle.price} one time.`,
     path: "/pricing",
     page: { type: "pricing" },
     main

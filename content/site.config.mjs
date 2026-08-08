@@ -62,29 +62,29 @@ export const SITE = {
 
     /* One-off purchase of a single premium pack. */
     pack: {
-      price: "2.99",
+      price: "4.99",
       label: "Premium pack",
       /* Per-pack Stripe Payment Links live on each pack in content/packs/*.mjs
          under `premium.checkoutUrl`. */
       blurb: "The full system for one topic. Yours permanently."
     },
 
-    /* All-access subscription: every premium pack, plus anything added later. */
-    membership: {
-      price: "9.99",
-      interval: "month",
-      label: "All-access",
-      checkoutUrl: "",          // Stripe subscription Payment Link
-      blurb: "Every premium pack, plus every new one while you are subscribed.",
+    /* One-time bundle of every premium pack that exists today — deliberately
+       NOT a subscription. It does not promise packs added later; those are
+       sold as their own product when they exist, not owed retroactively to
+       past buyers. That's what keeps this a single payment instead of an
+       ongoing obligation. */
+    bundle: {
+      price: "19.99",
+      label: "All-Access Bundle",
+      checkoutUrl: "",          // Stripe one-time Payment Link
+      blurb: "Every premium pack available today, one payment, yours to keep.",
       includes: [
-        "Every premium pack available today",
-        "Every new pack added while you are subscribed",
+        "All 6 premium packs available today (1,200 prompts)",
         "Download any pack, any time, from any device",
-        "Cancel whenever you like"
-      ],
-      /* Said plainly on the pricing page. Subscriptions that hide this are the
-         reason people distrust them. */
-      onCancel: "Your access ends at the end of the billing period you have paid for. Anything you downloaded is yours to keep."
+        "One payment — nothing recurring, nothing to cancel",
+        "Yours to keep permanently"
+      ]
     },
 
     /* Endpoint that verifies who someone is and what they own.

@@ -182,8 +182,8 @@
   /* ---------------------------------------------------------- pack purchase
      Same local-record pattern as free access, but a record here only ever
      gets written after the Worker has verified a real Stripe session — never
-     from anything the client alone can produce. A "*" entry means a
-     membership: it covers every pack, not just one. */
+     from anything the client alone can produce. A "*" entry means the
+     all-access bundle: it covers every pack, not just one. */
   function getPurchases() { return read(KEY_PURCHASE, {}) || {}; }
 
   function grantPurchase(slug, record) {
@@ -550,8 +550,8 @@
 
   /* ============================================================ PREMIUM PAGE
      Same shape as the access-page gate above, but verifying a Stripe purchase
-     instead of a free signup — and checking a membership ("*") as well as a
-     pack-specific entitlement, since a subscriber's purchase covers every
+     instead of a free signup — and checking the all-access bundle ("*") as
+     well as a pack-specific entitlement, since a bundle purchase covers every
      pack, not just the one they happened to buy from. */
   var purchaseGate = document.querySelector("[data-purchase-gate]");
   var purchaseBody = document.querySelector("[data-purchase-body]");

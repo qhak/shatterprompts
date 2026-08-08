@@ -238,8 +238,8 @@ function timingSafeEqual(a, b) {
 
 /* A Payment Link's checkout.session.completed event does not carry the price
    that was bought, so this fetches the session's line items with the secret
-   key to find out — then maps that price to a pack (or the membership,
-   which grants every pack) via STRIPE_PRICE_MAP / STRIPE_MEMBERSHIP_PRICE_ID. */
+   key to find out — then maps that price to a pack (or the all-access
+   bundle, which grants every pack) via STRIPE_PRICE_MAP / STRIPE_BUNDLE_PRICE_ID. */
 async function grantPurchase(session, env) {
   const email = normalizeEmail(session.customer_details?.email || session.customer_email || "");
   if (!email || !env.STRIPE_SECRET_KEY) return;
@@ -256,11 +256,11 @@ async function grantPurchase(session, env) {
   } catch (err) {}
   if (!priceId) return;
 
-  const isMembership = priceId === env.STRIPE_MEMBERSHIP_PRICE_ID;
+  const isBundle = priceId === env.STRIPE_BUNDLE_PRICE_ID;
   const priceMap = parseJson(env.STRIPE_PRICE_MAP) || {};
   /* "*" means every pack — checked for specifically wherever an entitlement
      is read back. */
-  const packSlug = isMembership ? "*" : (priceMap[priceId] || "");
+  const packSlug = isBundle ? "*" : (priceMap[priceId] || "");
   if (!packSlug) return; // an unmapped price — nothing to grant
 
   const record = { email, pack_slug: packSlug, session_id: session.id, ts: new Date().toISOString() };
