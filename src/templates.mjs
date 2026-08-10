@@ -206,7 +206,7 @@ export function homePage({ site, corePacks }) {
 
 <hr class="rule">
 
-<section class="section wrap" aria-labelledby="proof-h">
+<section class="section--tight wrap" aria-labelledby="proof-h">
   <h2 class="eyebrow mb-m" id="proof-h">What one of them actually looks like</h2>
   <article class="prompt">
     <div class="prompt__head">
@@ -223,7 +223,7 @@ export function homePage({ site, corePacks }) {
 
 <hr class="rule">
 
-<section class="section wrap">
+<section class="section--tight wrap">
   <h2 class="h2 mb-m">Start with the problem you have right now.</h2>
   <div class="hero__cta">
     <a class="btn" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Get the free ${esc(lead.navLabel)} pack</a>

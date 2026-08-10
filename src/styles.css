@@ -89,12 +89,15 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
-  /* A quiet wash in the corners — keeps wide viewports from reading as bare
-     margin either side of the reading column. */
+  /* A wash in all four corners of the viewport — keeps wide viewports from
+     reading as bare margin either side of the reading column. Fixed so the
+     same four zones stay lit relative to the window at any scroll depth,
+     not just at the top of the page. */
   background-image:
-    radial-gradient(ellipse 70% 50% at 12% -5%, rgba(200,85,58,.05), transparent 65%),
-    radial-gradient(ellipse 60% 45% at 100% 15%, rgba(200,85,58,.035), transparent 60%),
-    radial-gradient(ellipse 55% 40% at 0% 100%, rgba(200,85,58,.03), transparent 65%);
+    radial-gradient(ellipse 75% 55% at 10% -5%, rgba(200,85,58,.075), transparent 68%),
+    radial-gradient(ellipse 65% 50% at 100% 8%, rgba(200,85,58,.06), transparent 62%),
+    radial-gradient(ellipse 65% 50% at 0% 100%, rgba(200,85,58,.055), transparent 68%),
+    radial-gradient(ellipse 60% 45% at 100% 100%, rgba(200,85,58,.045), transparent 65%);
   background-attachment: fixed;
 }
 
