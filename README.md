@@ -170,7 +170,7 @@ Resend API key in the Worker's environment variables:
 |---|---|---|
 | `MAILERLITE_API_KEY` | `wrangler secret put` | Your MailerLite key. **Secret — never in wrangler.toml or git.** |
 | `MAILERLITE_GROUPS` | `wrangler.toml` vars | JSON map of pack slug to delivery group id |
-| `MAILERLITE_MARKETING_GROUP_ID` | `wrangler.toml` vars | Group for the optional marketing consent |
+| `MAILERLITE_MARKETING_GROUP_ID` | `wrangler.toml` vars | Marketing-list group — every signup joins it, there is no separate opt-in |
 | `APP_ORIGINS` | `wrangler.toml` vars | Already set to your domain — only these origins may POST |
 | `DELIVERY_CONFIRMED` | `wrangler.toml` vars | `"0"` until you have verified a real delivery |
 
@@ -199,28 +199,50 @@ Every event carries `pack_slug`, `source`, `campaign`, all `utm_*`, `referrer`,
 `page_path` and `page_url` — so you can compare which specific Reel produced
 signups, not just visits.
 
-### 3. Paid systems — not built, on purpose
+### 3. Premium packs — Stripe checkout + gated content
 
-`upgrade.checkoutUrl` is empty for every pack, so each page shows
-**"Full system coming soon"** with no price and no checkout button.
-
-When Stripe is live, add the Payment Link:
+Each pack's `premium` block in `content/packs/<slug>.mjs` controls whether it's
+sellable:
 
 ```js
-upgrade: {
+premium: {
   name: "The Freelancing System",
+  ready: true,                                        // content actually exists
+  promptCount: 200,
   blurb: "...",
-  checkoutUrl: "https://buy.stripe.com/xxxxx",
-  price: "$19"          // only shown when checkoutUrl is set
+  checkoutUrl: "https://buy.stripe.com/xxxxx",          // Stripe Payment Link
+  downloadUrl: "https://shatterprompts.com/freelancing/premium"
 }
 ```
 
-The button, the price and the `checkout_started` event all appear automatically.
-The build **fails** if you set a price without a checkout URL.
+The build **fails** if `checkoutUrl` is set without `ready: true`, or if either
+is set without the other — see the sellability gate in `build.mjs`.
 
-Individual `/freelancing-system` product pages were deliberately not generated —
-there is no purchasable product yet, so they would be empty shells. Say the word
-and they can be added to the generator.
+**The prompt text itself never ships in this static build.** `/<slug>/premium`
+is a shell page — it fetches the actual prompts client-side from the Worker's
+`GET /premium-content`, which only serves them after checking a purchase token
+against KV (written by the Stripe webhook, see `grantPurchase()` in
+`worker/worker.js`). This matters because the repo is public: baking premium
+content into the built HTML, or committing it to git, would make it readable
+by anyone without paying.
+
+**To get premium content live, after setting `ready: true` and both URLs:**
+
+```bash
+npx wrangler secret put ADMIN_KEY     # generate one: openssl rand -hex 32
+ADMIN_KEY=<same value> node scripts/upload-premium-content.mjs
+```
+
+The script reads every `content/premium/<slug>.json` (gitignored, generation-tool
+output — see `content-source-materials/`) and pushes it to the Worker's KV.
+Re-run it whenever premium content changes. Forgetting this step means the
+checkout works and money moves, but the buyer's premium page never loads
+any prompts — check `GET /premium-content?slug=<slug>&t=<token>` returns
+`{"ok":true,...}` for a real purchase before driving traffic.
+
+Also required in Stripe: a webhook pointed at `POST /stripe-webhook` (signing
+secret → `STRIPE_WEBHOOK_SECRET`), and `STRIPE_SECRET_KEY` /
+`STRIPE_PRICE_MAP` / `STRIPE_BUNDLE_PRICE_ID` set per the Worker's env vars.
 
 ### 4. Still to replace
 
@@ -234,15 +256,18 @@ and they can be added to the generator.
 
 ---
 
-## The access gate is soft
+## The free access gate is soft — premium is not
 
 `/<slug>/access` is unlocked by a flag in the visitor's own browser, set after
 they submit. Someone who is sent the URL directly sees the "get the pack" screen
 instead — but the prompts are in the page source, so this is a courtesy gate,
-not security. That is normal for a free lead magnet.
+not security. That is fine for a free lead magnet: there is nothing to lose by
+someone bypassing it.
 
-Real gating needs the lead endpoint plus signed one-time links, which is worth
-doing only if you start charging for a pack.
+`/<slug>/premium` is different on purpose, because real money is involved: the
+prompt text is never in the page's HTML at all (see "Premium packs" above), and
+is only served after the Worker verifies a purchase token against KV. Bypassing
+the client-side gate gets you nothing, because there is nothing there to get.
 
 ---
 
@@ -254,7 +279,8 @@ src/templates.mjs         ← page HTML
 src/styles.css            ← design system
 src/app.js                ← attribution, analytics, form, copy, access gate
 src/ogimage.mjs           ← generates the social card
-worker/                   ← Cloudflare Worker: lead capture + MailerLite
+worker/                   ← Cloudflare Worker: lead capture, MailerLite, Stripe, premium content
+scripts/                  ← one-off ops scripts (e.g. upload-premium-content.mjs)
 build.mjs                 ← generator + content validation
 serve.mjs                 ← local preview
 dist/                     ← output. deploy this.

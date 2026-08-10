@@ -9,7 +9,7 @@
    rewrite rules.
    ========================================================================== */
 
-import { mkdir, writeFile, rm, copyFile, readFile } from "node:fs/promises";
+import { mkdir, writeFile, rm, copyFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,20 +26,6 @@ const OUT = join(ROOT, "dist");
 const corePacks = PACKS.filter((p) => p.tier === "core");
 const secondaryPacks = PACKS.filter((p) => p.tier !== "core");
 
-/* content/premium/<slug>.json is the generation tool's output — the single
-   source of truth for premium prompts. It is never folded into the pack
-   .mjs files (200 prompts each would blow past the file-size guideline),
-   and it is gitignored: only the built page ships. */
-async function loadPremiumPrompts(slug) {
-  try {
-    const raw = await readFile(join(ROOT, "content", "premium", `${slug}.json`), "utf8");
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (err) {
-    return [];
-  }
-}
-
 /* ------------------------------------------------------------------ helpers */
 async function emit(routePath, html) {
   const dir = routePath === "/" ? OUT : join(OUT, routePath);
@@ -51,7 +37,7 @@ async function emit(routePath, html) {
 /* --------------------------------------------------------------- validation
    Fails the build rather than shipping a page that promises something the data
    cannot deliver. */
-async function validate() {
+function validate() {
   const errors = [];
   const seen = new Set();
 
@@ -70,10 +56,13 @@ async function validate() {
        A product may only be advertised as purchasable when all three hold:
          premium.ready === true      the content actually exists
          checkoutUrl is https://     payment actually works
-         downloadUrl is set          the buyer actually receives something
+         downloadUrl is set          the premium page to send buyers to exists
        Any partial combination fails the build rather than shipping a shop
-       that can take money without delivering.
-       ---------------------------------------------------------------------- */
+       that can take money without delivering. Whether the prompt CONTENT
+       itself actually exists is no longer checked here — it lives in the
+       Worker's KV (uploaded via scripts/upload-premium-content.mjs), served
+       only to a verified buyer via GET /premium-content, never baked into
+       this static build. */
     const prem = p.premium;
     if (prem) {
       const hasCheckout = /^https:\/\//.test(prem.checkoutUrl || "");
@@ -82,16 +71,10 @@ async function validate() {
         errors.push(`${p.slug}: premium has a checkout URL but ready:false — that would sell content that does not exist.`);
       }
       if (hasCheckout && !hasDownload) {
-        errors.push(`${p.slug}: premium has a checkout URL but no downloadUrl — buyers would pay and receive nothing.`);
+        errors.push(`${p.slug}: premium has a checkout URL but no downloadUrl — buyers would pay and have nowhere to go.`);
       }
       if (prem.ready && !hasDownload) {
         errors.push(`${p.slug}: premium is marked ready but has no downloadUrl to deliver.`);
-      }
-      if (prem.ready) {
-        const prompts = await loadPremiumPrompts(p.slug);
-        if (!prompts.length) {
-          errors.push(`${p.slug}: premium is marked ready but content/premium/${p.slug}.json has no prompts — the download page would be empty.`);
-        }
       }
     }
   }
@@ -155,10 +138,7 @@ async function build() {
     routes.push(await emit(`/${pack.slug}/access`, accessPage({ site: SITE, pack })));
 
     if (pack.premium) {
-      const premiumPrompts = await loadPremiumPrompts(pack.slug);
-      if (premiumPrompts.length) {
-        routes.push(await emit(`/${pack.slug}/premium`, premiumPage({ site: SITE, pack, prompts: premiumPrompts })));
-      }
+      routes.push(await emit(`/${pack.slug}/premium`, premiumPage({ site: SITE, pack })));
     }
   }
 

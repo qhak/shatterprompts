@@ -25,8 +25,9 @@ MAILERLITE_GROUPS = "{}"
 # Fallback group used when a pack has no entry above.
 MAILERLITE_GROUP_ID = ""
 
-# Group for people who ticked the optional marketing checkbox. Keep this
-# separate from the delivery groups — that separation is the consent model.
+# Group for the site's marketing list. Every signup joins it now (the form's
+# disclosure line is the consent — no separate checkbox). Keep it separate
+# from the per-pack delivery groups above regardless.
 MAILERLITE_MARKETING_GROUP_ID = ""
 
 # Set to "1" to allow localhost origins while testing.
@@ -44,3 +45,10 @@ STRIPE_BUNDLE_PRICE_ID = ""
 #   npx wrangler secret put MAILERLITE_API_KEY
 #   npx wrangler secret put STRIPE_SECRET_KEY
 #   npx wrangler secret put STRIPE_WEBHOOK_SECRET
+#   npx wrangler secret put ADMIN_KEY
+#
+# ADMIN_KEY guards POST /admin/premium-content — the only way premium prompt
+# text reaches the Worker's KV. Generate one long random value yourself
+# (e.g. `openssl rand -hex 32`), set it as a secret here, and pass the same
+# value to scripts/upload-premium-content.mjs as ADMIN_KEY when you run it.
+# It is never written to any file in this repo.

@@ -30,6 +30,12 @@ export default {
       return stripeWebhook(req, env);
     }
 
+    /* Run locally, never from a browser — checks its own shared-secret header
+       instead of the origin allowlist below. */
+    if (req.method === "POST" && url.pathname === "/admin/premium-content") {
+      return adminIngestPremiumContent(req, env);
+    }
+
     const cors = corsHeaders(req, env);
 
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors.headers });
@@ -45,6 +51,11 @@ export default {
     /* Purchase lookup — same idea, for a Stripe checkout session. */
     if (req.method === "GET" && url.pathname === "/purchase") {
       return purchaseLookup(url, env, cors.headers);
+    }
+
+    /* The only place premium prompt text is ever served. */
+    if (req.method === "GET" && url.pathname === "/premium-content") {
+      return premiumContent(url, env, cors.headers);
     }
 
     if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405, cors.headers);
@@ -265,12 +276,19 @@ async function grantPurchase(session, env) {
 
   const record = { email, pack_slug: packSlug, session_id: session.id, ts: new Date().toISOString() };
 
+  /* Content token — this, not the local "purchased" flag in localStorage, is
+     what actually unlocks premium-content. A visitor can fake the localStorage
+     flag; they cannot fake a token that was only ever minted here, after
+     Stripe's webhook confirmed real money moved. */
+  const token = randomToken();
+
   try {
-    await env.LEADS.put(`purchase:${session.id}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400 });
+    await env.LEADS.put(`purchase:${session.id}`, JSON.stringify({ ...record, token }), { expirationTtl: 60 * 60 * 24 * 400 });
     /* Durable, email-keyed copy too — not read yet, but it's what a future
        "resend my access link" endpoint would look up instead of relying on
        the buyer still having their original session_id. */
     await env.LEADS.put(`entitlement:${email}:${packSlug}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400 });
+    await env.LEADS.put(`purchase-access:${token}`, JSON.stringify({ email, pack_slug: packSlug }), { expirationTtl: 60 * 60 * 24 * 400 });
   } catch (err) {}
 }
 
@@ -293,7 +311,82 @@ async function purchaseLookup(url, env, cors) {
   }
 
   if (!record) return json({ ok: false, error: "pending" }, 202, cors);
-  return json({ ok: true, email: record.email, pack_slug: record.pack_slug }, 200, cors);
+  return json({ ok: true, email: record.email, pack_slug: record.pack_slug, token: record.token || "" }, 200, cors);
+}
+
+/* ------------------------------------------------------- premium content
+   GET /premium-content?slug=<slug>&t=<token> — the only place premium prompt
+   text is ever served. The token comes from grantPurchase() above, minted
+   only after Stripe's webhook confirmed the purchase, so this is a real
+   server-side check, not the same soft localStorage gate the free pack uses.
+   Nothing about a paid pack's content is baked into the static site build. */
+async function premiumContent(url, env, cors) {
+  const slug = String(url.searchParams.get("slug") || "").slice(0, 40);
+  const token = String(url.searchParams.get("t") || "");
+  if (!/^[a-z0-9-]{2,40}$/.test(slug) || !/^[a-f0-9]{40}$/.test(token)) {
+    return json({ ok: false, error: "bad_request" }, 400, cors);
+  }
+
+  let grant;
+  try {
+    const raw = await env.LEADS.get(`purchase-access:${token}`);
+    grant = raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return json({ ok: false, error: "lookup_failed" }, 500, cors);
+  }
+
+  /* "*" is the all-access bundle — it covers every pack, not just the one
+     the token was originally minted for. */
+  if (!grant || (grant.pack_slug !== slug && grant.pack_slug !== "*")) {
+    return json({ ok: false, error: "not_entitled" }, 403, cors);
+  }
+
+  let prompts;
+  try {
+    const raw = await env.LEADS.get(`premium-content:${slug}`);
+    prompts = raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return json({ ok: false, error: "lookup_failed" }, 500, cors);
+  }
+
+  if (!prompts || !prompts.length) return json({ ok: false, error: "not_found" }, 404, cors);
+  return json({ ok: true, prompts }, 200, cors);
+}
+
+/* -------------------------------------------------------- admin content ingest
+   POST /admin/premium-content — the only way premium-content:<slug> gets
+   written. Run locally via scripts/upload-premium-content.mjs, never from the
+   browser, so it bypasses the origin allowlist entirely (like the Stripe
+   webhook) and checks a shared secret header instead. */
+async function adminIngestPremiumContent(req, env) {
+  const key = req.headers.get("x-admin-key") || "";
+  if (!env.ADMIN_KEY || key !== env.ADMIN_KEY) {
+    return new Response("unauthorized", { status: 401 });
+  }
+
+  let body;
+  try {
+    body = await req.json();
+  } catch (err) {
+    return new Response("bad json", { status: 400 });
+  }
+
+  const slug = String(body.slug || "").slice(0, 40);
+  if (!/^[a-z0-9-]{2,40}$/.test(slug)) return new Response("bad slug", { status: 400 });
+  if (!Array.isArray(body.prompts) || !body.prompts.length) return new Response("no prompts", { status: 400 });
+
+  const prompts = body.prompts.map((p) => ({ title: str(p.title, 200), text: str(p.text, 8000) }));
+
+  try {
+    await env.LEADS.put(`premium-content:${slug}`, JSON.stringify(prompts));
+  } catch (err) {
+    return new Response("storage failed", { status: 500 });
+  }
+
+  return new Response(JSON.stringify({ ok: true, slug, count: prompts.length }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" }
+  });
 }
 
 /* ---------------------------------------------------------------- MailerLite */

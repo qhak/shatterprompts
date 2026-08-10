@@ -489,36 +489,19 @@ export function accessPage({ site, pack }) {
 /* PREMIUM DELIVERY PAGE                                                     */
 /* -------------------------------------------------------------------------- */
 
-/* Same doc/TOC/prompt UI as the free access page, gated on a Stripe purchase
-   instead of an email signup. Only ever built when content/premium/<slug>.json
-   actually has prompts in it — see loadPremiumPrompts() in build.mjs. */
-export function premiumPage({ site, pack, prompts }) {
-  const count = prompts.length;
+/* Same doc/TOC/prompt shell as the free access page, gated on a Stripe
+   purchase instead of an email signup — but unlike the free page, the
+   prompt text itself is never in this HTML. It's fetched client-side from
+   GET /premium-content only after a real purchase token checks out, so
+   there is nothing here for a curl or a view-source to take for free.
+   See app.js for the fetch + render, and worker.js's premiumContent(). */
+export function premiumPage({ site, pack }) {
   const prem = pack.premium;
   const c = site.commerce;
   const money = c.currencySymbol + c.pack.price;
   const bundleMoney = c.currencySymbol + c.bundle.price;
   const hasCheckout = /^https:\/\//.test(prem.checkoutUrl || "");
-
-  const toc = prompts.map((p, i) => `
-    <a href="#p${i + 1}"><span class="n">${String(i + 1).padStart(3, "0")}</span><span>${esc(p.title)}</span></a>`).join("");
-
-  const body = prompts.map((p, i) => {
-    const id = `p${i + 1}`;
-    const bodyId = `body-${id}`;
-    return `
-    <article class="prompt" id="${id}">
-      <div class="prompt__head">
-        <h2 class="prompt__title"><span class="n">${String(i + 1).padStart(3, "0")}</span> ${esc(p.title)}</h2>
-        <button class="copy" type="button" data-copy="${bodyId}"
-                data-prompt-title="${esc(p.title)}" data-copy-event="premium_prompt_copy"
-                aria-label="Copy prompt: ${esc(p.title)}">
-          <span data-copy-label>Copy</span>
-        </button>
-      </div>
-      <div class="prompt__body" id="${bodyId}">${promptHtml(p.text)}</div>
-    </article>`;
-  }).join("");
+  const count = prem.promptCount || 200;
 
   const main = `
 <section class="hero wrap">
@@ -551,9 +534,11 @@ export function premiumPage({ site, pack, prompts }) {
     <div class="doc">
       <aside class="doc__aside">
         <p class="doc__label">Contents</p>
-        <nav class="toc" aria-label="Prompts in this pack">${toc}</nav>
+        <nav class="toc" aria-label="Prompts in this pack" data-premium-toc>
+          <p class="small">Loading your prompts&hellip;</p>
+        </nav>
       </aside>
-      <div class="doc__main">${body}</div>
+      <div class="doc__main" data-premium-main></div>
     </div>
   </section>
   <hr class="rule">

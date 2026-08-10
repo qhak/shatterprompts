@@ -180,21 +180,19 @@
   function hasAccess(slug) { return !!getAccess()[slug]; }
 
   /* ---------------------------------------------------------- pack purchase
-     Same local-record pattern as free access, but a record here only ever
-     gets written after the Worker has verified a real Stripe session — never
-     from anything the client alone can produce. A "*" entry means the
-     all-access bundle: it covers every pack, not just one. */
+     Same local-record shape as free access, but this is only ever a UI
+     cache — the record's token is what actually matters, and it only ever
+     came from the Worker after it verified a real Stripe session. Faking
+     this record client-side doesn't grant content: the premium page still
+     has to present the token to GET /premium-content, which checks it
+     against KV itself. A "*" entry means the all-access bundle: it covers
+     every pack, not just one. */
   function getPurchases() { return read(KEY_PURCHASE, {}) || {}; }
 
   function grantPurchase(slug, record) {
     var all = getPurchases();
     all[slug] = record;
     return write(KEY_PURCHASE, all);
-  }
-
-  function hasPurchase(slug) {
-    var all = getPurchases();
-    return !!(all[slug] || all["*"]);
   }
 
   /* ------------------------------------------------------------- top bar */
@@ -473,19 +471,23 @@
     returning.hidden = false;
   }
 
-  /* ============================================================ ACCESS PAGE */
+  /* ============================================================ ACCESS PAGE
+     Two separate elements share data-access-body (one in the hero, one
+     wrapping the actual prompt doc below) — querySelectorAll+forEach here,
+     not querySelector, or only the first one ever gets unhidden and the
+     prompts never actually appear after a real signup. */
   var gate = document.querySelector("[data-access-gate]");
-  var packBody = document.querySelector("[data-access-body]");
+  var packBody = document.querySelectorAll("[data-access-body]");
 
   function showGate() {
     gate.hidden = false;
-    packBody.hidden = true;
+    packBody.forEach(function (el) { el.hidden = true; });
     trackEvent("pack_access_gated", {});
   }
 
   function showGranted(record) {
     gate.hidden = true;
-    packBody.hidden = false;
+    packBody.forEach(function (el) { el.hidden = false; });
 
     /* Tell the person exactly what happened — never claim an email was sent. */
     var statusEl = document.querySelector("[data-access-status]");
@@ -509,7 +511,7 @@
     });
   }
 
-  if (gate && packBody) {
+  if (gate && packBody.length) {
     var record = getAccess()[PAGE.slug];
 
     if (record) {
@@ -551,17 +553,25 @@
   }
 
   /* ============================================================ PREMIUM PAGE
-     Same shape as the access-page gate above, but verifying a Stripe purchase
-     instead of a free signup — and checking the all-access bundle ("*") as
-     well as a pack-specific entitlement, since a bundle purchase covers every
-     pack, not just the one they happened to buy from. */
-  var purchaseGate = document.querySelector("[data-purchase-gate]");
-  var purchaseBody = document.querySelector("[data-purchase-body]");
+     The prompt content is never in this page's HTML — it's fetched from
+     GET /premium-content using a purchase token, and that endpoint checks a
+     real KV record written only by a verified Stripe webhook (see
+     grantPurchase() in worker.js). The local record below is just a UI
+     cache to skip the checkout-redirect dance on a return visit; faking it
+     doesn't grant anything, since the fetch it feeds still needs a token
+     the Worker actually issued.
 
-  if (purchaseGate && purchaseBody) {
+     Two elements share data-purchase-body (hero + the doc section below),
+     same as the access page above — querySelectorAll, not querySelector. */
+  var purchaseGate = document.querySelector("[data-purchase-gate]");
+  var purchaseBody = document.querySelectorAll("[data-purchase-body]");
+  var premiumToc   = document.querySelector("[data-premium-toc]");
+  var premiumMain  = document.querySelector("[data-premium-main]");
+
+  if (purchaseGate && purchaseBody.length) {
     var showPurchaseGate = function (message) {
       purchaseGate.hidden = false;
-      purchaseBody.hidden = true;
+      purchaseBody.forEach(function (el) { el.hidden = true; });
       var statusEl = document.querySelector("[data-purchase-status]");
       if (statusEl && message) {
         statusEl.textContent = message;
@@ -570,17 +580,68 @@
       trackEvent("premium_access_gated", {});
     };
 
-    var showPurchaseGranted = function () {
+    var renderPromptHtml = function (text) {
+      return escapeHtml(text).replace(/\[([^\]]+)\]/g, '<span class="ph">[$1]</span>');
+    };
+
+    var renderPremiumContent = function (prompts) {
+      if (!premiumToc || !premiumMain) return;
+      var tocHtml = "";
+      var bodyHtml = "";
+      prompts.forEach(function (p, i) {
+        var n = String(i + 1).padStart(3, "0");
+        var id = "p" + (i + 1);
+        var bodyId = "body-" + id;
+        tocHtml += '<a href="#' + id + '"><span class="n">' + n + '</span><span>' + escapeHtml(p.title) + '</span></a>';
+        bodyHtml +=
+          '<article class="prompt" id="' + id + '">' +
+            '<div class="prompt__head">' +
+              '<h2 class="prompt__title"><span class="n">' + n + '</span> ' + escapeHtml(p.title) + '</h2>' +
+              '<button class="copy" type="button" data-copy="' + bodyId + '" data-prompt-title="' + escapeHtml(p.title) + '" ' +
+                'data-copy-event="premium_prompt_copy" aria-label="Copy prompt: ' + escapeHtml(p.title) + '">' +
+                '<span data-copy-label>Copy</span>' +
+              '</button>' +
+            '</div>' +
+            '<div class="prompt__body" id="' + bodyId + '">' + renderPromptHtml(p.text) + '</div>' +
+          '</article>';
+      });
+      premiumToc.innerHTML = tocHtml;
+      premiumMain.innerHTML = bodyHtml;
+    };
+
+    var showPurchaseGranted = function (prompts) {
       purchaseGate.hidden = true;
-      purchaseBody.hidden = false;
+      purchaseBody.forEach(function (el) { el.hidden = false; });
+      renderPremiumContent(prompts);
       trackEvent("premium_accessed", {});
     };
 
-    if (hasPurchase(PAGE.slug)) {
-      showPurchaseGranted();
+    var premiumEndpoint  = INT.leadEndpoint ? INT.leadEndpoint.replace(/\/subscribe\/?$/, "/premium-content") : "";
+    var purchaseEndpoint = INT.leadEndpoint ? INT.leadEndpoint.replace(/\/subscribe\/?$/, "/purchase") : "";
+
+    var fetchPremiumContent = function (token) {
+      if (!premiumEndpoint || !token) { showPurchaseGate(); return; }
+      fetch(premiumEndpoint + "?slug=" + encodeURIComponent(PAGE.slug) + "&t=" + encodeURIComponent(token))
+        .then(function (res) { return res.json().catch(function () { return {}; }); })
+        .then(function (data) {
+          if (data && data.ok && data.prompts && data.prompts.length) {
+            showPurchaseGranted(data.prompts);
+          } else {
+            showPurchaseGate("We could not load your prompts just now. Refresh the page, or contact us if this keeps happening.");
+          }
+        })
+        .catch(function () { showPurchaseGate(); });
+    };
+
+    /* Checking the all-access bundle ("*") too — it covers every pack, not
+       just the one it happened to be bought from. */
+    var purchases = getPurchases();
+    var existing = purchases[PAGE.slug] || purchases["*"];
+
+    if (existing && existing.token) {
+      fetchPremiumContent(existing.token);
     } else {
       var sessionId = new URLSearchParams(location.search).get("session_id") || "";
-      var purchaseEndpoint = INT.leadEndpoint ? INT.leadEndpoint.replace(/\/subscribe\/?$/, "/purchase") : "";
 
       if (sessionId && purchaseEndpoint) {
         var purchaseAttempts = 0;
@@ -589,9 +650,9 @@
           fetch(purchaseEndpoint + "?session_id=" + encodeURIComponent(sessionId))
             .then(function (res) {
               return res.json().catch(function () { return {}; }).then(function (data) {
-                if (data && data.ok && (data.pack_slug === PAGE.slug || data.pack_slug === "*")) {
-                  grantPurchase(PAGE.slug, { email: data.email, pack_slug: data.pack_slug, ts: new Date().toISOString() });
-                  showPurchaseGranted();
+                if (data && data.ok && data.token && (data.pack_slug === PAGE.slug || data.pack_slug === "*")) {
+                  grantPurchase(PAGE.slug, { email: data.email, pack_slug: data.pack_slug, token: data.token, ts: new Date().toISOString() });
+                  fetchPremiumContent(data.token);
                 } else if (res.status === 202 && purchaseAttempts < 5) {
                   /* Stripe's webhook can land a moment after the redirect —
                      wait and try again a few times before giving up. */
