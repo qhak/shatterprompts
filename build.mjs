@@ -105,9 +105,33 @@ async function validate() {
 }
 
 /* ------------------------------------------------------------------- assets */
-const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-<rect width="32" height="32" fill="#1A1A1A"/>
-<path d="M9 7h14v4h-9v4h8v4h-8v6H9z" fill="#C8553A"/>
+/* "SH" built from the same 5x7 bitmap font used in ogimage.mjs, not a
+   hand-drawn path — the earlier single-glyph mark was ambiguous enough to
+   read as an "F" at favicon size. */
+const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 11">
+<rect width="13" height="11" fill="#1A1A1A"/>
+<g fill="#C8553A">
+<rect x="2" y="2" width="4" height="1"/>
+<rect x="1" y="3" width="1" height="1"/>
+<rect x="1" y="4" width="1" height="1"/>
+<rect x="2" y="5" width="3" height="1"/>
+<rect x="5" y="6" width="1" height="1"/>
+<rect x="5" y="7" width="1" height="1"/>
+<rect x="1" y="8" width="4" height="1"/>
+<rect x="7" y="2" width="1" height="1"/>
+<rect x="11" y="2" width="1" height="1"/>
+<rect x="7" y="3" width="1" height="1"/>
+<rect x="11" y="3" width="1" height="1"/>
+<rect x="7" y="4" width="1" height="1"/>
+<rect x="11" y="4" width="1" height="1"/>
+<rect x="7" y="5" width="5" height="1"/>
+<rect x="7" y="6" width="1" height="1"/>
+<rect x="11" y="6" width="1" height="1"/>
+<rect x="7" y="7" width="1" height="1"/>
+<rect x="11" y="7" width="1" height="1"/>
+<rect x="7" y="8" width="1" height="1"/>
+<rect x="11" y="8" width="1" height="1"/>
+</g>
 </svg>`;
 
 /* ---------------------------------------------------------------- the build */

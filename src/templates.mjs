@@ -14,6 +14,35 @@ export const promptHtml = (text) =>
 const packUrl = (slug) => `/${slug}`;
 const accessUrl = (slug) => `/${slug}/access`;
 
+/* Shared by the pack landing page and the access page — a real price and buy
+   button ONLY when the content exists, checkout works and there is something
+   to download. Otherwise it states plainly that it is not available yet. */
+function premiumUpsell({ site, pack, heading }) {
+  const prem = pack.premium;
+  if (!prem || !prem.name) return "";
+
+  const sellable = prem.ready
+    && /^https:\/\//.test(prem.checkoutUrl || "")
+    && /^https:\/\//.test(prem.downloadUrl || "");
+  const money = site.commerce.currencySymbol + site.commerce.pack.price;
+
+  return `
+<hr class="rule">
+<section class="section wrap" id="upgrade">
+  <div class="upgrade" data-upgrade="${esc(prem.name)}">
+    <h2 class="h2">${esc(heading)}</h2>
+    <p>${esc(prem.blurb)}</p>
+    ${sellable
+      ? `<p class="mt-m"><a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a></p>
+         <p class="small mt-s">Secure checkout via Stripe — opens in a new step.
+         Or <a href="/pricing" style="color:var(--fg)">all 6 packs for ${esc(site.commerce.currencySymbol + site.commerce.bundle.price)}, one time</a>.</p>`
+      : `<p class="upgrade__status">Not available yet</p>
+         <p class="small mt-s">Being written now. Bookmark this page — it will show a download here as soon as it is ready.</p>`}
+  </div>
+</section>
+`;
+}
+
 /* -------------------------------------------------------------------------- */
 /* SHELL                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -143,6 +172,12 @@ export function homePage({ site, corePacks }) {
   const showcase = lead.previews.length ? lead.previews[0] : lead.prompts[0];
   const excerpt = showcase.text.split("\n\n").slice(0, 3).join("\n\n");
 
+  /* Premium teaser — comes after the free CTA below, never before, so it
+     can't compete with the primary conversion this page exists to drive. */
+  const c = site.commerce;
+  const premiumTotal = corePacks.length * 200;
+  const bundleLive = /^https:\/\//.test(c.bundle.checkoutUrl || "");
+
   const main = `
 <section class="hero wrap">
   <p class="eyebrow eyebrow--accent hero__eyebrow">Free AI prompt packs</p>
@@ -162,7 +197,7 @@ export function homePage({ site, corePacks }) {
 
 <hr class="rule">
 
-<section class="section wrap" id="packs" aria-labelledby="packs-h">
+<section class="section wrap-wide" id="packs" aria-labelledby="packs-h">
   <p class="statement mb-m">These are not random one-line prompts. <em>Every pack is built
   around a single outcome, in the order you need to do the work.</em></p>
   <h2 class="h2 mb-m" id="packs-h">${corePacks.length} packs. One problem each.</h2>
@@ -195,6 +230,22 @@ export function homePage({ site, corePacks }) {
     <a class="tlink" href="#packs">See all packs <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>
   </div>
   <p class="small mt-m">Enter your email, the pack opens straight away. No account needed.</p>
+</section>
+
+<hr class="rule">
+
+<section class="section wrap-wide">
+  <div class="bundle-cta">
+    <span class="bundle-cta__flag">Premium</span>
+    <h2 class="h2 mb-s">Every pack goes to 200 prompts.</h2>
+    <p>${esc(c.currencySymbol + c.pack.price)} for one pack's full system, or all ${corePacks.length}
+    for ${esc(c.currencySymbol + c.bundle.price)} — ${premiumTotal.toLocaleString("en-US")} prompts,
+    one payment, yours permanently.</p>
+    ${bundleLive
+      ? `<p class="mt-m"><a class="btn" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all ${corePacks.length} — ${esc(c.currencySymbol + c.bundle.price)}</a></p>
+         <p class="small mt-s">Or <a href="/pricing" style="color:var(--fg)">see every price</a>.</p>`
+      : `<p class="mt-m"><a class="tlink" href="/pricing">See premium pricing <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a></p>`}
+  </div>
 </section>`;
 
   return layout({
@@ -239,10 +290,16 @@ export function packPage({ site, pack }) {
   const note = pack.note ? `<p class="small mt-m">${esc(pack.note)}</p>` : "";
 
   /* Reading order: promise -> what you do -> what you get -> proof -> why all
-     25 matter -> ask. The differentiator has to land BEFORE the form, not after.
-     The paid upgrade is deliberately absent here — teasing a product that does
-     not exist yet makes the free pack feel like a sampler. It lives on the
-     access page only, after the visitor already has the prompts. */
+     25 matter -> ask -> premium. Premium is real now (content, checkout and
+     download all exist), so it gets a mention here too, not just after
+     signup — but it still comes after the free CTA and form, never before,
+     so it can't compete with the primary conversion. */
+  const upgrade = premiumUpsell({ site, pack, heading: "Want the full system?" });
+  const prem = pack.premium || {};
+  const premiumLine = prem.name
+    ? `<p class="small hero__note">Or see the <a href="#upgrade" style="color:var(--fg)">${esc(prem.promptCount || 200)}-prompt premium version</a>.</p>`
+    : "";
+
   const main = `
 <section class="hero wrap">
   <span class="hero__index" aria-hidden="true">${esc(pack.index)}</span>
@@ -267,6 +324,7 @@ export function packPage({ site, pack }) {
     <a class="btn" href="#get">Get the free ${esc(pack.navLabel)} pack</a>
   </div>
   <p class="small hero__note">${count} prompts. Opens straight away. No account needed.</p>
+  ${premiumLine}
 </section>
 
 <hr class="rule">
@@ -321,7 +379,8 @@ export function packPage({ site, pack }) {
     <a href="/privacy" style="color:var(--fg)">Privacy</a>.
   </p>
   ${note}
-</section>`;
+</section>
+${upgrade}`;
 
   return layout({
     site,
@@ -370,29 +429,7 @@ export function accessPage({ site, pack }) {
   /* Premium block. Renders a real price + buy button ONLY when the content
      exists, checkout works and there is something to download. Otherwise it
      states plainly that it is not available yet. */
-  const prem = pack.premium;
-  let upgrade = "";
-  if (prem && prem.name) {
-    const sellable = prem.ready
-      && /^https:\/\//.test(prem.checkoutUrl || "")
-      && /^https:\/\//.test(prem.downloadUrl || "");
-    const money = site.commerce.currencySymbol + site.commerce.pack.price;
-    upgrade = `
-<hr class="rule">
-<section class="section wrap">
-  <div class="upgrade" data-upgrade="${esc(prem.name)}">
-    <h2 class="h2">When you have worked through these</h2>
-    <p>${esc(prem.blurb)}</p>
-    ${sellable
-      ? `<p class="mt-m"><a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>Get ${esc(prem.name)} — ${esc(money)}</a></p>
-         <p class="small mt-s">Secure checkout via Stripe — opens in a new step.
-         Or <a href="/pricing" style="color:var(--fg)">all 6 packs for ${esc(site.commerce.currencySymbol + site.commerce.bundle.price)}, one time</a>.</p>`
-      : `<p class="upgrade__status">Not available yet</p>
-         <p class="small mt-s">Being written now. Bookmark this page — it will show a download here as soon as it is ready.</p>`}
-  </div>
-</section>
-`;
-  }
+  const upgrade = premiumUpsell({ site, pack, heading: "When you have worked through these" });
 
   const note = pack.note ? `<p class="small mt-m">${esc(pack.note)}</p>` : "";
 

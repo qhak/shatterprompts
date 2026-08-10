@@ -89,6 +89,13 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  /* A quiet wash in the corners — keeps wide viewports from reading as bare
+     margin either side of the reading column. */
+  background-image:
+    radial-gradient(ellipse 70% 50% at 12% -5%, rgba(200,85,58,.05), transparent 65%),
+    radial-gradient(ellipse 60% 45% at 100% 15%, rgba(200,85,58,.035), transparent 60%),
+    radial-gradient(ellipse 55% 40% at 0% 100%, rgba(200,85,58,.03), transparent 65%);
+  background-attachment: fixed;
 }
 
 /* ---------- layout ---------- */
@@ -578,6 +585,7 @@ p + p { margin-top: 1rem; }
 .mt-s { margin-top: .875rem; }
 .mt-m { margin-top: 1.75rem; }
 .mt-l { margin-top: 2.5rem; }
+.mb-s { margin-bottom: .875rem; }
 .mb-m { margin-bottom: 1.75rem; }
 
 
