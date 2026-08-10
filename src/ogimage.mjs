@@ -2,18 +2,18 @@
    Social preview image generator — 1200x630 PNG, written byte by byte.
    Uses only node:zlib so the build stays dependency-free.
 
-   Produces a clean branded card (dark ground, wordmark, red rule). Replace
-   dist/social-preview.png with a designed export whenever you have one —
-   nothing else needs to change.
+   Produces a clean branded card (cream ground, wordmark, terracotta rule).
+   Replace dist/social-preview.png with a designed export whenever you have
+   one — nothing else needs to change.
    ========================================================================== */
 
 import { deflateSync } from "node:zlib";
 
 const W = 1200, H = 630;
-const BG  = [0x0c, 0x0c, 0x0d];
-const FG  = [0xef, 0xea, 0xe1];
-const RED = [0xce, 0x20, 0x29];
-const DIM = [0xad, 0xa6, 0x9c];
+const BG  = [0xfa, 0xf9, 0xf6];
+const FG  = [0x1a, 0x1a, 0x1a];
+const RED = [0xc8, 0x55, 0x3a];
+const DIM = [0x6b, 0x6b, 0x69];
 
 /* Full 5x7 uppercase set + digits. Complete on purpose: a missing glyph would
    silently drop a letter from the card and nobody would notice until it shipped. */

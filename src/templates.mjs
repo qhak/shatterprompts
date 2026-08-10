@@ -44,8 +44,8 @@ export function layout({ site, title, description, path, page, main, ogType = "w
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${esc(canonical)}">
-<meta name="theme-color" content="#0C0C0D">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#FAF9F6">
+<meta name="color-scheme" content="light">
 
 <meta property="og:type" content="${esc(ogType)}">
 <meta property="og:site_name" content="${esc(site.name)}">
@@ -59,6 +59,9 @@ export function layout({ site, title, description, path, page, main, ogType = "w
 <meta name="twitter:image" content="${esc(ogImage)}">
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/styles.css">
 ${scripts.join("\n")}
 </head>
@@ -730,27 +733,41 @@ export function pricingPage({ site, corePacks }) {
   const anyPackLive = corePacks.some((p) =>
     p.premium && p.premium.ready && /^https:\/\//.test(p.premium.checkoutUrl || ""));
 
-  const packRows = corePacks.map((p) => {
+  /* Real counts, not hand-typed copy — a hardcoded headline drifts the moment
+     a pack is added or a pack's prompt count changes. */
+  const freeTotal = corePacks.reduce((n, p) => n + p.prompts.length, 0);
+  const premiumTotal = corePacks.length * 200;
+
+  const packCards = corePacks.map((p, i) => {
     const prem = p.premium || {};
     const live = prem.ready && /^https:\/\//.test(prem.checkoutUrl || "");
+    const shown = p.prompts.slice(0, 4);
+    const rest = p.prompts.length - shown.length;
+    const tags = shown.map((pr) => `<span class="tierpack__tag">${esc(pr.title)}</span>`).join("")
+      + (rest > 0 ? `<span class="tierpack__tag">+${rest} more</span>` : "");
+
     return `
     <div class="tierpack">
-      <div class="tierpack__body">
-        <span class="tierpack__name">${esc(p.navLabel)}</span>
-        <span class="tierpack__meta">${p.prompts.length} free &middot; ${esc(prem.name || "premium")} ${live ? "available" : "in progress"}</span>
+      <div class="tierpack__top">
+        <div>
+          <span class="tierpack__n">${esc(p.index)}</span><span class="tierpack__name">${esc(p.navLabel)}</span>
+        </div>
       </div>
-      ${live
-        ? `<a class="btn btn--ghost" href="${esc(prem.checkoutUrl)}" data-checkout>${esc(sym + c.pack.price)}</a>`
-        : `<a class="tlink" href="${packUrl(p.slug)}">Get the free ${p.prompts.length} <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a>`}
+      <p class="tierpack__blurb">${esc(p.rowOutcome)}</p>
+      <div class="tierpack__tags">${tags}</div>
+      <div class="tierpack__actions">
+        <a class="btn btn--ghost" href="${packUrl(p.slug)}">Free &middot; ${p.prompts.length} prompts</a>
+        ${live
+          ? `<a class="btn" href="${esc(prem.checkoutUrl)}" data-checkout>${esc(sym + c.pack.price)} &middot; 200 prompts</a>`
+          : `<span class="btn btn--ghost" style="opacity:.5;cursor:default" aria-disabled="true">${esc(sym + c.pack.price)} &middot; in progress</span>`}
+      </div>
     </div>`;
   }).join("");
 
-  const bundleIncludes = c.bundle.includes.map((i) => `<li>${esc(i)}</li>`).join("");
-
   /* Shown BEFORE the priced tier cards, not after — a visitor scans price and
-     the "Best value" flag first (Z-pattern), so the honesty notice has to
-     land before that, or it's read too late to change what the visitor
-     already assumed. */
+     the bundle card first (Z-pattern), so the honesty notice has to land
+     before that, or it's read too late to change what the visitor already
+     assumed. */
   const nothingLive = !anyPackLive && !bundleLive;
   const notice = nothingLive ? `
   <div class="notice mb-m">
@@ -762,9 +779,9 @@ export function pricingPage({ site, corePacks }) {
   const main = `
 <section class="hero wrap">
   <p class="eyebrow eyebrow--accent hero__eyebrow">Pricing</p>
-  <h1>Start free. Pay only if you want the full system.</h1>
-  <p class="lead mt-s">Every pack has a free version you can use today. The premium version of
-  each goes much deeper, and there is a one-time bundle that covers all six.</p>
+  <h1>${freeTotal} prompts free. ${premiumTotal.toLocaleString("en-US")} when you're ready.</h1>
+  <p class="lead mt-s">${corePacks.length} packs, ${corePacks.length} problems. Each one works on its own.
+  Premium takes it deeper.</p>
 </section>
 
 <hr class="rule">
@@ -772,56 +789,45 @@ export function pricingPage({ site, corePacks }) {
 <section class="section wrap-wide">
   ${notice}
   <div class="tiers">
-
     <div class="tier">
-      <h2 class="tier__name">Free</h2>
+      <span class="tier__name">Free</span>
       <p class="tier__price">${esc(sym)}0</p>
-      <p class="tier__note">Per pack, with your email</p>
-      <ul class="outcomes tier__list">
-        <li>25 detailed prompts</li>
-        <li>The full ordered workflow</li>
-        <li>Opens instantly, no account</li>
-        <li>Yours to keep</li>
-      </ul>
-      <a class="btn btn--full" href="/packs">Browse the free packs</a>
+      <p class="tier__note">25 prompts per pack</p>
     </div>
-
     <div class="tier">
-      <h2 class="tier__name">${esc(c.pack.label)}</h2>
+      <span class="tier__name">Premium</span>
       <p class="tier__price">${esc(sym + c.pack.price)}</p>
-      <p class="tier__note">One pack, one payment</p>
-      <ul class="outcomes tier__list">
-        <li>Everything in the free pack</li>
-        <li>The complete system for that topic</li>
-        <li>Downloadable, yours permanently</li>
-        <li>Free updates to that pack</li>
-      </ul>
-      ${anyPackLive
-        ? `<a class="btn btn--full" href="#packs">Choose a pack</a>`
-        : `<p class="tier__status">Not available yet</p>`}
+      <p class="tier__note">200 prompts, one pack</p>
     </div>
-
     <div class="tier tier--feature">
       <span class="tier__flag">Best value</span>
-      <h2 class="tier__name">${esc(c.bundle.label)}</h2>
+      <span class="tier__name">All-access bundle</span>
       <p class="tier__price">${esc(sym + c.bundle.price)}</p>
-      <p class="tier__note">All 6 packs, one payment</p>
-      <ul class="outcomes tier__list">${bundleIncludes}</ul>
-      ${bundleLive
-        ? `<a class="btn btn--full" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all 6 — ${esc(sym + c.bundle.price)}</a>
-           <p class="small mt-s">Secure checkout via Stripe — opens in a new step.</p>`
-        : `<p class="tier__status">Not available yet</p>`}
+      <p class="tier__note">All ${corePacks.length} packs, one payment</p>
     </div>
-
   </div>
 </section>
 
 <hr class="rule">
 
-<section class="section wrap" id="packs" aria-labelledby="packs-h">
+<section class="section wrap-wide" id="packs" aria-labelledby="packs-h">
   <h2 class="h2 mb-m" id="packs-h">The packs</h2>
   ${anyPackLive ? `<p class="small mb-m">Secure checkout via Stripe for every priced pack below — opens in a new step.</p>` : ""}
-  <div class="tierpacks">${packRows}</div>
+  <div class="tierpacks">${packCards}</div>
+</section>
+
+<hr class="rule">
+
+<section class="section wrap-wide">
+  <div class="bundle-cta">
+    <span class="bundle-cta__flag">All-access bundle</span>
+    <h2 class="h2 mb-s">All ${corePacks.length} packs. ${esc(sym + c.bundle.price)}. One payment.</h2>
+    <p>${premiumTotal.toLocaleString("en-US")} prompts across every topic. Yours permanently, no subscription.</p>
+    ${bundleLive
+      ? `<p class="mt-m"><a class="btn" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all ${corePacks.length} — ${esc(sym + c.bundle.price)}</a></p>
+         <p class="small mt-s">Secure checkout via Stripe — opens in a new step.</p>`
+      : `<p class="tier__status mt-m" style="display:inline-block">Not available yet</p>`}
+  </div>
 </section>
 
 <hr class="rule">

@@ -106,8 +106,8 @@ async function validate() {
 
 /* ------------------------------------------------------------------- assets */
 const FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-<rect width="32" height="32" fill="#0C0C0D"/>
-<path d="M9 7h14v4h-9v4h8v4h-8v6H9z" fill="#CE2029"/>
+<rect width="32" height="32" fill="#1A1A1A"/>
+<path d="M9 7h14v4h-9v4h8v4h-8v6H9z" fill="#C8553A"/>
 </svg>`;
 
 /* ---------------------------------------------------------------- the build */
