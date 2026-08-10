@@ -52,6 +52,7 @@
 
   --wrap: 40rem;        /* editorial reading column */
   --wrap-wide: 64rem;
+  --page-max: 78rem;    /* bounds the whole site on wide viewports */
   --pad: 1.5rem;
 
   --section: 3.75rem;
@@ -102,6 +103,16 @@ body {
 }
 
 /* ---------- layout ---------- */
+/* Bounds the whole site — header, main, footer — to a fixed-width "sheet."
+   Below --page-max it's invisible (full-bleed, same as before). Above it,
+   the body's terracotta wash becomes visible desk either side and a hairline
+   border marks the page edge, so wide monitors read as a framed page rather
+   than a narrow column adrift in blank space. */
+.page { max-width: var(--page-max); margin-inline: auto; }
+@media (min-width: 64em) {
+  .page { background: var(--bg-raise); border-inline: 1px solid var(--line); }
+}
+
 .wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: var(--pad); }
 .wrap-wide { width: 100%; max-width: var(--wrap-wide); margin-inline: auto; padding-inline: var(--pad); }
 .section { padding-block: var(--section); }

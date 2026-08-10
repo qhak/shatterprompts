@@ -96,11 +96,13 @@ ${scripts.join("\n")}
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<div class="page">
 ${topbar(site)}
 <main id="main">
 ${main}
 </main>
 ${footer(site)}
+</div>
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 <script>
 window.SP_CONFIG=${JSON.stringify({
