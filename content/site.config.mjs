@@ -38,7 +38,18 @@ export const SITE = {
 
     /* Optional analytics. Leave empty to use the built-in event queue only. */
     analytics: {
-      plausibleDomain: "",   // e.g. "shatterprompts.com" (loads plausible script)
+      /* Plausible's own per-site install snippet, pasted verbatim from their
+         dashboard (Site Settings -> Installation). Takes priority over
+         plausibleDomain below if both are set. */
+      plausibleSnippet: `
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-m52CbXGKAB6Y3EZ6wEui4.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+`,
+      plausibleDomain: "",   // fallback: classic data-domain embed, e.g. "shatterprompts.com"
       gaMeasurementId: "",   // e.g. "G-XXXXXXX"
       beaconEndpoint: ""     // optional POST endpoint receiving every event
     }

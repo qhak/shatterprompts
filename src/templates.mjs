@@ -7,6 +7,15 @@ export const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+/* JSON.stringify for embedding inside an inline <script> block. A plain
+   stringify is unsafe here: any "<" in the data (e.g. a literal </script>
+   inside a string value, as in the Plausible install snippet) is invisible
+   to the JS parser but not to the HTML tokenizer, which closes the
+   surrounding <script> tag on sight — corrupting everything after it,
+   including this assignment itself. < is indistinguishable from "<" to
+   JSON.parse but never triggers that. */
+const jsonForScript = (obj) => JSON.stringify(obj).replace(/</g, "\\u003C");
+
 /* Escape, then highlight [PLACEHOLDER] tokens so they read as fill-in slots. */
 export const promptHtml = (text) =>
   esc(text).replace(/\[([^\]]+)\]/g, '<span class="ph">[$1]</span>');
@@ -53,7 +62,13 @@ export function layout({ site, title, description, path, page, main, ogType = "w
 
   const analytics = site.integrations?.analytics || {};
   const scripts = [];
-  if (analytics.plausibleDomain) {
+  if (analytics.plausibleSnippet) {
+    /* Plausible's per-site install snippet — a specific script URL plus
+       inline init, not reconstructable from a domain string alone. Trusted
+       operator config (site.config.mjs), not user input, so injected as-is
+       like the GA block below. */
+    scripts.push(analytics.plausibleSnippet.trim());
+  } else if (analytics.plausibleDomain) {
     scripts.push(
       `<script defer data-domain="${esc(analytics.plausibleDomain)}" src="https://plausible.io/js/script.js"></script>`
     );
@@ -105,11 +120,11 @@ ${footer(site)}
 </div>
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 <script>
-window.SP_CONFIG=${JSON.stringify({
+window.SP_CONFIG=${jsonForScript({
     integrations: site.integrations,
     debug: false
   })};
-window.SP_PAGE=${JSON.stringify(page)};
+window.SP_PAGE=${jsonForScript(page)};
 </script>
 <script src="/assets/app.js" defer></script>
 </body>
