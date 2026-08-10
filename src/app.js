@@ -307,7 +307,6 @@
     var emailInput = form.querySelector("[data-email]");
     var errorEl    = form.querySelector("[data-error]");
     var submitBtn  = form.querySelector("[data-submit]");
-    var consentEl  = form.querySelector("[data-consent]");
     var submitting = false;
     var started    = false;
     var slug       = PAGE.slug || "";
@@ -376,12 +375,15 @@
 
       setBusy(true);
 
+      /* Requesting a pack is the consent — there is no separate checkbox.
+         consent_text records the exact disclosure shown on the form, so the
+         lead record shows what the visitor agreed to, not just a boolean. */
       var lead = Object.assign({
         email: email,
         pack_slug: slug,
         pack_name: PAGE.packName || "",
-        marketing_consent: consentEl ? !!consentEl.checked : false,
-        consent_text: consentEl ? (consentEl.getAttribute("data-consent-text") || "") : "",
+        marketing_consent: true,
+        consent_text: "We use your email to send you this pack and occasional emails about new packs. Unsubscribe anytime.",
         submitted_at: new Date().toISOString(),
         page_url: location.href
       }, attribution());

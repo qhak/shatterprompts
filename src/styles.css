@@ -471,17 +471,6 @@ p + p { margin-top: 1rem; }
 }
 .error[hidden] { display: none; }
 
-.consent {
-  display: grid; grid-template-columns: auto 1fr; gap: .875rem;
-  align-items: start; cursor: pointer;
-  padding-block: .5rem; min-height: 2.75rem;
-}
-.consent input {
-  width: 1.125rem; height: 1.125rem; margin-top: .3125rem;
-  accent-color: var(--accent); flex: 0 0 auto;
-}
-.consent span { font-size: .875rem; line-height: 1.55; color: var(--fg-dim); }
-
 .spinner {
   width: .875rem; height: .875rem; border: 2px solid currentColor;
   border-top-color: transparent; border-radius: 50%;

@@ -307,7 +307,8 @@ async function pushToMailerLite(env, lead) {
   if (map[lead.pack_slug]) groups.push(String(map[lead.pack_slug]));
   else if (env.MAILERLITE_GROUP_ID) groups.push(String(env.MAILERLITE_GROUP_ID));
 
-  /* Marketing group only with explicit consent — separate from pack delivery. */
+  /* Marketing group — every signup goes in; the form's disclosure line is
+     the consent, there is no separate opt-in checkbox. */
   if (lead.marketing_consent && env.MAILERLITE_MARKETING_GROUP_ID) {
     groups.push(String(env.MAILERLITE_MARKETING_GROUP_ID));
   }

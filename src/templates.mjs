@@ -366,18 +366,12 @@ export function packPage({ site, pack }) {
       <span class="error" id="email-error" role="alert" hidden data-error></span>
     </div>
 
-    <label class="consent" for="marketing">
-      <input type="checkbox" id="marketing" name="marketing" data-consent
-             data-consent-text="Send me occasional emails about new packs.">
-      <span>Also send me occasional emails about new packs. Optional — you get this pack either way.</span>
-    </label>
-
     <button class="btn btn--full" type="submit" data-submit
             data-label="Get the ${esc(pack.navLabel)} pack">Get the ${esc(pack.navLabel)} pack</button>
   </form>
 
   <p class="small mt-s">
-    We use your email to send you this pack and, if you tick the box, occasional emails about new packs.
+    We use your email to send you this pack and occasional emails about new packs. Unsubscribe anytime.
     <a href="/privacy" style="color:var(--fg)">Privacy</a>.
   </p>
   ${note}
@@ -662,8 +656,9 @@ export function privacyPage({ site }) {
        transmitted to us or to any third party, and no email is sent. This page will be updated when that changes.</p>`}
 
   <h2>Marketing emails</h2>
-  <p>The marketing checkbox is optional and separate from getting the pack. If you leave it unticked you still get
-  the pack and we will not add you to a marketing list. If you tick it, you can unsubscribe from any email we send.</p>
+  <p>Requesting a pack also adds you to our list for occasional emails about new packs — there is no separate
+  opt-in step. Every email we send includes an unsubscribe link, and unsubscribing does not affect your access
+  to any pack you have already requested.</p>
 
   <h2>Analytics</h2>
   <p>We record which pages are viewed and which buttons are used, together with the link parameters above, so we can
