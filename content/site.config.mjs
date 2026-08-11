@@ -104,7 +104,7 @@ export const SITE = {
   },
 
   /* Contact + legal. Leave a value empty and the link is simply not rendered. */
-  supportEmail: "",
+  supportEmail: "hello@shatterprompts.com",
   instagram: "",
 
   /* Legal pages are generated from this text. Replace with your own wording. */
