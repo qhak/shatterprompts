@@ -168,12 +168,39 @@ export const PACKS = [
     },
     previews: [],
     prompts: [
+      { title: "Capture everything", text: `I want to get every task, commitment and nagging thought out of my head. Ask me questions across four buckets — work, home, unfinished projects, and things I said I would "get to eventually" — until I have said I have nothing left in each one.
+
+Then hand back the full list as a single dump, unsorted, ready for prioritising.` },
       { title: "Sort the task dump", text: `Here is everything on my plate this week: [DUMP].
 
 Sort it into Do Now (moves my main goal forward), Schedule, Delegate, and Delete. For every Do Now item give a realistic time estimate and the single first physical action.` },
+      { title: "Find the real priority", text: `Here is my sorted task list: [LIST].
+
+Run it through urgent/important, but push further than the usual four boxes — for every "urgent but not important" item, tell me who else could realistically do it, and for every "important but not urgent" item, tell me the cost of delaying it one more week.` },
       { title: "Plan the week", text: `I have [N] hours of focused time this week and this goal: [GOAL].
 
 Build a weekly schedule with 90-minute deep-work blocks, what I work on in each, and what I explicitly will not do this week. Flag any block that looks unrealistic.` },
+      { title: "Pick tomorrow's one thing", text: `Here is tomorrow's task list: [LIST] and this week's main goal: [GOAL].
+
+Pick the single task that would make the rest of the day feel like a win even if nothing else got done, and explain in one line why it beats the others.` },
+      { title: "Map energy to task type", text: `Here is roughly how my energy and focus move through a typical day: [DESCRIPTION].
+
+Match my task types — deep work, admin, meetings, creative — to the times I am actually suited to them, and flag the one task I am currently scheduling at the worst possible time.` },
+      { title: "Audit the recurring meetings", text: `Here is my recurring meeting schedule: [LIST], with who runs each one and roughly what it covers.
+
+For each meeting, recommend keep, shorten, make it async, or cut — with a one-line reason for each — and estimate the hours per month I would get back.` },
+      { title: "Build an inbox triage system", text: `My inbox has [N] unread emails and I check it [FREQUENCY].
+
+Design a simple triage system with no more than four categories, a rule for what gets an immediate reply versus a scheduled one, and one habit that stops it building back up.` },
+      { title: "Diagnose the avoided task", text: `There is one task I keep pushing to tomorrow: [TASK]. I have avoided it for [HOW LONG].
+
+Ask me questions to find out whether I am avoiding it because it is unclear, boring, hard, or scary — then, based on the real reason, give me the smallest possible first step that gets it moving today.` },
+      { title: "Write the delegation handoff", text: `I want to hand off this task to [PERSON]: [TASK DESCRIPTION].
+
+Write the handoff message: what needs doing, the outcome I actually care about, any constraints, and the one check-in point I need before it's finished — short enough that they will actually read it.` },
+      { title: "Turn the fix into a system", text: `This kept going wrong this month: [PROBLEM], and I fixed it once by [WHAT I DID].
+
+Turn that one-off fix into a repeatable system or checklist so I do not have to solve the same problem from scratch next time.` },
       { title: "Review the gap", text: `Compare what I planned — [PLANNED] — with what I finished: [FINISHED].
 
 Identify the two patterns causing the gap, then propose one change to my routine, one only, and how I will measure it next week.` }
@@ -205,15 +232,42 @@ Identify the two patterns causing the gap, then propose one change to my routine
     },
     previews: [],
     prompts: [
+      { title: "Find what you don't actually understand", text: `I am about to start studying [TOPIC] and have [TIME] before [EXAM OR DEADLINE].
+
+Ask me five quick questions about it to find out what I already know versus what I am fuzzy on, then tell me honestly where to actually spend my limited time.` },
       { title: "Build the plan", text: `I need to learn [TOPIC] for [EXAM OR PURPOSE] by [DATE] and can study [HOURS] per week.
 
 Break the topic into subtopics, order them by dependency, and build a week-by-week plan with review days built in.` },
+      { title: "Turn notes into flashcards", text: `Here are my notes on [TOPIC]: [PASTE].
+
+Turn them into 15 flashcard-style question-and-answer pairs, ordered from foundational to advanced, each testing one single fact or idea rather than several at once.` },
       { title: "Explain it three ways", text: `Explain [CONCEPT] three times: first in plain language for a beginner, then with a concrete worked example, then in the precise technical wording an examiner would expect.
 
 Finish with the three mistakes students most often make with it.` },
+      { title: "Untangle two concepts I keep confusing", text: `I keep mixing up [CONCEPT A] and [CONCEPT B].
+
+Explain the core difference in one sentence, then give me a side-by-side comparison and a memory trick that would stop me confusing them in an exam.` },
+      { title: "Teach it back", text: `I am going to explain [CONCEPT] to you in my own words: [MY EXPLANATION].
+
+Tell me honestly what I got right, what I got wrong or oversimplified, and the one gap in my explanation an examiner would catch immediately.` },
+      { title: "Find the gaps with practice questions", text: `Quiz me on [TOPIC] with five short-answer questions, no multiple choice.
+
+After each answer, tell me whether I am right, and if I am wrong, do not just give the correct answer — explain the specific misunderstanding that likely caused my mistake.` },
       { title: "Adaptive quiz", text: `Quiz me on [TOPIC]. Ask one question at a time, wait for my answer, then tell me whether I am right, why, and what the ideal answer includes.
 
-Start easy and increase difficulty each time I answer correctly. Ten questions total.` }
+Start easy and increase difficulty each time I answer correctly. Ten questions total.` },
+      { title: "Build a spaced-repetition schedule", text: `I need to remember these [N] topics long-term, not just until the exam on [DATE]: [LIST].
+
+Build a spaced-repetition review schedule — when to first review each one, and the increasing gaps after that — that fits around the rest of my study plan.` },
+      { title: "Run a timed practice under exam conditions", text: `Give me a [LENGTH]-minute practice question on [TOPIC], written in the style and difficulty of a real exam question, and tell me to stop and answer before reading further.
+
+Once I answer, mark it as an examiner would — award marks, not just right or wrong — and show exactly where marks were lost.` },
+      { title: "Debug a wrong answer", text: `Here is a question I got wrong: [QUESTION], and the answer I gave: [MY ANSWER]. The correct answer is [CORRECT ANSWER].
+
+Do not just explain the correct answer — work backwards from my wrong answer to find the exact step where my reasoning went off track.` },
+      { title: "Build the pre-exam cram sheet", text: `My exam on [TOPIC] is in [TIME] and here are my full notes: [PASTE].
+
+Condense everything into a single-page cram sheet: only the facts, formulas or arguments most likely to actually appear, nothing I already know cold.` }
     ]
   },
 
@@ -246,12 +300,39 @@ Start easy and increase difficulty each time I answer correctly. Ten questions t
       { title: "Categorise spending", text: `Here are my monthly income and expenses: [PASTE].
 
 Group the spending into fixed, variable and optional. Show totals, the percentage of income for each group, and the three largest reduction opportunities. Educational analysis only — not financial advice.` },
+      { title: "Map the picture", text: `Ask me ten questions, one at a time, to map my current financial situation.
+
+At the end, summarise it in one page: what is clear, what is missing, and what I should track for 30 days.` },
       { title: "Budget template", text: `Build a simple monthly budget template for someone earning [AMOUNT] with these commitments: [LIST].
 
 Include a starting savings target, a small buffer, and a plain explanation of what to do in a month where income drops.` },
-      { title: "Map the picture", text: `Ask me ten questions, one at a time, to map my current financial situation.
+      { title: "Set a specific savings goal", text: `I want to save [AMOUNT] for [GOAL] by [DATE], and I currently save about [CURRENT AMOUNT] per month.
 
-At the end, summarise it in one page: what is clear, what is missing, and what I should track for 30 days.` }
+Work out whether the timeline is realistic, show the monthly amount actually required, and suggest two ways to close the gap if there is one. Educational only — not financial advice.` },
+      { title: "Build an emergency fund plan", text: `My essential monthly expenses are [AMOUNT] and I currently have [CURRENT SAVINGS] saved.
+
+Work out a sensible emergency fund target for my situation, and a realistic monthly contribution to get there from where I am now. Educational only — not financial advice.` },
+      { title: "Understand my debt payoff order", text: `Here are my debts with balances and interest rates: [LIST].
+
+Explain the difference between paying off highest-interest-first versus smallest-balance-first, show what each would look like for my actual numbers, and let me decide which fits my situation. Educational only — not financial advice.` },
+      { title: "Audit recurring subscriptions", text: `Here is everything I am subscribed to and what each costs: [LIST].
+
+Group them into clearly worth it, unclear, and probably not worth it, based on how often I actually mentioned using them, and total the monthly cost of the ones I should reconsider.` },
+      { title: "Write a bill negotiation script", text: `I want to try negotiating my bill for [SERVICE], currently costing [AMOUNT] per month, and I have been a customer for [LENGTH OF TIME].
+
+Write a short script I could use on a call or in writing, including a fallback ask if they will not lower the price.` },
+      { title: "Explain a financial term simply", text: `Explain [TERM] to me in plain English, no jargon, with a concrete example using round numbers.
+
+Then tell me the one situation where getting this wrong actually costs people money.` },
+      { title: "Compare a big purchase", text: `I am deciding between two options: [OPTION A] costing [PRICE A], and [OPTION B] costing [PRICE B].
+
+Lay out the true cost of each including any ongoing costs, then list the questions I should be asking myself before either purchase — not which one to pick. Educational only — not financial advice.` },
+      { title: "Plan for a large irregular expense", text: `I know [EXPENSE] is coming up in about [TIMEFRAME] and will cost roughly [AMOUNT].
+
+Work out how much I would need to set aside per month between now and then, and suggest where in my current budget that money could realistically come from.` },
+      { title: "Design a 30-day spending challenge", text: `I want to cut spending in [CATEGORY] for the next 30 days without making my life miserable.
+
+Design a simple challenge with one clear rule, a way to track it daily that takes under a minute, and a realistic reward if I stick to it.` }
     ]
   },
 
@@ -281,15 +362,42 @@ At the end, summarise it in one page: what is clear, what is missing, and what I
     },
     previews: [],
     prompts: [
+      { title: "Set a specific, realistic goal", text: `My general goal is [GOAL] and I have [TIMEFRAME] and can train [N] days per week.
+
+Turn that into one specific, measurable target, and tell me honestly whether the timeframe is realistic for it. General educational guidance only.` },
       { title: "Weekly structure", text: `Build a realistic weekly training structure for someone training [N] days per week with access to [EQUIPMENT] and this goal: [GOAL].
 
 Show the split, the main movement per session, and how to progress week to week. General educational guidance only.` },
+      { title: "Build a warm-up and mobility routine", text: `My main training days are [DAYS OR TYPES OF SESSIONS], and I tend to feel tight in [AREAS].
+
+Build a 10-minute warm-up and mobility routine to do before training, tailored to what I am about to train that day. General educational guidance only.` },
+      { title: "Plan progressive overload", text: `Here is what I lifted or did last week for [EXERCISE OR SESSION TYPE]: [NUMBERS].
+
+Suggest how to progress it over the next four weeks without jumping too fast, and tell me the signs I should hold at the current level instead of increasing. General educational guidance only.` },
+      { title: "Build a no-equipment alternative", text: `My usual session is [SESSION DESCRIPTION] but I will not have access to [EQUIPMENT] for the next [TIMEFRAME].
+
+Rebuild the session with bodyweight or minimal-equipment alternatives that train the same movement patterns. General educational guidance only.` },
       { title: "Meal ideas", text: `Give me ten meal ideas that fit roughly [CALORIES] kcal and [PROTEIN]g protein using ingredients from this list: [LIST].
 
 Show approximate macros and prep time per meal, and flag which ones batch-cook well.` },
+      { title: "Turn the meal plan into a grocery list", text: `Here are the meals I am planning to cook this week: [LIST].
+
+Turn them into a single grocery list grouped by supermarket section, with quantities, so I am not guessing in the shop.` },
       { title: "Consistency review", text: `Review my last four weeks of training and food notes below.
 
-Identify what I have actually been consistent with, what I have avoided, and the single smallest change most likely to improve consistency. NOTES: [PASTE]` }
+Identify what I have actually been consistent with, what I have avoided, and the single smallest change most likely to improve consistency. NOTES: [PASTE]` },
+      { title: "Get back on track after a missed week", text: `I missed most of my training and meal plan last week because [REASON].
+
+Do not just tell me to try harder — give me a realistic plan to get back into it this week without trying to make up for everything I missed at once.` },
+      { title: "Check in on sleep and recovery", text: `Here is roughly how I have been sleeping and recovering this week: [DESCRIPTION], and here is my training: [SESSIONS].
+
+Ask me follow-up questions to figure out whether my training load matches my recovery, and flag if something needs to change before I keep pushing.` },
+      { title: "Think through persistent discomfort", text: `I have been getting [DESCRIPTION OF DISCOMFORT] during or after [ACTIVITY], for about [HOW LONG].
+
+Ask me questions to help me describe it clearly enough to explain to a physiotherapist or doctor — this is not a diagnosis, and persistent or worsening pain should always be checked by a professional.` },
+      { title: "Plan a deload week", text: `I have been training hard for [N] weeks without a real break, doing roughly [TRAINING SUMMARY].
+
+Build a one-week deload — reduced volume or intensity, not a full stop — and tell me what signs would mean I actually need more than one easy week. General educational guidance only.` }
     ]
   }
 ];
