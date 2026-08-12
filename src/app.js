@@ -641,9 +641,25 @@
     if (existing && existing.token) {
       fetchPremiumContent(existing.token);
     } else {
+      /* A durable access link (from the purchase-confirmation email, valid on
+         any device) carries its own token directly — no session_id, no
+         Stripe redirect involved. Same idea as the free access page's ?t=. */
+      var urlToken = new URLSearchParams(location.search).get("t") || "";
       var sessionId = new URLSearchParams(location.search).get("session_id") || "";
 
-      if (sessionId && purchaseEndpoint) {
+      if (urlToken && premiumEndpoint) {
+        fetch(premiumEndpoint + "?slug=" + encodeURIComponent(PAGE.slug) + "&t=" + encodeURIComponent(urlToken))
+          .then(function (res) { return res.json().catch(function () { return {}; }); })
+          .then(function (data) {
+            if (data && data.ok && data.prompts && data.prompts.length) {
+              grantPurchase(data.pack_slug || PAGE.slug, { token: urlToken, ts: new Date().toISOString() });
+              showPurchaseGranted(data.prompts);
+            } else {
+              showPurchaseGate("This link is not valid for this pack. If you think that's wrong, contact us.");
+            }
+          })
+          .catch(function () { showPurchaseGate(); });
+      } else if (sessionId && purchaseEndpoint) {
         var purchaseAttempts = 0;
         (function tryVerifyPurchase() {
           purchaseAttempts++;

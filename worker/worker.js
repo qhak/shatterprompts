@@ -139,7 +139,20 @@ async function subscribe(req, body, env, cors) {
      a MailerLite automation on the pack's group. */
   let addedToMailerLite = false;
   try {
-    addedToMailerLite = await pushToMailerLite(env, lead);
+    const groups = [];
+    const map = parseJson(env.MAILERLITE_GROUPS) || {};
+    if (map[lead.pack_slug]) groups.push(String(map[lead.pack_slug]));
+    else if (env.MAILERLITE_GROUP_ID) groups.push(String(env.MAILERLITE_GROUP_ID));
+    /* Marketing group — every signup goes in; the form's disclosure line is
+       the consent, there is no separate opt-in checkbox. */
+    if (lead.marketing_consent && env.MAILERLITE_MARKETING_GROUP_ID) {
+      groups.push(String(env.MAILERLITE_MARKETING_GROUP_ID));
+    }
+    addedToMailerLite = await pushToMailerLite(env, {
+      email: lead.email,
+      groups,
+      fields: { pack: lead.pack_slug, source: lead.source, campaign: lead.campaign }
+    });
   } catch (err) {
     addedToMailerLite = false;
   }
@@ -289,7 +302,32 @@ async function grantPurchase(session, env) {
        the buyer still having their original session_id. */
     await env.LEADS.put(`entitlement:${email}:${packSlug}`, JSON.stringify(record), { expirationTtl: 60 * 60 * 24 * 400 });
     await env.LEADS.put(`purchase-access:${token}`, JSON.stringify({ email, pack_slug: packSlug }), { expirationTtl: 60 * 60 * 24 * 400 });
+  } catch (err) {
+    return; // could not persist the grant — do not send an email pointing at a token that was never saved
+  }
+
+  /* Confirmation email with a permanent access link — the token above lives
+     400 days and works from any device, unlike the one-time session_id in
+     Stripe's redirect. Landing page is always a real pack slug (never "*")
+     since a route has to exist; premium-content still honours "*" tokens on
+     any pack, and app.js caches that correctly once used once. */
+  try {
+    await pushToMailerLite(env, {
+      email,
+      groups: env.MAILERLITE_PURCHASE_GROUP_ID ? [String(env.MAILERLITE_PURCHASE_GROUP_ID)] : [],
+      fields: {
+        pack_name: packDisplayName(packSlug),
+        access_link: `https://shatterprompts.com/${isBundle ? "freelancing" : packSlug}/premium?t=${token}`
+      }
+    });
   } catch (err) {}
+}
+
+/* "local-business" -> "Local Business". Bundle gets its own copy since there
+   is no single pack name to show. */
+function packDisplayName(slug) {
+  if (slug === "*") return "the full bundle — all 6 packs";
+  return slug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 }
 
 /* GET /purchase?session_id=... — looks up an entitlement written by the
@@ -350,7 +388,11 @@ async function premiumContent(url, env, cors) {
   }
 
   if (!prompts || !prompts.length) return json({ ok: false, error: "not_found" }, 404, cors);
-  return json({ ok: true, prompts }, 200, cors);
+  /* pack_slug included so the client can tell a bundle grant ("*") apart from
+     a single-pack one and cache it under the right key — see app.js's direct
+     ?t= branch, which needs this to unlock every other pack too, not just
+     the one the emailed link happened to point at. */
+  return json({ ok: true, prompts, pack_slug: grant.pack_slug }, 200, cors);
 }
 
 /* -------------------------------------------------------- admin content ingest
@@ -390,36 +432,20 @@ async function adminIngestPremiumContent(req, env) {
 }
 
 /* ---------------------------------------------------------------- MailerLite */
-async function pushToMailerLite(env, lead) {
+/* Generic MailerLite upsert — shared by the free-pack signup flow (subscribe())
+   and the post-purchase flow (grantPurchase()). Each caller builds its own
+   groups/fields; this just does the HTTP call.
+   Custom fields let one automation branch by pack/source instead of you
+   building ten of them. Create field names in MailerLite first — unknown
+   field names are silently dropped by their API, not rejected. */
+async function pushToMailerLite(env, { email, groups, fields }) {
   if (!env.MAILERLITE_API_KEY) return false;
-
-  const groups = [];
-
-  /* Per-pack delivery group — this is what the pack automation listens to. */
-  const map = parseJson(env.MAILERLITE_GROUPS) || {};
-  if (map[lead.pack_slug]) groups.push(String(map[lead.pack_slug]));
-  else if (env.MAILERLITE_GROUP_ID) groups.push(String(env.MAILERLITE_GROUP_ID));
-
-  /* Marketing group — every signup goes in; the form's disclosure line is
-     the consent, there is no separate opt-in checkbox. */
-  if (lead.marketing_consent && env.MAILERLITE_MARKETING_GROUP_ID) {
-    groups.push(String(env.MAILERLITE_MARKETING_GROUP_ID));
-  }
-
-  /* Custom fields let one automation branch by pack/source instead of you
-     building ten of them. Create these fields in MailerLite first — unknown
-     field names are silently dropped by their API, not rejected. */
-  const fields = {
-    pack: lead.pack_slug,
-    source: lead.source,
-    campaign: lead.campaign
-  };
 
   /* New API (Bearer). status:"active" matters — with double opt-in enabled a
      pending subscriber never triggers the automation, so the pack never sends. */
   try {
-    const payload = { email: lead.email, status: "active", fields };
-    if (groups.length) payload.groups = groups;
+    const payload = { email, status: "active", fields };
+    if (groups && groups.length) payload.groups = groups;
 
     const r = await fetch("https://connect.mailerlite.com/api/subscribers", {
       method: "POST",
@@ -436,7 +462,7 @@ async function pushToMailerLite(env, lead) {
 
   /* Classic API fallback for older keys. */
   try {
-    const groupId = groups[0];
+    const groupId = groups && groups[0];
     const url = groupId
       ? `https://api.mailerlite.com/api/v2/groups/${groupId}/subscribers`
       : "https://api.mailerlite.com/api/v2/subscribers";
@@ -444,7 +470,7 @@ async function pushToMailerLite(env, lead) {
     const r = await fetch(url, {
       method: "POST",
       headers: { "X-MailerLite-ApiKey": env.MAILERLITE_API_KEY, "Content-Type": "application/json" },
-      body: JSON.stringify({ email: lead.email, fields, resubscribe: true })
+      body: JSON.stringify({ email, fields, resubscribe: true })
     });
     return r.ok;
   } catch (err) {
