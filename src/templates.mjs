@@ -443,6 +443,9 @@ export function accessPage({ site, pack }) {
   const upgrade = premiumUpsell({ site, pack, heading: "When you have worked through these" });
 
   const note = pack.note ? `<p class="small mt-m">${esc(pack.note)}</p>` : "";
+  const googleDocLink = pack.googleDocUrl
+    ? `<p class="small mt-s"><a href="${esc(pack.googleDocUrl)}" target="_blank" rel="noopener">Save your own copy as a Google Doc &rarr;</a></p>`
+    : "";
 
   const main = `
 <section class="hero wrap">
@@ -461,6 +464,7 @@ export function accessPage({ site, pack }) {
     <p class="lead mt-s" data-access-status>Your pack is ready below.</p>
     <p class="small mt-m">${count} prompts, in the order to use them. Each one feeds the next.</p>
     ${note}
+    ${googleDocLink}
   </div>
 </section>
 

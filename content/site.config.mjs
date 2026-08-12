@@ -162,6 +162,7 @@ export const PACKS = [
     benefits: ["Decide what not to do", "Estimate time honestly", "Find the pattern behind the gap"],
     sequence: { lead: "Prompts in a sensible order.", steps: ["Capture everything", "Sort by impact", "Block the week", "Review honestly"] },
     upgrade: { name: "", blurb: "", checkoutUrl: "", price: null },
+    googleDocUrl: "https://docs.google.com/document/d/1jgwo0KlIhwjLrzuDdOIs5k9PPJR8V_3zwhEcHxqJkWQ/edit",
     seo: {
       title: "Free Productivity AI Prompt Pack — Plan a week you can execute",
       description: "Practical AI prompts for sorting tasks by impact, planning deep work, and reviewing the week honestly. Free."
@@ -226,6 +227,7 @@ Identify the two patterns causing the gap, then propose one change to my routine
     benefits: ["Study in the right order", "Find the gap before the exam", "Test recall instead of rereading"],
     sequence: { lead: "Prompts in a sensible order.", steps: ["Break down the topic", "Plan the weeks", "Explain and check", "Test recall"] },
     upgrade: { name: "", blurb: "", checkoutUrl: "", price: null },
+    googleDocUrl: "https://docs.google.com/document/d/1tlk6GdrfTPHvd2T9oB4ZXlSHadtgy73SGoAweT7ISXs/edit",
     seo: {
       title: "Free Study and Learning AI Prompt Pack — Learn difficult material",
       description: "Practical AI prompts for building a study plan, getting clear explanations, and testing recall. Free."
@@ -291,6 +293,7 @@ Condense everything into a single-page cram sheet: only the facts, formulas or a
     sequence: { lead: "Prompts in a sensible order.", steps: ["Gather the numbers", "Categorise", "Set a target", "Track for 30 days"] },
     note: "Educational templates only. Not financial advice.",
     upgrade: { name: "", blurb: "", checkoutUrl: "", price: null },
+    googleDocUrl: "https://docs.google.com/document/d/1_IdLPNuXPF_Yad0otNGZSGBiKrmCWvJVyvhF8e-tYNY/edit",
     seo: {
       title: "Free Personal Finance AI Prompt Pack — Organise your money picture",
       description: "Practical AI prompts for categorising spending, building a budget template and mapping your financial position. Educational only."
@@ -356,6 +359,7 @@ Design a simple challenge with one clear rule, a way to track it daily that take
     sequence: { lead: "Prompts in a sensible order.", steps: ["Set the structure", "Plan the food", "Track", "Review"] },
     note: "Educational templates only. Not medical advice.",
     upgrade: { name: "", blurb: "", checkoutUrl: "", price: null },
+    googleDocUrl: "https://docs.google.com/document/d/1nChYS-B87UI4HcZZ2SJ0nQZb1Fg0vH2PWJlxHVX-veg/edit",
     seo: {
       title: "Free Fitness and Nutrition AI Prompt Pack — Build a routine you keep",
       description: "Practical AI prompts for structuring weekly training, planning meals and reviewing consistency. Educational only."

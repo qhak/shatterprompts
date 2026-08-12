@@ -58,6 +58,10 @@ export default {
     downloadUrl: "https://shatterprompts.com/local-business/premium"
   },
 
+  /* Free pack, formatted as a Google Doc — offered as a save-your-own-copy
+     option alongside the on-page unlock, not as the delivery mechanism. */
+  googleDocUrl: "https://docs.google.com/document/d/1iWNtXGPSYJRT-LLJYS5hRmExakFc3hneuS2wAGAiH6I/edit",
+
   seo: {
     title: "Free Local Business AI Prompt Pack — Turn local problems into a service",
     description: "25 practical AI prompts to find local business problems, package a service, price it, and write a first message to the owner. Free."

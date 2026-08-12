@@ -17,6 +17,11 @@ SHATTERPROMPTS-ALL-CODE.txt
 content/premium/*.json
 content/free/*.json
 
+# Raw content-generation source material (docx drafts, Reel scripts, photo
+# slides, SFX, business analysis) — not code, not deployed, kept alongside
+# the project for convenience but never committed.
+content-source-materials/
+
 # Ruflo local secrets and runtime data
 .env.local
 .env.*.local

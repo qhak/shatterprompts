@@ -58,6 +58,10 @@ export default {
     downloadUrl: "https://shatterprompts.com/job-search/premium"
   },
 
+  /* Free pack, formatted as a Google Doc — offered as a save-your-own-copy
+     option alongside the on-page unlock, not as the delivery mechanism. */
+  googleDocUrl: "https://docs.google.com/document/d/1e_Wdo6ly06h2AqtxNgy-75Pn5vOZ2F7y2vqDIm0FmXs/edit",
+
   seo: {
     title: "Free Job Search AI Prompt Pack — Build stronger applications",
     description: "25 practical AI prompts to target the right roles, rebuild your CV on evidence, tailor applications, and rehearse interview answers. Free."

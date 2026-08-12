@@ -63,6 +63,10 @@ export default {
     downloadUrl: "https://shatterprompts.com/freelancing/premium"
   },
 
+  /* Free pack, formatted as a Google Doc — offered as a save-your-own-copy
+     option alongside the on-page unlock, not as the delivery mechanism. */
+  googleDocUrl: "https://docs.google.com/document/d/180IxWzIzCIHcabib3tfGm4W4y8Mb9FY6MijgcPbJzog/edit",
+
   seo: {
     title: "Free Freelancing AI Prompt Pack — Find a service people will pay for",
     description: "25 detailed AI prompts to choose a freelance service, package the offer, set a price, build proof and win a first client. Free."

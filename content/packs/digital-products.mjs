@@ -58,6 +58,10 @@ export default {
     downloadUrl: "https://shatterprompts.com/digital-products/premium"
   },
 
+  /* Free pack, formatted as a Google Doc — offered as a save-your-own-copy
+     option alongside the on-page unlock, not as the delivery mechanism. */
+  googleDocUrl: "https://docs.google.com/document/d/1VeZXPx1pr9FPsBjOJC2HN0FmHjHWg-Df6LR7kcF7BKY/edit",
+
   seo: {
     title: "Free Digital Products AI Prompt Pack — Build a product people want",
     description: "25 practical AI prompts to find a real problem, validate demand, package a digital product and write the first sales page. Free."

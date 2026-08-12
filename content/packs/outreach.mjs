@@ -58,6 +58,10 @@ export default {
     downloadUrl: "https://shatterprompts.com/outreach/premium"
   },
 
+  /* Free pack, formatted as a Google Doc — offered as a save-your-own-copy
+     option alongside the on-page unlock, not as the delivery mechanism. */
+  googleDocUrl: "https://docs.google.com/document/d/1Jw4R7qo7Ya-uAIRnjEiq_m6f9I9yo2PBmEwC1bc0D-k/edit",
+
   seo: {
     title: "Free Cold Outreach AI Prompt Pack — Write outreach that earns a reply",
     description: "25 practical AI prompts to research prospects, find a real problem, write personal cold emails and DMs, and follow up properly. Free."

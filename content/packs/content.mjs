@@ -58,6 +58,10 @@ export default {
     downloadUrl: "https://shatterprompts.com/content/premium"
   },
 
+  /* Free pack, formatted as a Google Doc — offered as a save-your-own-copy
+     option alongside the on-page unlock, not as the delivery mechanism. */
+  googleDocUrl: "https://docs.google.com/document/d/1Eyf16rfXjjA5qnq-mSeBz1mdCbxjW9Ld3C_r5rWLyw8/edit",
+
   seo: {
     title: "Free Content Creation AI Prompt Pack — Content that creates demand",
     description: "25 practical AI prompts for content pillars, hooks, short-form scripts, captions, calls to action and a simple posting system. Free."

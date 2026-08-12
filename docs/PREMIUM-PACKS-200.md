@@ -12,12 +12,12 @@ for every situation that comes up afterwards.
 
 | # | Niche | Slug | Free pack | Premium |
 |---|-------|------|-----------|---------|
-| 01 | Freelancing | `freelancing` | 25 done | 0 / 200 |
-| 02 | Cold outreach | `outreach` | 25 done | 0 / 200 |
-| 03 | Content creation | `content` | 25 done | 0 / 200 |
-| 04 | Local business | `local-business` | 25 done | 0 / 200 |
-| 05 | Digital products | `digital-products` | 25 done | 0 / 200 |
-| 06 | Job search | `job-search` | needs writing | 0 / 200 |
+| 01 | Freelancing | `freelancing` | 25 done | 200 / 200 |
+| 02 | Cold outreach | `outreach` | 25 done | 200 / 200 |
+| 03 | Content creation | `content` | 25 done | 200 / 200 |
+| 04 | Local business | `local-business` | 25 done | 200 / 200 |
+| 05 | Digital products | `digital-products` | 25 done | 200 / 200 |
+| 06 | Job search | `job-search` | 25 done | 200 / 200 |
 
 ---
 
