@@ -48,6 +48,8 @@ export const SITE = {
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
   plausible.init()
 </script>
+<!-- Lucid Analytics (self-hosted, cookieless) -->
+<script defer data-domain="shatterprompts.com" src="https://lucid-analytics.nicholasdrew62.workers.dev/tracker.js"></script>
 `,
       plausibleDomain: "",   // fallback: classic data-domain embed, e.g. "shatterprompts.com"
       gaMeasurementId: "",   // e.g. "G-XXXXXXX"

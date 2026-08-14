@@ -126,6 +126,9 @@
     if (typeof window.plausible === "function") {
       window.plausible(name, { props: compact(payload) });
     }
+    if (typeof window.stats === "function") {
+      window.stats(name, compact(payload));
+    }
     if (typeof window.gtag === "function") {
       window.gtag("event", name, compact(payload));
     }
