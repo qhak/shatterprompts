@@ -151,6 +151,10 @@ async function build() {
   await writeFile(join(OUT, "favicon.svg"), FAVICON, "utf8");
   await writeFile(join(OUT, "social-preview.png"), makeOgImage());
 
+  /* Google Search Console ownership verification (HTML file method). */
+  await writeFile(join(OUT, "google47e58fafcbf4ab45.html"),
+    "google-site-verification: google47e58fafcbf4ab45.html\n", "utf8");
+
   /* robots.txt + sitemap.xml — access pages are excluded from both */
   const origin = SITE.origin.replace(/\/$/, "");
   await writeFile(join(OUT, "robots.txt"),
