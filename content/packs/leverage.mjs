@@ -54,7 +54,7 @@ export default {
     downloadUrl: ""
   },
 
-  googleDocUrl: "https://docs.google.com/document/d/1u5SypPctKAsqqf1QUO8sHklqKy-uRcgyWBh48N4vCBQ/edit",
+  googleDocUrl: "https://docs.google.com/document/d/1M5A0qVob3lgH_bJrfl3FZswvRV_GzxShOfbAEIcgBs0/edit",
 
   seo: {
     title: "Free Leverage AI Prompt Pack — Money, career, dating, body, content",
