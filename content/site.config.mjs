@@ -20,7 +20,7 @@ import jobSearch        from "./packs/job-search.mjs";
 import leverage         from "./packs/leverage.mjs";
 
 export const SITE = {
-  name: "SHATTERPROMPTS",
+  name: "ShatterPrompts",
   /* Change this one line if the domain changes. Everything canonical/OG uses it. */
   origin: "https://shatterprompts.com",
 
@@ -113,7 +113,7 @@ export const SITE = {
   /* Legal pages are generated from this text. Replace with your own wording. */
   legal: {
     /* Set to a real trading name/address before you collect email at scale. */
-    entityName: "SHATTERPROMPTS",
+    entityName: "ShatterPrompts",
     lastUpdated: "2 August 2026"
   }
 };

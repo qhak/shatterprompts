@@ -646,7 +646,7 @@ ${secondaryPacks.length ? `
     site,
     title: `All free AI prompt packs — ${site.name}`,
     description:
-      "Every free SHATTERPROMPTS pack: freelancing, cold outreach, content, local business, digital products and more.",
+      "Every free ShatterPrompts pack: freelancing, cold outreach, content, local business, digital products and more.",
     path: "/packs",
     page: { type: "packs" },
     main
@@ -708,7 +708,7 @@ export function privacyPage({ site }) {
   return layout({
     site,
     title: `Privacy — ${site.name}`,
-    description: "What SHATTERPROMPTS collects, why, and how to have it removed.",
+    description: "What ShatterPrompts collects, why, and how to have it removed.",
     path: "/privacy",
     page: { type: "legal" },
     main
@@ -756,7 +756,7 @@ export function termsPage({ site }) {
   return layout({
     site,
     title: `Terms — ${site.name}`,
-    description: "Terms for using SHATTERPROMPTS prompt packs.",
+    description: "Terms for using ShatterPrompts prompt packs.",
     path: "/terms",
     page: { type: "legal" },
     main
