@@ -56,7 +56,7 @@ function premiumUpsell({ site, pack, heading }) {
 /* SHELL                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export function layout({ site, title, description, path, page, main, ogType = "website" }) {
+export function layout({ site, title, description, path, page, main, ogType = "website", extraJsonLd = null }) {
   const canonical = site.origin.replace(/\/$/, "") + path;
   const ogImage = `${site.origin.replace(/\/$/, "")}/social-preview.png`;
 
@@ -101,6 +101,16 @@ export function layout({ site, title, description, path, page, main, ogType = "w
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${esc(ogImage)}">
+
+<script type="application/ld+json">${jsonForScript({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": site.name,
+    "url": site.origin,
+    "logo": ogImage,
+    "description": site.tagline
+  })}</script>
+${extraJsonLd ? `<script type="application/ld+json">${jsonForScript(extraJsonLd)}</script>` : ""}
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -393,6 +403,13 @@ export function packPage({ site, pack }) {
 </section>
 ${upgrade}`;
 
+  const premReady = prem.ready && /^https:\/\//.test(prem.checkoutUrl || "");
+  const currency = site.commerce?.currency || "USD";
+  const offers = [{ "@type": "Offer", "name": pack.name, "price": "0", "priceCurrency": currency, "url": `${site.origin}${packUrl(pack.slug)}` }];
+  if (premReady && site.commerce?.pack?.price) {
+    offers.push({ "@type": "Offer", "name": prem.name, "price": site.commerce.pack.price, "priceCurrency": currency, "url": prem.checkoutUrl });
+  }
+
   return layout({
     site,
     title: pack.seo.title,
@@ -406,7 +423,15 @@ ${upgrade}`;
       accessUrl: accessUrl(pack.slug)
     },
     main,
-    ogType: "article"
+    ogType: "article",
+    extraJsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": pack.name,
+      "description": pack.seo.description,
+      "brand": { "@type": "Brand", "name": site.name },
+      "offers": offers
+    }
   });
 }
 
