@@ -17,6 +17,7 @@ import content         from "./packs/content.mjs";
 import localBusiness   from "./packs/local-business.mjs";
 import digitalProducts from "./packs/digital-products.mjs";
 import jobSearch        from "./packs/job-search.mjs";
+import leverage         from "./packs/leverage.mjs";
 
 export const SITE = {
   name: "SHATTERPROMPTS",
@@ -138,6 +139,7 @@ export const PACKS = [
   localBusiness,
   digitalProducts,
   jobSearch,
+  leverage,
 
   /* ==========================================================================
      SECONDARY PACKS
