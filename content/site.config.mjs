@@ -39,16 +39,10 @@ export const SITE = {
 
     /* Optional analytics. Leave empty to use the built-in event queue only. */
     analytics: {
-      /* Plausible's own per-site install snippet, pasted verbatim from their
-         dashboard (Site Settings -> Installation). Takes priority over
-         plausibleDomain below if both are set. */
+      /* Raw analytics snippet injected into every page. Takes priority over
+         plausibleDomain below if both are set. One tracker only — running two
+         double-counts every pageview. */
       plausibleSnippet: `
-<!-- Privacy-friendly analytics by Plausible -->
-<script async src="https://plausible.io/js/pa-m52CbXGKAB6Y3EZ6wEui4.js"></script>
-<script>
-  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-  plausible.init()
-</script>
 <!-- Lucid Analytics (self-hosted, cookieless) -->
 <script defer data-domain="shatterprompts.com" src="https://lucid-analytics.nicholasdrew62.workers.dev/tracker.js"></script>
 `,
@@ -150,7 +144,7 @@ export const PACKS = [
   {
     slug: "productivity",
     tier: "secondary",
-    index: "07",
+    index: "08",
     keyword: "",
     name: "Productivity Pack",
     navLabel: "Productivity",
@@ -159,8 +153,7 @@ export const PACKS = [
     outcome: "A prioritised week with realistic time estimates.",
     headline: "Turn a crowded week into a plan you can execute.",
     support: [
-      "Prompts for sorting a task dump, planning deep work, and reviewing what actually got done.",
-      "Carried over from the earlier version of this site."
+      "Prompts for sorting a task dump, planning deep work, and reviewing what actually got done."
     ],
     inside: ["Sort a full task dump by impact", "Plan realistic deep-work blocks", "Review the gap between planned and finished"],
     benefits: ["Decide what not to do", "Estimate time honestly", "Find the pattern behind the gap"],
@@ -215,7 +208,7 @@ Identify the two patterns causing the gap, then propose one change to my routine
   {
     slug: "study",
     tier: "secondary",
-    index: "08",
+    index: "09",
     keyword: "",
     name: "Study and Learning Pack",
     navLabel: "Study and Learning",
@@ -224,8 +217,7 @@ Identify the two patterns causing the gap, then propose one change to my routine
     outcome: "A dependency-ordered study plan and a way to test recall.",
     headline: "Break difficult material into a study sequence.",
     support: [
-      "Prompts for planning revision, getting a concept explained properly, and testing yourself.",
-      "Carried over from the earlier version of this site."
+      "Prompts for planning revision, getting a concept explained properly, and testing yourself."
     ],
     inside: ["Order subtopics by dependency", "Get one concept explained three ways", "Run an adaptive self-quiz"],
     benefits: ["Study in the right order", "Find the gap before the exam", "Test recall instead of rereading"],
@@ -280,7 +272,7 @@ Condense everything into a single-page cram sheet: only the facts, formulas or a
   {
     slug: "personal-finance",
     tier: "secondary",
-    index: "09",
+    index: "10",
     keyword: "",
     name: "Personal Finance Pack",
     navLabel: "Personal Finance",
@@ -289,8 +281,7 @@ Condense everything into a single-page cram sheet: only the facts, formulas or a
     outcome: "A categorised view of spending and a simple budget template.",
     headline: "Organise personal money information clearly.",
     support: [
-      "Prompts for categorising spending, building a budget template, and mapping your current position.",
-      "Carried over from the earlier version of this site."
+      "Prompts for categorising spending, building a budget template, and mapping your current position."
     ],
     inside: ["Categorise a month of spending", "Build a simple budget template", "Map the current picture in one page"],
     benefits: ["See where money actually goes", "Set a target you can hit", "Know what you are not tracking"],
@@ -346,7 +337,7 @@ Design a simple challenge with one clear rule, a way to track it daily that take
   {
     slug: "fitness",
     tier: "secondary",
-    index: "10",
+    index: "11",
     keyword: "",
     name: "Fitness and Nutrition Pack",
     navLabel: "Fitness and Nutrition",
@@ -355,8 +346,7 @@ Design a simple challenge with one clear rule, a way to track it daily that take
     outcome: "A weekly training structure and a way to review consistency.",
     headline: "Organise a realistic training routine.",
     support: [
-      "Prompts for structuring training, generating meal ideas, and reviewing consistency honestly.",
-      "Carried over from the earlier version of this site."
+      "Prompts for structuring training, generating meal ideas, and reviewing consistency honestly."
     ],
     inside: ["Structure a weekly split", "Generate meals around your targets", "Review four weeks of consistency"],
     benefits: ["Train with a structure you will keep", "Plan food without counting everything", "Find the one thing to change"],

@@ -180,14 +180,19 @@ function footer(site) {
 /* -------------------------------------------------------------------------- */
 
 export function homePage({ site, corePacks }) {
+  const packPrice = site.commerce.currencySymbol + site.commerce.pack.price;
   const rows = corePacks.map((p) => `
-    <a class="packrow" href="${packUrl(p.slug)}" data-pack-link="${esc(p.slug)}">
-      <span class="packrow__n">${esc(p.index)}</span>
-      <span class="packrow__body">
-        <span class="packrow__name">${esc(p.navLabel)}</span>
-        <span class="packrow__outcome">${esc(p.rowOutcome)}</span>
+    <a class="shopcard" href="${packUrl(p.slug)}" data-pack-link="${esc(p.slug)}">
+      <span class="shopcard__n">${esc(p.index)}</span>
+      <span class="shopcard__name">${esc(p.navLabel)}</span>
+      <span class="shopcard__outcome">${esc(p.rowOutcome)}</span>
+      <span class="shopcard__footer">
+        <span class="shopcard__price">
+          <span class="shopcard__price-free">${p.prompts.length} free</span>
+          <span class="shopcard__price-premium">200 for ${esc(packPrice)}</span>
+        </span>
+        <span class="shopcard__cta" aria-hidden="true">Get pack &rarr;</span>
       </span>
-      <span class="packrow__arrow" aria-hidden="true">&rarr;</span>
     </a>`).join("");
 
   /* The homepage sends most of its traffic to one pack, so the primary CTA goes
@@ -202,16 +207,21 @@ export function homePage({ site, corePacks }) {
   /* Premium teaser — comes after the free CTA below, never before, so it
      can't compete with the primary conversion this page exists to drive. */
   const c = site.commerce;
-  const premiumTotal = corePacks.length * 200;
+  /* Count only packs whose premium tier actually exists — a pack that is not
+     `ready` ships no prompts, so including it here oversells the bundle. */
+  const premiumPacks = corePacks.filter((p) => p.premium && p.premium.ready);
+  const premiumTotal = premiumPacks.reduce(
+    (n, p) => n + (p.premium.promptCount || 0), 0);
   const bundleLive = /^https:\/\//.test(c.bundle.checkoutUrl || "");
 
   const main = `
 <section class="hero wrap">
   <p class="eyebrow eyebrow--accent hero__eyebrow">Free AI prompt packs</p>
-  <h1>Prompts for the part where you do the work.</h1>
+  <h1>25 free prompts per pack. 200 more if you want them.</h1>
   <div class="hero__support">
     <p class="lead">Freelancing, cold outreach, content, local business, digital products.
-    One pack per problem, written in the order you need to work through it.</p>
+    Every pack starts free — 25 prompts, no card needed. Want the full system? Each pack
+    goes to 200 prompts for ${esc(c.currencySymbol + c.pack.price)}, one payment.</p>
   </div>
   <div class="hero__cta">
     <a class="btn" href="${packUrl(lead.slug)}" data-pack-link="${esc(lead.slug)}">Get the free ${esc(lead.navLabel)} pack</a>
@@ -228,7 +238,7 @@ export function homePage({ site, corePacks }) {
   <p class="statement mb-m">These are not random one-line prompts. <em>Every pack is built
   around a single outcome, in the order you need to do the work.</em></p>
   <h2 class="h2 mb-m" id="packs-h">${corePacks.length} packs. One problem each.</h2>
-  <nav class="packlist" aria-label="Free prompt packs">${rows}</nav>
+  <nav class="shop-grid" aria-label="Free prompt packs">${rows}</nav>
 </section>
 
 <hr class="rule">
@@ -265,11 +275,11 @@ export function homePage({ site, corePacks }) {
   <div class="bundle-cta">
     <span class="bundle-cta__flag">Premium</span>
     <h2 class="h2 mb-s">Every pack goes to 200 prompts.</h2>
-    <p>${esc(c.currencySymbol + c.pack.price)} for one pack's full system, or all ${corePacks.length}
+    <p>${esc(c.currencySymbol + c.pack.price)} for one pack's full system, or all ${premiumPacks.length}
     for ${esc(c.currencySymbol + c.bundle.price)} — ${premiumTotal.toLocaleString("en-US")} prompts,
     one payment, yours permanently.</p>
     ${bundleLive
-      ? `<p class="mt-m"><a class="btn" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all ${corePacks.length} — ${esc(c.currencySymbol + c.bundle.price)}</a></p>
+      ? `<p class="mt-m"><a class="btn" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all ${premiumPacks.length} — ${esc(c.currencySymbol + c.bundle.price)}</a></p>
          <p class="small mt-s">Or <a href="/pricing" style="color:var(--fg)">see every price</a>.</p>`
       : `<p class="mt-m"><a class="tlink" href="/pricing">See premium pricing <span class="tlink__arrow" aria-hidden="true">&rarr;</span></a></p>`}
   </div>
@@ -473,6 +483,16 @@ export function accessPage({ site, pack }) {
     : "";
 
   const main = `
+<noscript>
+  <section class="hero wrap">
+    <p class="eyebrow eyebrow--accent hero__eyebrow">JavaScript required</p>
+    <h1>${esc(pack.name)}</h1>
+    <p class="lead mt-s">This page unlocks your pack in the browser, so it needs
+    JavaScript switched on. Turn it on and reload, or head back to the pack page.</p>
+    <p class="mt-l"><a class="btn" href="${packUrl(pack.slug)}">Back to the ${esc(pack.navLabel)} pack</a></p>
+  </section>
+</noscript>
+
 <section class="hero wrap">
   <!-- Shown only when this browser has no record of signing up. -->
   <div data-access-gate hidden>
@@ -548,6 +568,16 @@ export function premiumPage({ site, pack }) {
   const count = prem.promptCount || 200;
 
   const main = `
+<noscript>
+  <section class="hero wrap">
+    <p class="eyebrow eyebrow--accent hero__eyebrow">JavaScript required</p>
+    <h1>${esc(prem.name)}</h1>
+    <p class="lead mt-s">This page verifies your purchase in the browser, so it
+    needs JavaScript switched on. Turn it on and reload, or head back to the pack page.</p>
+    <p class="mt-l"><a class="btn" href="${packUrl(pack.slug)}">Back to the ${esc(pack.navLabel)} pack</a></p>
+  </section>
+</noscript>
+
 <section class="hero wrap">
   <!-- Shown only when this browser has no verified purchase for this pack
        (or the all-access bundle) and the URL carries no Stripe session to check. -->
@@ -799,7 +829,9 @@ export function pricingPage({ site, corePacks }) {
   /* Real counts, not hand-typed copy — a hardcoded headline drifts the moment
      a pack is added or a pack's prompt count changes. */
   const freeTotal = corePacks.reduce((n, p) => n + p.prompts.length, 0);
-  const premiumTotal = corePacks.length * 200;
+  /* Only `ready` packs have premium prompts to deliver — see readyPacks above. */
+  const premiumTotal = readyPacks.reduce(
+    (n, p) => n + (p.premium.promptCount || 0), 0);
 
   const packCards = corePacks.map((p, i) => {
     const prem = p.premium || {};
@@ -866,7 +898,7 @@ export function pricingPage({ site, corePacks }) {
       <span class="tier__flag">Best value</span>
       <span class="tier__name">All-access bundle</span>
       <p class="tier__price">${esc(sym + c.bundle.price)}</p>
-      <p class="tier__note">All ${corePacks.length} packs, one payment</p>
+      <p class="tier__note">All ${readyPacks.length} packs, one payment</p>
     </div>
   </div>
 </section>
@@ -884,10 +916,10 @@ export function pricingPage({ site, corePacks }) {
 <section class="section wrap-wide">
   <div class="bundle-cta">
     <span class="bundle-cta__flag">All-access bundle</span>
-    <h2 class="h2 mb-s">All ${corePacks.length} packs. ${esc(sym + c.bundle.price)}. One payment.</h2>
+    <h2 class="h2 mb-s">All ${readyPacks.length} packs. ${esc(sym + c.bundle.price)}. One payment.</h2>
     <p>${premiumTotal.toLocaleString("en-US")} prompts across every topic. Yours permanently, no subscription.</p>
     ${bundleLive
-      ? `<p class="mt-m"><a class="btn" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all ${corePacks.length} — ${esc(sym + c.bundle.price)}</a></p>
+      ? `<p class="mt-m"><a class="btn" href="${esc(c.bundle.checkoutUrl)}" data-checkout>Get all ${readyPacks.length} — ${esc(sym + c.bundle.price)}</a></p>
          <p class="small mt-s">Secure checkout via Stripe — opens in a new step.</p>`
       : `<p class="tier__status mt-m" style="display:inline-block">Not available yet</p>`}
   </div>

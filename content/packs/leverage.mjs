@@ -14,7 +14,7 @@
 export default {
   slug: "leverage",
   tier: "core",
-  index: "11",
+  index: "07",
   keyword: "LEVERAGE",
   name: "Leverage Pack",
   navLabel: "Leverage",

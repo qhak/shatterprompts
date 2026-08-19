@@ -19,11 +19,12 @@ node serve.mjs     # preview at http://localhost:4321
 
 Node 18+. There is nothing to `npm install`.
 
-Deploy the `dist/` folder. `netlify.toml` is set up for Netlify (build command
-`node build.mjs`, publish directory `dist`). It also works as-is on Cloudflare
-Pages, GitHub Pages or any static host — every clean URL is a real directory
-with its own `index.html`, so direct loads and hard refreshes work with no
-rewrite rules.
+Deploy the `dist/` folder. Production runs on Vercel — `vercel.json` holds the
+short-link redirects and security headers; the build command (`node build.mjs`)
+and output directory (`dist`) are set in the Vercel project settings. It also
+works as-is on Cloudflare Pages, GitHub Pages or any static host — every clean
+URL is a real directory with its own `index.html`, so direct loads and hard
+refreshes work with no rewrite rules.
 
 ---
 
