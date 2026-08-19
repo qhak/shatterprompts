@@ -40,9 +40,20 @@ export const SITE = {
     /* Optional analytics. Leave empty to use the built-in event queue only. */
     analytics: {
       /* Raw analytics snippet injected into every page. Takes priority over
-         plausibleDomain below if both are set. One tracker only — running two
-         double-counts every pageview. */
+         plausibleDomain below if both are set.
+
+         Two trackers on purpose. They write to separate backends and separate
+         dashboards, so they do not inflate each other's numbers — Plausible is
+         the paid subscription, Lucid is the self-hosted one that also covers
+         Callout-AI. Do not remove the Plausible tags: the subscription is
+         billed monthly and the script is the only thing feeding it. */
       plausibleSnippet: `
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-m52CbXGKAB6Y3EZ6wEui4.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
 <!-- Lucid Analytics (self-hosted, cookieless) -->
 <script defer data-domain="shatterprompts.com" src="https://lucid-analytics.nicholasdrew62.workers.dev/tracker.js"></script>
 `,
